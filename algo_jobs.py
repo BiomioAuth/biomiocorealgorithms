@@ -59,7 +59,9 @@ def verification_job(**kwargs):
             #      'algoID'     Unique algorithm identificator
             #      'details'    Error details dictionary
             #
-            # Algorithm can have two types of errors:
+            # Algorithm can have three types of errors:
+            #       "Algorithm settings are empty"
+            #        in this case fields 'userID', 'algoID', 'details' are empty
             #       "Invalid algorithm settings"
             #        in this case 'details' dictionary has following structure:
             #               key         value
