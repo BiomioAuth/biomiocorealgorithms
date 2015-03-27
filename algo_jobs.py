@@ -27,6 +27,7 @@ def verification_job(**kwargs):
             #      key          value
             #      'status'     "result"
             #      'result'     bool value: True is verification successfully, otherwise False
+            #      'userID'     Unique user identificator
             #
             # Need save to redis
             pass
