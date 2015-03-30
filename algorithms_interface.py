@@ -1,7 +1,7 @@
 __author__ = 'vitalius.parubochyi'
 
-from algo_module.imgobj import loadImageObject
-from algo_module.recognition import (getClustersMatchingDetectorWithoutTemplate,
+from algorithms.imgobj import loadImageObject
+from algorithms.recognition import (getClustersMatchingDetectorWithoutTemplate,
                                      getClustersMatchingDetectorWithL0Template,
                                      getClustersMatchingDetectorWithL1Template,
                                      getIntersectMatchingDetector)
