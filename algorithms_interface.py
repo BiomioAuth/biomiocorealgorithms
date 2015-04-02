@@ -9,6 +9,7 @@ import json
 import os
 
 SETTINGS_DIR = "D:/Projects/Biomio/Test1/source/"
+# SETTINGS_DIR = "/home/alexchmykhalo/ios_screens/algorithms/"
 
 
 class AlgorithmsInterface:
