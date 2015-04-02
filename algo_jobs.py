@@ -13,9 +13,22 @@ def verification_job(**kwargs):
 
     :param kwargs: dictionary:
             key         value
+            'action'    Action name
             'userID'    Unique user identificator
             'algoID'    Unique algorithm identificator (for verification algorithms algoID="001xxx", where
                         001 - key of verification algorithms type and xxx - number of algorithm realization)
+            'data'      Absolute path to image for verification
+            'database'  BLOB data of user, with userID, for verification algorithm algoID
+
+        if kwargs['action'] == 'education' use following settings:
+            'userID'    Unique user identificator
+            'algoID'    Unique algorithm identificator
+            'data'      List of paths to images for education
+            'database'  BLOB data of user, with userID, for verification algorithm algoID
+
+        if kwargs['action'] == 'verification' use following settings:
+            'userID'    Unique user identificator
+            'algoID'    Unique algorithm identificator
             'data'      Absolute path to image for verification
             'database'  BLOB data of user, with userID, for verification algorithm algoID
     """

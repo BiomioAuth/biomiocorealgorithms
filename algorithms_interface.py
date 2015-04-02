@@ -49,7 +49,6 @@ class AlgorithmsInterface:
             record['type'] = "Algorithm settings are empty"
             return record
         algorithm = AlgorithmsInterface.getAlgorithm(kwargs['algoID'])
-        print algorithm
         if not algorithm:
             record['status'] = "error"
             record['type'] = "Invalid algorithm settings"
@@ -66,11 +65,6 @@ class AlgorithmsInterface:
             details['message'] = "The data source is empty."
             record['details'] = details
             return record
-        if not kwargs.get('database', None):
-            record['status'] = "data_request"
-            record['algoID'] = kwargs['algoID']
-            record['userID'] = kwargs['userID']
-            return record
         if not algorithm.importSettings(AlgorithmsInterface.loadSettings(kwargs['algoID'])):
             record['status'] = "error"
             record['type'] = "Invalid algorithm settings"
@@ -78,21 +72,63 @@ class AlgorithmsInterface:
             details['message'] = "Cannot loading settings."
             record['details'] = details
             return record
-        algorithm.importSources(kwargs['database'])
-        imgobj = loadImageObject(kwargs['data'])
-        if not imgobj:
+        if not kwargs.get('action', None):
             record['status'] = "error"
             record['type'] = "Invalid algorithm settings"
             details = dict()
-            details['param'] = 'data'
-            details['message'] = "Such data %s doesn't exists." % kwargs['data']
+            details['param'] = 'action'
+            details['message'] = "The action parameter is empty."
             record['details'] = details
             return record
-        result = algorithm.verify(imgobj)
-        record['status'] = "result"
-        record['result'] = result
-        record['userID'] = kwargs['userID']
-        return record
+        if kwargs['action'] == 'education':
+            if kwargs.get('database', None):
+                algorithm.importSources(kwargs['database'])
+            for image_path in kwargs['data']:
+                imgobj = loadImageObject(image_path)
+                if not imgobj:
+                    record['status'] = "error"
+                    record['type'] = "Invalid algorithm settings"
+                    details = dict()
+                    details['param'] = 'data'
+                    details['message'] = "Such data %s doesn't exists." % kwargs['data']
+                    record['details'] = details
+                    return record
+                algorithm.addSource(imgobj)
+            sources = algorithm.exportSources()
+            record['status'] = "update"
+            record['algoID'] = kwargs['algoID']
+            record['userID'] = kwargs['userID']
+            record['database'] = sources
+            return record
+        elif kwargs['action'] == 'verification':
+            if not kwargs.get('database', None):
+                record['status'] = "data_request"
+                record['algoID'] = kwargs['algoID']
+                record['userID'] = kwargs['userID']
+                return record
+            algorithm.importSources(kwargs['database'])
+            imgobj = loadImageObject(kwargs['data'])
+            if not imgobj:
+                record['status'] = "error"
+                record['type'] = "Invalid algorithm settings"
+                details = dict()
+                details['param'] = 'data'
+                details['message'] = "Such data %s doesn't exists." % kwargs['data']
+                record['details'] = details
+                return record
+            result = algorithm.verify(imgobj)
+            record['status'] = "result"
+            record['result'] = result > algorithm.kodsettings.probability
+            record['userID'] = kwargs['userID']
+            return record
+        else:
+            record['status'] = "error"
+            record['type'] = "Invalid algorithm settings"
+            details = dict()
+            details['param'] = 'action'
+            details['message'] = "Such action %s doesn't exists." % kwargs['action']
+            record['details'] = details
+            return record
 
     @staticmethod
     def loadSettings(algoID):

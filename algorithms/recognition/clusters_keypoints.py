@@ -7,7 +7,7 @@ from algorithms.cvtools.system import saveNumpyImage
 from algorithms.features.classifiers import CascadeROIDetector
 from keypoints import (KeypointsObjectDetector,
                        drawClusters, drawKeypoints, drawLine,
-                       listToNumpy_ndarray,
+                       listToNumpy_ndarray, numpy_ndarrayToList,
                        BRISKDetectorType, ORBDetectorType,
                        verifying)
 import logger
