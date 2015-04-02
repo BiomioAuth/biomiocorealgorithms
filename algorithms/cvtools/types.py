@@ -40,10 +40,10 @@ def numpy_ndarrayToList(source):
     :param source: numpy.ndarray object
     :return: list object
     """
-    return source.toList()
+    return source.tolist()
 
 
-def listToNumpy_ndarray(source):
+def listToNumpy_ndarray(source, dtype=None):
     """
     Open CV Tools/Types Module
     Convert list object to numpy.ndarray object.
@@ -51,7 +51,7 @@ def listToNumpy_ndarray(source):
     :param source: list object
     :return: numpy.ndarray object
     """
-    return numpy.array(source)
+    return numpy.array(source, dtype=dtype)
 
 
 def classKeyPointToArray(keypoint, with_points=False):

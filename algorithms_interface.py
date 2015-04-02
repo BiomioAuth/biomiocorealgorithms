@@ -2,9 +2,13 @@ __author__ = 'vitalius.parubochyi'
 
 from algorithms.imgobj import loadImageObject
 from algorithms.recognition import (getClustersMatchingDetectorWithoutTemplate,
-                                     getClustersMatchingDetectorWithL0Template,
-                                     getClustersMatchingDetectorWithL1Template,
-                                     getIntersectMatchingDetector)
+                                    getClustersMatchingDetectorWithL0Template,
+                                    getClustersMatchingDetectorWithL1Template,
+                                    getIntersectMatchingDetector)
+import json
+import os
+
+SETTINGS_DIR = "D:/Projects/Biomio/Test1/source/"
 
 
 class AlgorithmsInterface:
@@ -45,6 +49,7 @@ class AlgorithmsInterface:
             record['type'] = "Algorithm settings are empty"
             return record
         algorithm = AlgorithmsInterface.getAlgorithm(kwargs['algoID'])
+        print algorithm
         if not algorithm:
             record['status'] = "error"
             record['type'] = "Invalid algorithm settings"
@@ -53,12 +58,26 @@ class AlgorithmsInterface:
             details['message'] = "Such algorithm ID %s doesn't exist." % kwargs['algoID']
             record['details'] = details
             return record
+        if not kwargs.get('data', None):
+            record['status'] = "error"
+            record['type'] = "Invalid algorithm settings"
+            details = dict()
+            details['param'] = 'data'
+            details['message'] = "The data source is empty."
+            record['details'] = details
+            return record
         if not kwargs.get('database', None):
             record['status'] = "data_request"
             record['algoID'] = kwargs['algoID']
             record['userID'] = kwargs['userID']
             return record
-        algorithm.importSettings(AlgorithmsInterface.loadSettings(kwargs['algoID']))
+        if not algorithm.importSettings(AlgorithmsInterface.loadSettings(kwargs['algoID'])):
+            record['status'] = "error"
+            record['type'] = "Invalid algorithm settings"
+            details = dict()
+            details['message'] = "Cannot loading settings."
+            record['details'] = details
+            return record
         algorithm.importSources(kwargs['database'])
         imgobj = loadImageObject(kwargs['data'])
         if not imgobj:
@@ -77,5 +96,10 @@ class AlgorithmsInterface:
 
     @staticmethod
     def loadSettings(algoID):
-        settings = dict()
-        return settings
+        settings_path = os.path.join(SETTINGS_DIR, "info" + algoID + ".json")
+        if not os.path.exists(settings_path):
+            return dict()
+        with open(settings_path, "r") as data_file:
+            source = json.load(data_file)
+            return source
+        return dict()
