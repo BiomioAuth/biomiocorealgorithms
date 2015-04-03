@@ -8,7 +8,7 @@ import os
 PICTURE_PATH_BAD_1 = "D:/Projects/Biomio/Test1/yaleB11_P00A+000E+00.png"
 DATA_PATH_BAD_2 = "D:/Projects/Biomio/Test1/source4/data.json"
 PICTURE_PATH_GOOD_3 = "D:/Projects/Biomio/Test1/db/yaleB11/yaleB11_P00A+000E+00.pgm"
-FOLDER_DB_PATH_GOOD_3 = "D:/Projects/Biomio/Test1/source/data"
+FOLDER_DB_PATH_GOOD_3 = "D:/Projects/Biomio/Test1/source"
 
 # PICTURE_PATH_BAD_1 = "/home/alexchmykhalo/ios_screens/algorithms/yaleB11_P00A+000E+00.png"
 # DATA_PATH_BAD_2 = "/home/alexchmykhalo/ios_screens/algorithms/data.json"
@@ -17,11 +17,11 @@ FOLDER_DB_PATH_GOOD_3 = "D:/Projects/Biomio/Test1/source/data"
 
 
 def main():
-    error_algoID()
-    error_database()
-    error_data()
-    # success()
-    education()
+    # error_algoID()
+    # error_database()
+    # error_data()
+    success()
+    # education()
 
 
 def error_algoID():
@@ -57,7 +57,6 @@ def success():
     settings['userID'] = "0000000000000"
     settings['data'] = PICTURE_PATH_GOOD_3
     settings['database'] = loadSources(FOLDER_DB_PATH_GOOD_3 + "/data" + settings['algoID'] + ".json")
-    print settings['database'], FOLDER_DB_PATH_GOOD_3 + "/data" + settings['algoID'] + ".json"
     print AlgorithmsInterface.verification(**settings)
 
 
@@ -70,6 +69,7 @@ def education():
                         "D:/Projects/Biomio/Test1/db/yaleB11/yaleB11_P00A+000E+20.pgm",
                         "D:/Projects/Biomio/Test1/db/yaleB11/yaleB11_P00A+000E+45.pgm"]
     print AlgorithmsInterface.verification(**settings)
+
 
 def loadSources(path):
     if len(path):
