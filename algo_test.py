@@ -20,11 +20,13 @@ def main():
     error_algoID()
     error_database()
     error_data()
-    success()
+    # success()
+    education()
 
 
 def error_algoID():
     settings = dict()
+    settings['action'] = 'verification'
     settings['algoID'] = "001000"
     settings['userID'] = "0000000000000"
     print AlgorithmsInterface.verification(**settings)
@@ -32,6 +34,7 @@ def error_algoID():
 
 def error_database():
     settings = dict()
+    settings['action'] = 'verification'
     settings['algoID'] = "001001"
     settings['userID'] = "0000000000000"
     settings['data'] = PICTURE_PATH_BAD_1
@@ -40,6 +43,7 @@ def error_database():
 
 def error_data():
     settings = dict()
+    settings['action'] = 'verification'
     settings['algoID'] = "001002"
     settings['userID'] = "0000000000000"
     settings['database'] = loadSources(DATA_PATH_BAD_2)
@@ -48,6 +52,7 @@ def error_data():
 
 def success():
     settings = dict()
+    settings['action'] = 'verification'
     settings['algoID'] = "001002"
     settings['userID'] = "0000000000000"
     settings['data'] = PICTURE_PATH_GOOD_3
@@ -55,6 +60,16 @@ def success():
     print settings['database'], FOLDER_DB_PATH_GOOD_3 + "/data" + settings['algoID'] + ".json"
     print AlgorithmsInterface.verification(**settings)
 
+
+def education():
+    settings = dict()
+    settings['action'] = 'education'
+    settings['algoID'] = "001002"
+    settings['userID'] = "0000000000000"
+    settings['data'] = ["D:/Projects/Biomio/Test1/db/yaleB11/yaleB11_P00A+000E+00.pgm",
+                        "D:/Projects/Biomio/Test1/db/yaleB11/yaleB11_P00A+000E+20.pgm",
+                        "D:/Projects/Biomio/Test1/db/yaleB11/yaleB11_P00A+000E+45.pgm"]
+    print AlgorithmsInterface.verification(**settings)
 
 def loadSources(path):
     if len(path):
