@@ -19,6 +19,7 @@ def verification_job(**kwargs):
             'data'      Absolute path to image for verification
             'database'  BLOB data of user, with userID, for verification algorithm algoID
     """
+    result = False
     logger.info('Running verification for user - %s, with given parameters - %s' % (kwargs['userID'], kwargs))
     try:
         record = AlgorithmsInterface.verification(**kwargs)
@@ -30,6 +31,7 @@ def verification_job(**kwargs):
             #      'userID'     Unique user identificator
             #
             # Need save to redis
+            result = record.get('result', False)
             pass
         elif record['status'] == "data_request":
             # record = dictionary:
@@ -75,3 +77,5 @@ def verification_job(**kwargs):
         logger.info('Verification was run for user - %s, with given parameters - %s' % (kwargs['userID'], kwargs))
     except Exception as e:
         logger.exception(msg=str(e))
+
+    return result
