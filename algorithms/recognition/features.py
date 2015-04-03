@@ -1,7 +1,7 @@
-from algorithms.features.detectors import (BRISKDetector, ORBDetector)
-from algorithms.features.matchers import FlannMatcher
-from algorithms.cvtools.effects import grayscaleAndEqualize
-from logger import logger
+from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector)
+from biomio.algorithms.algorithms.features.matchers import FlannMatcher
+from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
+from biomio.algorithms.logger import logger
 import numpy
 import sys
 import cv2

@@ -21,7 +21,7 @@ def verification_job(**kwargs):
     """
     logger.info('Running verification for user - %s, with given parameters - %s' % (kwargs['userID'], kwargs))
     try:
-        record = AlgorithmsInterface.verification(kwargs)
+        record = AlgorithmsInterface.verification(**kwargs)
         if record['status'] == "result":
             # record = dictionary:
             #      key          value
@@ -52,6 +52,7 @@ def verification_job(**kwargs):
             # algoID if it doesn't exists
             pass
         elif record['status'] == "error":
+            print record['status'], record['type'], record['details']
             # record = dictionary:
             #      key          value
             #      'status'     "error"

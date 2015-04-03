@@ -1,16 +1,16 @@
 __author__ = 'vitalius.parubochyi'
 
-from algorithms.features.matchers import FlannMatcher
-from algorithms.clustering.forel import FOREL
-from algorithms.clustering.kmeans import KMeans
-from algorithms.cvtools.system import saveNumpyImage
-from algorithms.features.classifiers import CascadeROIDetector
+from biomio.algorithms.algorithms.features.matchers import FlannMatcher
+from biomio.algorithms.algorithms.clustering.forel import FOREL
+from biomio.algorithms.algorithms.clustering.kmeans import KMeans
+from biomio.algorithms.algorithms.cvtools.system import saveNumpyImage
+from biomio.algorithms.algorithms.features.classifiers import CascadeROIDetector
 from keypoints import (KeypointsObjectDetector,
                        drawClusters, drawKeypoints, drawLine,
                        listToNumpy_ndarray,
                        BRISKDetectorType, ORBDetectorType,
                        verifying)
-import logger
+import biomio.algorithms.logger
 import numpy
 import sys
 

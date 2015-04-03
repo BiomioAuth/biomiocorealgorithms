@@ -1,11 +1,11 @@
 __author__ = 'vitalius.parubochyi'
 
-from algorithms.features.matchers import FlannMatcher
+from biomio.algorithms.algorithms.features.matchers import FlannMatcher
 from keypoints import (KeypointsObjectDetector,
                        meanDistance,
                        listToNumpy_ndarray,
                        verifying)
-import logger
+import biomio.algorithms.logger
 import sys
 
 

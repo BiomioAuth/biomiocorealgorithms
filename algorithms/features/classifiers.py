@@ -1,9 +1,9 @@
-from algorithms.cvtools.effects import grayscaleAndEqualize
-from algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
-from algorithms.features.rectmerge import mergeRectangles
-from algorithms.features.rectsect import intersectRectangles
-from algorithms.features.rectfilter import filterRectangles
-from logger import logger
+from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
+from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
+from biomio.algorithms.algorithms.features.rectmerge import mergeRectangles
+from biomio.algorithms.algorithms.features.rectsect import intersectRectangles
+from biomio.algorithms.algorithms.features.rectfilter import filterRectangles
+from biomio.algorithms.logger import logger
 import cv2
 import os
 
