@@ -15,5 +15,4 @@ def run_algo_job(job_to_run, **kwargs):
     :param kwargs:
     """
     logger.info('Running job - %s' % str(job_to_run))
-    logger.info(kwargs)
     q.enqueue(job_to_run, **kwargs)
