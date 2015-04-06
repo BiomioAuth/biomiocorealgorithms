@@ -11,7 +11,7 @@ import json
 logger = logging.getLogger(__name__)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-ALGO_DB_PATH = os.path.join(APP_ROOT, 'data')
+ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
 
 
 def verification_job(callback_code, data, fingerprint, education):
@@ -42,20 +42,19 @@ def verification_job(callback_code, data, fingerprint, education):
     settings = dict()
     settings['algoID'] = "001002"
     settings['userID'] = "0000000000000"
-    settings['database'] = load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))
     if education:
+        database_path = os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint)
         settings['action'] = 'education'
         logger.info('Running education for user - %s, with given parameters - %s' % (settings['userID'], settings))
-    else:
-        settings['action'] = 'verification'
-        logger.info('Running verification for user - %s, with given parameters - %s' % (settings['userID'], settings))
-
-    if education:
-        result = run_education(settings, data)
+        result = run_education(settings, data, database_path)
         logger.info('Education was run for user - %s, with given parameters - %s' % (settings['userID'], settings))
     else:
+        settings['database'] = load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))
+        settings['action'] = 'verification'
+        logger.info('Running verification for user - %s, with given parameters - %s' % (settings['userID'], settings))
         result = run_verification(settings, data)
         logger.info('Verification was run for user - %s, with given parameters - %s' % (settings['userID'], settings))
+
     RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
 
 
@@ -129,7 +128,7 @@ def run_verification(settings, data):
     return result
 
 
-def run_education(settings, data):
+def run_education(settings, data, database_path):
     result = False
     temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
     try:
@@ -156,7 +155,7 @@ def run_education(settings, data):
             database = record.get('database', None)
             if database is not None:
                 result = True
-                with open(data['database'], 'wb') as f:
+                with open(database_path, 'wb') as f:
                     f.write(database)
         elif record['status'] == "error":
             print record['status'], record['type'], record['details']

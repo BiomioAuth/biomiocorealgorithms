@@ -8,8 +8,8 @@ from algorithms.recognition import (getClustersMatchingDetectorWithoutTemplate,
 import json
 import os
 
-SETTINGS_DIR = "D:/Projects/Biomio/Test1/source/"
-# SETTINGS_DIR = "/home/alexchmykhalo/ios_screens/algorithms/"
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+SETTINGS_DIR = os.path.join(APP_ROOT, 'algorithms', 'settings')
 
 
 class AlgorithmsInterface:
