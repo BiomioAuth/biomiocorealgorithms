@@ -7,6 +7,8 @@ import logging
 import os
 import binascii
 import json
+from json import dumps
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +53,9 @@ def verification_job(callback_code, data, fingerprint, education):
     else:
         settings['database'] = load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))
         settings['action'] = 'verification'
-        logger.info('Running verification for user - %s, with given parameters - %s' % (settings['userID'], settings))
+        # logger.info('Running verification for user - %s, with given parameters - %s' % (settings['userID'], settings))
         result = run_verification(settings, data)
-        logger.info('Verification was run for user - %s, with given parameters - %s' % (settings['userID'], settings))
+        # logger.info('Verification was run for user - %s, with given parameters - %s' % (settings['userID'], settings))
 
     RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
 
@@ -153,7 +155,6 @@ def run_education(settings, data, database_path):
             # Need update record in algorithms database or create record for user userID and algorithm
             # algoID if it doesn't exists
             database = record.get('database', None)
-            from json import dumps
             if database is not None:
                 result = True
                 with open(database_path, 'wb') as f:
