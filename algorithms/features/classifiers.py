@@ -1,11 +1,16 @@
+from __future__ import absolute_import
+import biomio.algorithms.logger as logger
 from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
 from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
 from biomio.algorithms.algorithms.features.rectmerge import mergeRectangles
 from biomio.algorithms.algorithms.features.rectsect import intersectRectangles
 from biomio.algorithms.algorithms.features.rectfilter import filterRectangles
-from biomio.algorithms.logger import logger
 import cv2
 import os
+
+
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
 
 
 RectsUnion = 0
@@ -62,12 +67,14 @@ class CascadeROIDetector:
         self._cascades_list = []
 
     def add_cascade(self, path):
-        if os.path.exists(path):
-            self.__cascades.append(cv2.CascadeClassifier(path))
-            self._cascades_list.append(path)
+        abs_path = os.path.join(APP_ROOT, "../../", path)
+        logger.logger.debug("####### %s" % abs_path)
+        if os.path.exists(abs_path):
+            self.__cascades.append(cv2.CascadeClassifier(abs_path))
+            self._cascades_list.append(abs_path)
             # logger.debug("Cascade is loaded.")
         else:
-            logger.debug("Such file does not exist.")
+            logger.logger.debug("Such file does not exist.")
 
     def cascades(self):
         cascades = []
@@ -90,7 +97,7 @@ class CascadeROIDetector:
         rects = list()
         gray = grayscaleAndEqualize(img)
         if len(self.__cascades) == 0:
-            logger.debug("Detection impossible. Any cascade not found.")
+            logger.logger.debug("Detection impossible. Any cascade not found.")
             return rects
         settings = CascadeClassifierSettings()
         for cascade in self.__cascades:
@@ -115,7 +122,7 @@ class CascadeROIDetector:
     def detectAndJoin(self, image, as_list=False, algorithm=RectsUnion):
         rects = self.detect(image, as_list)
         if len(rects) == 0:
-            logger.debug("ROI is not found for image")
+            logger.logger.debug("ROI is not found for image")
         return self.joinRectangles(rects, algorithm)
 
     @staticmethod

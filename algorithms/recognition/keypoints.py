@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+import biomio.algorithms.logger as logger
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector,
                                            BRISKDetectorSettings, ORBDetectorSettings)
 from biomio.algorithms.algorithms.features.classifiers import (getROIImage,
@@ -8,7 +10,6 @@ from biomio.algorithms.algorithms.cvtools.visualization import (showClusters, sh
                                               drawLine, drawClusters, drawKeypoints)
 from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
 from biomio.algorithms.algorithms.recognition.tools import minDistance, meanDistance, medianDistance
-import biomio.algorithms.logger
 
 
 LSHashType = 0

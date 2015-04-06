@@ -153,10 +153,11 @@ def run_education(settings, data, database_path):
             # Need update record in algorithms database or create record for user userID and algorithm
             # algoID if it doesn't exists
             database = record.get('database', None)
+            from json import dumps
             if database is not None:
                 result = True
                 with open(database_path, 'wb') as f:
-                    f.write(database)
+                    f.write(dumps(database))
         elif record['status'] == "error":
             print record['status'], record['type'], record['details']
             # record = dictionary:
