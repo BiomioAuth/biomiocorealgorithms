@@ -288,6 +288,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             cluster = self._etalon[index]
             cluster_dict = dict()
             i_desc = 0
+            if cluster is None:
+                cluster = []
             for descriptor in cluster:
                 cluster_dict[i_desc] = numpy_ndarrayToList(descriptor)
                 i_desc += 1
