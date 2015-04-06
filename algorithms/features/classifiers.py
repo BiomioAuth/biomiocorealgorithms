@@ -48,9 +48,10 @@ class CascadeClassifierSettings:
         self.minSize = (settings['Minimum Size'][0], settings['Minimum Size'][1])
 
     def dump(self):
-        logger.debug('Scale Factor: %f' % self.scaleFactor)
-        logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
-        logger.debug('Minimum Size: %s' % str(self.minSize))
+        logger.logger.debug('Cascade Classifier Settings')
+        logger.logger.debug('Scale Factor: %f' % self.scaleFactor)
+        logger.logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
+        logger.logger.debug('Minimum Size: %s' % str(self.minSize))
 
 
 class CascadeROIDetector:
