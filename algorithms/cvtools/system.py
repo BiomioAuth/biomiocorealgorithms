@@ -30,8 +30,12 @@ def loadNumpyImage(filename):
     :param filename: Name of the image file (string)
     :return: numpy.ndarray image object
     """
+    # img = cv2.imread(filename, cv2.CV_LOAD_IMAGE_COLOR)
+    # rows = img.shape[0]
+    # cols = img.shape[1]
+    # M = cv2.getRotationMatrix2D((cols/2, rows/2), 270, 1)
+    # return cv2.warpAffine(img, M, (max(rows, cols), max(rows, cols)))
     return cv2.imread(filename, cv2.CV_LOAD_IMAGE_COLOR)
-
 
 def saveNumpyImage(filename, image):
     """
