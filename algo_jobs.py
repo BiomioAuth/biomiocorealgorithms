@@ -129,7 +129,6 @@ def run_verification(settings, data):
             shutil.rmtree(temp_image_path)
     return result
 
-
 def run_education(settings, data, database_path):
     result = False
     temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
