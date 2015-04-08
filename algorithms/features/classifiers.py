@@ -120,9 +120,10 @@ class CascadeROIDetector:
             logger.logger.debug("ROI is not found for image")
         else:
             c_rect = self.joinRectangles(rects, algorithm)
-            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                rect = c_rect
-                img = image
+            if len(c_rect) > 0:
+                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                    rect = c_rect
+                    img = image
 
         # 90
         rows = image.shape[0]
@@ -134,9 +135,10 @@ class CascadeROIDetector:
             logger.logger.debug("ROI is not found for image")
         else:
             c_rect = self.joinRectangles(rects, algorithm)
-            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                rect = c_rect
-                img = img2
+            if len(c_rect) > 0:
+                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                    rect = c_rect
+                    img = img2
 
         # 180
         rows = img2.shape[0]
@@ -148,9 +150,10 @@ class CascadeROIDetector:
             logger.logger.debug("ROI is not found for image")
         else:
             c_rect = self.joinRectangles(rects, algorithm)
-            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                rect = c_rect
-                img = img3
+            if len(c_rect) > 0:
+                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                    rect = c_rect
+                    img = img3
 
         # 270
         rows = img3.shape[0]
@@ -162,9 +165,10 @@ class CascadeROIDetector:
             logger.logger.debug("ROI is not found for image")
         else:
             c_rect = self.joinRectangles(rects, algorithm)
-            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                rect = c_rect
-                img = img4
+            if len(c_rect) > 0:
+                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                    rect = c_rect
+                    img = img4
 
         return img, rect
 
