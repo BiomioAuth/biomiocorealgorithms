@@ -488,7 +488,6 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                                         # n = c[0]
                                         if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
                                             ms.append(m)
-                res.append(ms)
                 val = (len(res[index]) / (1.0 * len(self._etalon[index]))) * 100
                 sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                         + " Positive: " + str(len(res[index])) + " Probability: " + str(val))
@@ -499,7 +498,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                         + " Invalid.")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) + " Invalid.\n"
-        sys_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
+            res.append(ms)
+        logger.sys_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
         self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
         return prob / (1.0 * len(res))
 
