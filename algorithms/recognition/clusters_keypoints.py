@@ -497,10 +497,10 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 prob += val
             else:
                 res.append(ms)
-                logger.sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
+                sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                         + " Invalid.")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) + " Invalid.\n"
-        logger.sys_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
+        logger.info("Probability: " + str((prob / (1.0 * len(res)))))
         self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
         return prob / (1.0 * len(res))
 
