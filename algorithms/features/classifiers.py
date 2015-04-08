@@ -112,63 +112,45 @@ class CascadeROIDetector:
             return []
         return rects
 
-    def detectAndJoinWithRotation(self, image, as_list=False, algorithm=RectsUnion):
-        rect = (0, 0, 0, 0)
-        img = image
-        rects = self.detect(image, as_list)
-        if len(rects) == 0:
-            logger.logger.debug("ROI is not found for image")
-        else:
-            c_rect = self.joinRectangles(rects, algorithm)
-            if len(c_rect) > 0:
-                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                    rect = c_rect
-                    img = image
-
-        # 90
+    def _rotate(self, image):
         rows = image.shape[0]
         cols = image.shape[1]
         M = cv2.getRotationMatrix2D((cols/2.0, cols/2.0), 90, 1)
-        img2 = cv2.warpAffine(image, M, (rows, cols))
-        rects = self.detect(img2, as_list)
-        if len(rects) == 0:
-            logger.logger.debug("ROI is not found for image")
-        else:
-            c_rect = self.joinRectangles(rects, algorithm)
-            if len(c_rect) > 0:
-                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                    rect = c_rect
-                    img = img2
+        img = cv2.warpAffine(image, M, (rows, cols))
+        return img
+
+    def detectAndJoinWithRotation(self, image, as_list=False, algorithm=RectsUnion):
+        rect = (0, 0, 0, 0)
+        img = image
+        c_rect = self.detectAndJoin(image, as_list, algorithm)
+        if len(c_rect) > 0:
+            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                rect = c_rect
+                img = image
+
+        # 90
+        img2 = self._rotate(image)
+        c_rect = self.detectAndJoin(img2, as_list, algorithm)
+        if len(c_rect) > 0:
+            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                rect = c_rect
+                img = img2
 
         # 180
-        rows = img2.shape[0]
-        cols = img2.shape[1]
-        M = cv2.getRotationMatrix2D((cols/2.0, cols/2.0), 90, 1)
-        img3 = cv2.warpAffine(img2, M, (rows, cols))
-        rects = self.detect(img3, as_list)
-        if len(rects) == 0:
-            logger.logger.debug("ROI is not found for image")
-        else:
-            c_rect = self.joinRectangles(rects, algorithm)
-            if len(c_rect) > 0:
-                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                    rect = c_rect
-                    img = img3
+        img3 = self._rotate(img2)
+        c_rect = self.detectAndJoin(img3, as_list, algorithm)
+        if len(c_rect) > 0:
+            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                rect = c_rect
+                img = img3
 
         # 270
-        rows = img3.shape[0]
-        cols = img3.shape[1]
-        M = cv2.getRotationMatrix2D((cols/2.0, cols/2.0), 90, 1)
-        img4 = cv2.warpAffine(img3, M, (rows, cols))
-        rects = self.detect(img4, as_list)
-        if len(rects) == 0:
-            logger.logger.debug("ROI is not found for image")
-        else:
-            c_rect = self.joinRectangles(rects, algorithm)
-            if len(c_rect) > 0:
-                if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                    rect = c_rect
-                    img = img4
+        img4 = self._rotate(img3)
+        c_rect = self.detectAndJoin(img4, as_list, algorithm)
+        if len(c_rect) > 0:
+            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
+                rect = c_rect
+                img = img4
 
         return img, rect
 
