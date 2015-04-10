@@ -1,6 +1,6 @@
 import shutil
 import tempfile
-from biomio.constants import REDIS_PROBE_RESULT_KEY
+from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_PARTIAL_RESULTS_KEY
 from biomio.protocol.storage.redis_storage import RedisStorage
 from algorithms_interface import AlgorithmsInterface
 import logging
@@ -16,50 +16,6 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
 
 
-def verification_job(callback_code, data, fingerprint, education):
-    """
-    Creating verification job
-
-    :param kwargs: dictionary:
-            key         value
-            'action'    Action name
-            'userID'    Unique user identificator
-            'algoID'    Unique algorithm identificator (for verification algorithms algoID="001xxx", where
-                        001 - key of verification algorithms type and xxx - number of algorithm realization)
-            'data'      Absolute path to image for verification
-            'database'  BLOB data of user, with userID, for verification algorithm algoID
-
-        if kwargs['action'] == 'education' use following settings:
-            'userID'    Unique user identificator
-            'algoID'    Unique algorithm identificator
-            'data'      List of paths to images for education
-            'database'  BLOB data of user, with userID, for verification algorithm algoID
-
-        if kwargs['action'] == 'verification' use following settings:
-            'userID'    Unique user identificator
-            'algoID'    Unique algorithm identificator
-            'data'      Absolute path to image for verification
-            'database'  BLOB data of user, with userID, for verification algorithm algoID
-    """
-    settings = dict()
-    settings['algoID'] = "001002"
-    settings['userID'] = "0000000000000"
-    if education:
-        database_path = os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint)
-        settings['action'] = 'education'
-        logger.info('Running education for user - %s, with given parameters - %s' % (settings['userID'], settings))
-        result = run_education(settings, data, database_path)
-        logger.info('Education was run for user - %s, with given parameters - %s' % (settings['userID'], settings))
-    else:
-        settings['database'] = load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))
-        settings['action'] = 'verification'
-        # logger.info('Running verification for user - %s, with given parameters - %s' % (settings['userID'], settings))
-        result = run_verification(settings, data)
-        # logger.info('Verification was run for user - %s, with given parameters - %s' % (settings['userID'], settings))
-
-    RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
-
-
 def load_sources(path):
     if len(path):
         if not os.path.exists(path):
@@ -70,82 +26,115 @@ def load_sources(path):
     return dict()
 
 
-def run_verification(settings, data):
+def verification_job(image, fingerprint, settings, callback_code, result_code):
+    """
+        Runs verification for user with given image
+    :param image: to run verification for
+    :param fingerprint: app_id
+    :param settings: settings with values for algoId and userID
+    :param callback_code: code of the callback which should be executed after job is finished.
+    :param result_code: code of the result in case we are running job in parallel.
+    """
+    logger.info('Running verification for user - %s, with given parameters - %s' % (settings.get('userID'), settings))
     result = False
-    for sample in data:
-        if result:
-            break
-        try:
-            temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
-            fd, temp_image = tempfile.mkstemp(dir=temp_image_path)
-            os.close(fd)
-            photo_data = binascii.a2b_base64(str(sample))
-            with open(temp_image, 'wb') as f:
-                f.write(photo_data)
-            settings['data'] = temp_image
-            record = AlgorithmsInterface.verification(**settings)
-            if record['status'] == "result":
-                # record = dictionary:
-                #      key          value
-                #      'status'     "result"
-                #      'result'     bool value: True is verification successfully, otherwise False
-                #      'userID'     Unique user identificator
-                #
-                # Need save to redis
-                result = record.get('result', False)
-            elif record['status'] == "data_request":
-                # record = dictionary:
-                #      key          value
-                #      'status'     "data_request"
-                #      'userID'     Unique user identificator
-                #      'algoID'     Unique algorithm identificator
-                #
-                # Need save to redis as data request (for this we can use this dictionary)
-                pass
-            elif record['status'] == "error":
-                print record['status'], record['type'], record['details']
-                # record = dictionary:
-                #      key          value
-                #      'status'     "error"
-                #      'type'       Type of error
-                #      'userID'     Unique user identificator
-                #      'algoID'     Unique algorithm identificator
-                #      'details'    Error details dictionary
-                #
-                # Algorithm can have three types of errors:
-                #       "Algorithm settings are empty"
-                #        in this case fields 'userID', 'algoID', 'details' are empty
-                #       "Invalid algorithm settings"
-                #        in this case 'details' dictionary has following structure:
-                #               key         value
-                #               'params'    Parameters key ('data')
-                #               'message'   Error message (for example "File <path> doesn't exists")
-                #       "Internal algorithm error"
-                # Need save to redis
-                pass
-        except Exception as e:
-            logger.exception(e)
-        finally:
-            shutil.rmtree(temp_image_path)
-    return result
+    settings.update({'database': load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))})
+    settings.update({'action': 'verification'})
+    temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
+    try:
+        fd, temp_image = tempfile.mkstemp(dir=temp_image_path)
+        os.close(fd)
+        photo_data = binascii.a2b_base64(str(image))
+        with open(temp_image, 'wb') as f:
+            f.write(photo_data)
+        settings.update({'data': temp_image})
+        algo_result = AlgorithmsInterface.verification(**settings)
+        if algo_result.get('status', '') == "result":
+            # record = dictionary:
+            # key          value
+            #      'status'     "result"
+            #      'result'     bool value: True is verification successfully, otherwise False
+            #      'userID'     Unique user identifier
+            #
+            # Need save to redis
+            result = algo_result.get('result', False)
+        elif algo_result.get('status', '') == "data_request":
+            # record = dictionary:
+            # key          value
+            #      'status'     "data_request"
+            #      'userID'     Unique user identifier
+            #      'algoID'     Unique algorithm identifier
+            #
+            # Need save to redis as data request (for this we can use this dictionary)
+            pass
+        elif algo_result.get('status', '') == "error":
+            logger.exception('Error during verification - %s, %s, %s' % (algo_result.get('status'),
+                                                                         algo_result.get('type'),
+                                                                         algo_result.get('details')))
+            # record = dictionary:
+            # key          value
+            #      'status'     "error"
+            #      'type'       Type of error
+            #      'userID'     Unique user identifier
+            #      'algoID'     Unique algorithm identifier
+            #      'details'    Error details dictionary
+            #
+            # Algorithm can have three types of errors:
+            #       "Algorithm settings are empty"
+            #        in this case fields 'userID', 'algoID', 'details' are empty
+            #       "Invalid algorithm settings"
+            #        in this case 'details' dictionary has following structure:
+            #               key         value
+            #               'params'    Parameters key ('data')
+            #               'message'   Error message (for example "File <path> doesn't exists")
+            #       "Internal algorithm error"
+            # Need save to redis
+            pass
+    except Exception as e:
+        logger.exception(e)
+    finally:
+        RedisStorage.persistence_instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
+                                                                 value=result)
+        results_counter = RedisStorage.persistence_instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
+                                                                                  result_code)
+        if results_counter <= 0:
+            gathered_results = RedisStorage.persistence_instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
+                                                                                   callback_code)
+            logger.debug('All gathered results for verification job - %s' % gathered_results)
+            true_count = float(gathered_results.count('True'))
+            result = ((true_count / len(gathered_results)) * 100) >= 50
+            RedisStorage.persistence_instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % result_code)
+            RedisStorage.persistence_instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
+            RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
+        shutil.rmtree(temp_image_path)
+    logger.info('Verification finished for user - %s, with result - %s' % (settings.get('userID'), result))
 
-def run_education(settings, data, database_path):
+
+def training_job(images, fingerprint, settings, callback_code):
+    """
+        Runs education for given user with given array of images.
+    :param images: array of images to run verification on.
+    :param fingerprint: current app_id
+    :param settings: dictionary which contains information about algoId and userID
+    :param callback_code: code of the callback that should be executed after job is finished
+    """
+    logger.info('Running training for user - %s, with given parameters - %s' % (settings.get('userID'), settings))
     result = False
+    settings.update({'action': 'education'})
     temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
     try:
         image_paths = []
-        for sample in data:
+        for image in images:
             fd, temp_image = tempfile.mkstemp(dir=temp_image_path)
             os.close(fd)
-            photo_data = binascii.a2b_base64(str(sample))
+            photo_data = binascii.a2b_base64(str(image))
             with open(temp_image, 'wb') as f:
                 f.write(photo_data)
             image_paths.append(temp_image)
-        settings['data'] = image_paths
-        record = AlgorithmsInterface.verification(**settings)
-        if record['status'] == "update":
+        settings.update({'data': image_paths})
+        algo_result = AlgorithmsInterface.verification(**settings)
+        if algo_result.get('status', '') == "update":
             # record = dictionary:
-            #      key          value
+            # key          value
             #      'status'     "update"
             #      'userID'     Unique user identificator
             #      'algoID'     Unique algorithm identificator
@@ -153,15 +142,18 @@ def run_education(settings, data, database_path):
             #
             # Need update record in algorithms database or create record for user userID and algorithm
             # algoID if it doesn't exists
-            database = record.get('database', None)
+            database = algo_result.get('database', None)
+            database_path = os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint)
             if database is not None:
                 result = True
                 with open(database_path, 'wb') as f:
                     f.write(dumps(database))
-        elif record['status'] == "error":
-            print record['status'], record['type'], record['details']
+        elif algo_result.get('status', '') == "error":
+            logger.exception('Error during education - %s, %s, %s' % (algo_result.get('status'),
+                                                                      algo_result.get('type'),
+                                                                      algo_result.get('details')))
             # record = dictionary:
-            #      key          value
+            # key          value
             #      'status'     "error"
             #      'type'       Type of error
             #      'userID'     Unique user identificator
@@ -182,5 +174,6 @@ def run_education(settings, data, database_path):
     except Exception as e:
         logger.exception(e)
     finally:
+        RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
         shutil.rmtree(temp_image_path)
-    return result
+    logger.info('training finished for user - %s, with result - %s' % (settings.get('userID'), result))
