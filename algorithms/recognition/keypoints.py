@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import biomio.algorithms.logger as logger
+import logger
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector,
                                            BRISKDetectorSettings, ORBDetectorSettings)
 from biomio.algorithms.algorithms.features.classifiers import (getROIImage,
@@ -61,28 +61,28 @@ class KODSettings:
             self.orb_settings.nlevels = detector['Number of levels']
 
     def dump(self):
-        logger.logger.debug('Keypoints Objects Detectors Settings')
-        logger.logger.debug('Neighbours Distance: %f' % self.neighbours_distance)
-        logger.logger.debug('Probability: %f' % self.probability)
-        logger.logger.debug('Detector Type: %s' % self.detector_type)
-        logger.logger.debug('BRISK Detector Settings')
-        logger.logger.debug('   Thresh: %d' % self.brisk_settings.thresh)
-        logger.logger.debug('   Octaves: %d' % self.brisk_settings.octaves)
-        logger.logger.debug('   Pattern Scale: %f' % self.brisk_settings.patternScale)
-        logger.logger.debug('ORB Detector Settings')
-        logger.logger.debug('   Number of features: %d' % self.orb_settings.features)
-        logger.logger.debug('   Scale Factor: %f' % self.orb_settings.scaleFactor)
-        logger.logger.debug('   Number of levels: %d' % self.orb_settings.nlevels)
+        logger.algo_logger.info('Keypoints Objects Detectors Settings')
+        logger.algo_logger.info('Neighbours Distance: %f' % self.neighbours_distance)
+        logger.algo_logger.info('Probability: %f' % self.probability)
+        logger.algo_logger.info('Detector Type: %s' % self.detector_type)
+        logger.algo_logger.info('BRISK Detector Settings')
+        logger.algo_logger.info('   Thresh: %d' % self.brisk_settings.thresh)
+        logger.algo_logger.info('   Octaves: %d' % self.brisk_settings.octaves)
+        logger.algo_logger.info('   Pattern Scale: %f' % self.brisk_settings.patternScale)
+        logger.algo_logger.info('ORB Detector Settings')
+        logger.algo_logger.info('   Number of features: %d' % self.orb_settings.features)
+        logger.algo_logger.info('   Scale Factor: %f' % self.orb_settings.scaleFactor)
+        logger.algo_logger.info('   Number of levels: %d' % self.orb_settings.nlevels)
 
 
 def identifying(fn):
     def wrapped(self, data):
-        logger.logger.debug("Identifying...")
+        logger.algo_logger.info("Identifying...")
         res = None
         if self.data_detect(self, data):
             if data is not None:
                 res = fn(self, data)
-        logger.logger.debug("Identifying finished.")
+        logger.algo_logger.info("Identifying finished.")
         return res
 
     return wrapped
@@ -90,13 +90,13 @@ def identifying(fn):
 
 def verifying(fn):
     def wrapped(self, data):
-        logger.logger.debug("Verifying...")
+        logger.algo_logger.info("Verifying...")
         self._log = ""
         res = False
         if self.data_detect(data):
             if data is not None:
                 res = fn(self, data)
-        logger.logger.debug("Verifying finished.")
+        logger.algo_logger.info("Verifying finished.")
         return res
 
     return wrapped
@@ -128,39 +128,41 @@ class KeypointsObjectDetector:
         self._use_roi = use
 
     def addSource(self, data):
-        logger.logger.debug(data['path'])
+        logger.algo_logger.info("Training started...")
+        logger.algo_logger.info(data['path'])
         if self.data_detect(data):
             self.update_hash(data)
+        logger.algo_logger.info("Training finished.")
 
     def addSources(self, data_list):
         for data in data_list:
             self.addSource(data)
 
     def importSources(self, data):
-        logger.logger.debug("Detector cannot import sources.")
+        logger.algo_logger.info("Detector cannot import sources.")
 
     def exportSources(self):
-        logger.logger.debug("Detector cannot export sources.")
+        logger.algo_logger.info("Detector cannot export sources.")
 
     def importSettings(self, settings):
-        logger.logger.debug("Detector cannot import settings.")
+        logger.algo_logger.info("Detector cannot import settings.")
 
     def exportSettings(self):
-        logger.logger.debug("Detector cannot export settings.")
+        logger.algo_logger.info("Detector cannot export settings.")
 
     @identifying
     def identify(self, data):
-        logger.logger.debug("Detector doesn't support image identification.")
+        logger.algo_logger.info("Detector doesn't support image identification.")
 
     @verifying
     def verify(self, data):
-        logger.logger.debug("Detector doesn't support image verification.")
+        logger.algo_logger.info("Detector doesn't support image verification.")
 
     def detect(self, data):
-        logger.logger.debug("Detector doesn't support image detection.")
+        logger.algo_logger.info("Detector doesn't support image detection.")
 
     def compare(self, f_imgobj, s_imgobj):
-        logger.logger.debug("Detector doesn't support image comparison.")
+        logger.algo_logger.info("Detector doesn't support image comparison.")
 
     def data_detect(self, data):
         # ROI detection
@@ -190,7 +192,7 @@ class KeypointsObjectDetector:
         try:
             obj = detector.detectAndComputeImage(data['roi'])
         except Exception as err:
-            logger.logger.debug(err.message)
+            logger.algo_logger.debug(err.message)
             return False
         data['keypoints'] = obj['keypoints']
         data['descriptors'] = obj['descriptors']
@@ -202,7 +204,7 @@ class KeypointsObjectDetector:
         return True
 
     def update_hash(self, data):
-        logger.logger.debug("The hash does not need to be updated!")
+        logger.algo_logger.info("The hash does not need to be updated!")
 
     def update_database(self):
-        logger.logger.debug("The database does not need to be updated!")
+        logger.algo_logger.info("The database does not need to be updated!")

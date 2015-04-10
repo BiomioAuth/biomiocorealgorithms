@@ -1,8 +1,8 @@
+from __future__ import absolute_import
 __author__ = 'vitalius.parubochyi'
-
+import logger
 from keypoints import (KeypointsObjectDetector,
                        identifying)
-import logger
 
 
 class SpiralKeypointsVectorDetector(KeypointsObjectDetector):
@@ -18,7 +18,7 @@ class SpiralKeypointsVectorDetector(KeypointsObjectDetector):
     def identify(self, data):
         imgs = dict()
         neig = self._hash.neighbours(data['keypoints'])
-        logger.logger.debug(neig)
+        logger.algo_logger.debug(neig)
         for el in neig:
             if el[2] < self.kodsettings.neighbours_distance:
                 value = imgs.get(el[1], 0)
@@ -31,8 +31,8 @@ class SpiralKeypointsVectorDetector(KeypointsObjectDetector):
             if imgs[key] > vmax:
                 max_key = key
                 vmax = imgs[key]
-        logger.logger.debug(imgs)
-        logger.logger.debug(max_key)
+        logger.algo_logger.debug(imgs)
+        logger.algo_logger.debug(max_key)
         return max_key
 
     def _detect(self, data, detector):

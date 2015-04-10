@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 __author__ = 'vitalius.parubochyi'
-
+import logger
 from algorithms.recognition.features import (FeatureDetector,
                                              BRISKDetectorType, ORBDetectorType)
 from algorithms.features.detectors import (BRISKDetector, ORBDetector,
@@ -7,7 +8,6 @@ from algorithms.features.detectors import (BRISKDetector, ORBDetector,
 from algorithms.features.matchers import (createMatcher,
                                           BruteForceMatcherType, FlannBasedMatcherType,
                                           LowesMatchingScheme)
-import logger
 import numpy
 import math
 
@@ -55,7 +55,7 @@ class MLERPMAlgorithm:
         try:
             obj = detector.detectAndComputeImage(imgobj['data'])
         except Exception as err:
-            logger.logger.debug(err.message)
+            logger.algo_logger.debug(err.message)
             return False
         imgobj['keypoints'] = obj['keypoints']
         imgobj['descriptors'] = obj['descriptors']

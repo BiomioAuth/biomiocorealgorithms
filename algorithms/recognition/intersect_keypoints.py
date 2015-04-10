@@ -5,7 +5,6 @@ from keypoints import (KeypointsObjectDetector,
                        meanDistance,
                        listToNumpy_ndarray,
                        verifying)
-import biomio.algorithms.logger
 import sys
 
 

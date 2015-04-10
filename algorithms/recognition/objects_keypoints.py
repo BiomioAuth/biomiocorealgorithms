@@ -1,10 +1,10 @@
+from __future__ import absolute_import
 __author__ = 'vitalius.parubochyi'
-
+import logger
 from algorithms.features.matchers import FlannMatcher
 from keypoints import (KeypointsObjectDetector,
                        listToNumpy_ndarray,
                        identifying, verifying)
-import logger
 
 
 class ObjectsMatchingDetector(KeypointsObjectDetector):
@@ -98,7 +98,7 @@ class ObjectsMatchingDetector(KeypointsObjectDetector):
                 # if len(v) >= 2:
                 m = v[0]
                 # n = v[1]
-                # logger.logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
+                # logger.algo_logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
                 # + str(n.distance) + " " + str(n.queryIdx) + " " + str(n.trainIdx))
                 if m.distance < self.kodsettings.neighbours_distance:
                     # if m.distance < self.kodsettings.neighbours_distance * n.distance:
@@ -115,10 +115,10 @@ class ObjectsMatchingDetector(KeypointsObjectDetector):
                     #                 if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
                     #                     ms.append(m)
 
-        logger.logger.debug("Image: " + data['path'])
-        logger.logger.debug("Template size: " + str(len(self.etalon)) + " descriptors.")
-        logger.logger.debug("Positive matched descriptors: " + str(len(ms)))
-        logger.logger.debug("Probability: " + str((len(ms) / (1.0 * len(self.etalon))) * 100))
+        logger.algo_logger.debug("Image: " + data['path'])
+        logger.algo_logger.debug("Template size: " + str(len(self.etalon)) + " descriptors.")
+        logger.algo_logger.debug("Positive matched descriptors: " + str(len(ms)))
+        logger.algo_logger.debug("Probability: " + str((len(ms) / (1.0 * len(self.etalon))) * 100))
         return True
 
     @staticmethod
@@ -185,5 +185,5 @@ class ObjectsMatchingDetector(KeypointsObjectDetector):
         if count > 0:
             logs += ("Average:\t\t" + str(amatches / (1.0 * count)) + "\t" + str(gmatches / (1.0 * count))
                      + "\t" + str(nmatches / (1.0 * count)) + "\t" + str(prob / (1.0 * count)) + "\n")
-        logger.logger.debug(logs)
+        logger.algo_logger.debug(logs)
         return max_key

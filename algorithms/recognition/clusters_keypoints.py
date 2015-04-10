@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 __author__ = 'vitalius.parubochyi'
-
+import logger
 from biomio.algorithms.algorithms.features.matchers import FlannMatcher
 from biomio.algorithms.algorithms.clustering.forel import FOREL
 from biomio.algorithms.algorithms.clustering.kmeans import KMeans
@@ -11,8 +11,6 @@ from biomio.algorithms.algorithms.recognition.keypoints import (KeypointsObjectD
                        listToNumpy_ndarray, numpy_ndarrayToList,
                        BRISKDetectorType, ORBDetectorType,
                        verifying)
-from biomio.algorithms.logger import logger, sys_logger
-
 import numpy
 import sys
 
@@ -35,7 +33,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             elif self._template_layer == 1:
                 self.update_hash_templateL1(data)
             else:
-                logger.debug("Detector doesn't has such template layer.")
+                logger.algo_logger.info("Detector doesn't has such template layer.")
 
     def update_hash_templateL0(self, data):
         if len(self._etalon) == 0:
@@ -105,7 +103,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         :param data:
         :return:
         """
-        logger.debug("update_hash_templateL1")
+        logger.algo_logger.debug("update_hash_templateL1")
         if len(self._hash) == 1:
             self._etalon = []
             for cluster in data['clusters']:
@@ -203,17 +201,17 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
 
     def importSources(self, source):
         self._etalon = []
-        logger.debug("Database loading started...")
+        logger.algo_logger.info("Database loading started...")
         if self._use_template:
             if self._template_layer == 0:
                 self.importSources_L0Template(source)
             elif self._template_layer == 1:
                 self.importSources_L1Template(source)
             else:
-                logger.debug("Detector doesn't has such template layer.")
+                logger.algo_logger.info("Detector doesn't has such template layer.")
         else:
             self.importSources_Database(source)
-        logger.debug("Database loading finished.")
+        logger.algo_logger.info("Database loading finished.")
 
     def importSources_Database(self, source):
         etalon = source['etalon']
@@ -260,7 +258,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             elif self._template_layer == 1:
                 return self.exportSources_L1Template()
             else:
-                logger.debug("Detector doesn't has such template layer.")
+                logger.algo_logger.info("Detector doesn't has such template layer.")
         else:
             return self.exportSources_Database()
         return dict()
@@ -359,20 +357,20 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
 
     def importSettings(self, settings):
         if len(settings.keys()) > 0:
-            logger.debug("Settings loading started...")
+            logger.algo_logger.info("Settings loading started...")
             self.kodsettings.importSettings(settings['KODSettings'])
             self.kodsettings.dump()
             if self._cascadeROI is None:
                 self._cascadeROI = CascadeROIDetector()
             self._cascadeROI.importSettings(settings['Face Cascade Detector'])
-            logger.debug('Face Cascade Detector')
+            logger.algo_logger.info('Face Cascade Detector')
             self._cascadeROI.classifierSettings.dump()
             if self._eyeROI is None:
                 self._eyeROI = CascadeROIDetector()
             self._eyeROI.importSettings(settings['Eye Cascade Detector'])
-            logger.debug('Eye Cascade Detector')
+            logger.algo_logger.info('Eye Cascade Detector')
             self._eyeROI.classifierSettings.dump()
-            logger.debug("Settings loading finished.")
+            logger.algo_logger.info("Settings loading finished.")
             return True
         return False
 
@@ -391,7 +389,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             elif self._template_layer == 1:
                 return self.verify_template_L1(data)
             else:
-                logger.debug("Detector doesn't has such template layer.")
+                logger.algo_logger.info("Detector doesn't has such template layer.")
         else:
             return self.verify_database(data)
 
@@ -401,13 +399,13 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         self._log += "Test: " + data['path'] + "\n"
         for d in self._hash:
             res = []
-            logger.debug("Source: " + d['path'])
+            logger.algo_logger.debug("Source: " + d['path'])
             self._log += "Source: " + d['path'] + "\n"
             for i in range(0, len(d['clusters'])):
                 test = data['clusters'][i]
                 source = d['clusters'][i]
                 if (test is None) or (source is None):
-                    logger.debug("Cluster #" + str(i + 1) + ": Invalid")
+                    logger.algo_logger.debug("Cluster #" + str(i + 1) + ": Invalid")
                     self._log += "Cluster #" + str(i + 1) + ": Invalid\n"
                 else:
                     matches = matcher.knnMatch(test, source, k=1)
@@ -429,20 +427,20 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                                 ms.append(m)
                     prob = len(ms) / (1.0 * len(matches))
                     res.append(prob * 100)
-                    sys_logger.debug("Cluster #" + str(i + 1) + " (Size: " + str(len(source)) + "): "
-                                            + str(prob * 100) + "%")
+                    logger.algo_logger.debug("Cluster #" + str(i + 1) + " (Size: " + str(len(source)) + "): "
+                                             + str(prob * 100) + "%")
                     self._log += "Cluster #" + str(i + 1) + " (Size: " + str(len(source)) + "): " + str(prob * 100) \
                                  + "%" + "\n"
             suma = 0
             for val in res:
                 suma += val
-            sys_logger.debug("Total for image: " + str(suma / len(res)))
+            logger.algo_logger.debug("Total for image: " + str(suma / len(res)))
             self._log += "Total for image: " + str(suma / len(res)) + "\n"
             gres.append(suma / len(res))
         s = 0
         for val in gres:
             s += val
-        logger.debug("Total: " + str(s / len(gres)))
+        logger.algo_logger.info("Total: " + str(s / len(gres)))
         self._log += "\nTotal: " + str(s / len(gres)) + "\n\n"
         return s / len(gres)
 
@@ -451,8 +449,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         res = []
         prob = 0
         self._log += "Test: " + data['path'] + "\n"
-        sys_logger.debug("Image: " + data['path'])
-        sys_logger.debug("Template size: ")
+        logger.algo_logger.debug("Image: " + data['path'])
+        logger.algo_logger.debug("Template size: ")
         self._log += "Template size: " + "\n"
         for index in range(0, len(self._etalon)):
             et_cluster = self._etalon[index]
@@ -470,7 +468,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 # if len(v) >= 2:
                 #     m = v[0]
                 # n = v[1]
-                # logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
+                # logger.algo_logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
                 #                     + str(n.distance) + " " + str(n.queryIdx) + " " + str(n.trainIdx))
                 # if m.distance < self.kodsettings.neighbours_distance:
                 # if m.distance < self.kodsettings.neighbours_distance * n.distance:
@@ -490,17 +488,17 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                                             ms.append(m)
                 res.append(ms)
                 val = (len(res[index]) / (1.0 * len(self._etalon[index]))) * 100
-                sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
-                                        + " Positive: " + str(len(res[index])) + " Probability: " + str(val))
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
+                                         + " Positive: " + str(len(res[index])) + " Probability: " + str(val))
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) \
                              + " Positive: " + str(len(res[index])) + " Probability: " + str(val) + "\n"
                 prob += val
             else:
                 res.append(ms)
-                sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                         + " Invalid.")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) + " Invalid.\n"
-        logger.info("Probability: " + str((prob / (1.0 * len(res)))))
+        logger.algo_logger.info("Probability: " + str((prob / (1.0 * len(res)))))
         self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
         return prob / (1.0 * len(res))
 
@@ -509,8 +507,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         res = []
         prob = 0
         self._log += "Test: " + data['path'] + "\n"
-        sys_logger.debug("Image: " + data['path'])
-        sys_logger.debug("Template size: ")
+        logger.algo_logger.debug("Image: " + data['path'])
+        logger.algo_logger.debug("Template size: ")
         self._log += "Template size: " + "\n"
         for index in range(0, len(self._etalon)):
             et_weight_cluster = self._etalon[index]
@@ -532,7 +530,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 # if len(v) >= 2:
                 #     m = v[0]
                 # n = v[1]
-                # logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
+                # logger.algo_logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
                 #                     + str(n.distance) + " " + str(n.queryIdx) + " " + str(n.trainIdx))
                 # if m.distance < self.kodsettings.neighbours_distance:
                 # if m.distance < self.kodsettings.neighbours_distance * n.distance:
@@ -557,25 +555,25 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                             c_val += c
                 res.append(c_val / cluster_weight)
                 val = (c_val / (1.0 * cluster_weight)) * 100
-                sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(cluster_weight)
-                                        + " Positive: " + str(c_val) + " Probability: " + str(val))
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(cluster_weight)
+                                         + " Positive: " + str(c_val) + " Probability: " + str(val))
                 self._log += "Cluster #" + str(index + 1) + ": " + str(cluster_weight) \
                              + " Positive: " + str(c_val) + " Probability: " + str(val) + "\n"
                 prob += val
             else:
-                sys_logger.debug("Cluster #" + str(index + 1) + ": " + str(cluster_weight)
-                                        + " Invalid.")
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(cluster_weight)
+                                         + " Invalid.")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(cluster_weight) + " Invalid.\n"
-        sys_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
+        logger.algo_logger.info("Probability: " + str((prob / (1.0 * len(res)))))
         self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
         return prob / (1.0 * len(res))
 
     def compare(self, f_imgobj, s_imgobj):
         if not self.data_detect(f_imgobj):
-            logger.debug("First image data isn't valid.")
+            logger.algo_logger.debug("First image data isn't valid.")
             return False
         if not self.data_detect(s_imgobj):
-            logger.debug("Second image data isn't valid.")
+            logger.algo_logger.debug("Second image data isn't valid.")
             return False
         # matcher = FlannMatcher()
         # gres = []
@@ -584,7 +582,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         #     second = s_imgobj['clusters'][i]
         #     res = []
         #     if (first is None) or (second is None):
-        #         logger.debug("Cluster #" + str(i + 1) + ": Invalid")
+        #         logger.algo_logger.debug("Cluster #" + str(i + 1) + ": Invalid")
         #         self._log += "Cluster #" + str(i + 1) + ": Invalid\n"
         #     else:
         #         matches = matcher.knnMatch(first, second, k=1)
@@ -598,46 +596,46 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         #                     ms.append(m)
         #         prob = len(ms) / (1.0 * len(matches))
         #         res.append(prob * 100)
-        #         logger.debug("Cluster #" + str(i + 1) + " (Size: " + str(len(second)) + "): "
+        #         logger.algo_logger.debug("Cluster #" + str(i + 1) + " (Size: " + str(len(second)) + "): "
         #                             + str(prob * 100) + "%")
         #         self._log += "Cluster #" + str(i + 1) + " (Size: " + str(len(second)) + "): " + str(prob * 100) \
         #                      + "%" + "\n"
         #     suma = 0
         #     for val in res:
         #         suma += val
-        #     logger.debug("Total for image: " + str(suma / len(res)))
+        #     logger.algo_logger.debug("Total for image: " + str(suma / len(res)))
         #     self._log += "Total for image: " + str(suma / len(res)) + "\n"
         #     gres.append(suma / len(res))
         # s = 0
         # for val in gres:
         #     s += val
-        # logger.debug("Total: " + str(s / len(gres)))
+        # logger.algo_logger.debug("Total: " + str(s / len(gres)))
         # self._log += "\nTotal: " + str(s / len(gres)) + "\n\n"
         self._compare_descriptors(f_imgobj, s_imgobj)
 
     def _compare_descriptors(self, f_imgobj, s_imgobj):
         matcher = FlannMatcher()
         matches = matcher.knnMatch(f_imgobj['descriptors'], s_imgobj['descriptors'], k=1)
-        logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        logger.algo_logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         stat = dict()
         for v in matches:
             if len(v) >= 1:
                 # if len(v) >= 2:
                 m = v[0]
-                logger.debug("Query Index: " + str(m.queryIdx) + " Train Index: " + str(m.trainIdx)
-                                    + " Distance: " + str(m.distance))
+                logger.algo_logger.debug("Query Index: " + str(m.queryIdx) + " Train Index: " + str(m.trainIdx)
+                                         + " Distance: " + str(m.distance))
                 for i in range(0, 100, 1):
                     if m.distance <= i * 10:
                         val = stat.get(str(i * 10), 0)
                         val += 1
                         stat[str(i * 10)] = val
                         break
-        logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        logger.algo_logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         for k, z in stat.iteritems():
-            logger.debug(k + ": " + str(z))
-        logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        logger.debug("First image descriptors number: " + str(len(f_imgobj['descriptors'])))
-        logger.debug("Second image descriptors number: " + str(len(s_imgobj['descriptors'])))
+            logger.algo_logger.debug(k + ": " + str(z))
+        logger.algo_logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        logger.algo_logger.debug("First image descriptors number: " + str(len(f_imgobj['descriptors'])))
+        logger.algo_logger.debug("Second image descriptors number: " + str(len(s_imgobj['descriptors'])))
         ms = []
         for v in matches:
             if len(v) >= 1:
@@ -647,8 +645,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 if m.distance < self.kodsettings.neighbours_distance:
                     ms.append(m)
         prob = len(ms) / (1.0 * len(matches))
-        logger.debug("Positive matches: " + str(len(ms)) + " Probability: " + str(prob * 100))
-        logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        logger.algo_logger.debug("Positive matches: " + str(len(ms)) + " Probability: " + str(prob * 100))
+        logger.algo_logger.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     def _detect(self, data, detector):
         # ROI detection

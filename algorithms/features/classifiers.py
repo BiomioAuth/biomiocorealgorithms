@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import biomio.algorithms.logger as logger
+import logger
 from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
 from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
 from biomio.algorithms.algorithms.features.rectmerge import mergeRectangles
@@ -53,10 +53,10 @@ class CascadeClassifierSettings:
         self.minSize = (settings['Minimum Size'][0], settings['Minimum Size'][1])
 
     def dump(self):
-        logger.logger.debug('Cascade Classifier Settings')
-        logger.logger.debug('Scale Factor: %f' % self.scaleFactor)
-        logger.logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
-        logger.logger.debug('Minimum Size: %s' % str(self.minSize))
+        logger.algo_logger.info('Cascade Classifier Settings')
+        logger.algo_logger.info('Scale Factor: %f' % self.scaleFactor)
+        logger.algo_logger.info('Minimum Neighbors: %d' % self.minNeighbors)
+        logger.algo_logger.info('Minimum Size: %s' % str(self.minSize))
 
 
 class CascadeROIDetector:
@@ -68,13 +68,11 @@ class CascadeROIDetector:
 
     def add_cascade(self, path):
         abs_path = os.path.join(APP_ROOT, "../../", path)
-        logger.logger.debug("####### %s" % abs_path)
         if os.path.exists(abs_path):
             self.__cascades.append(cv2.CascadeClassifier(abs_path))
             self._cascades_list.append(abs_path)
-            # logger.debug("Cascade is loaded.")
         else:
-            logger.logger.debug("Such file does not exist.")
+            logger.algo_logger.debug("The cascade file %s does not exist." % abs_path)
 
     def cascades(self):
         cascades = []
@@ -97,7 +95,7 @@ class CascadeROIDetector:
         rects = list()
         gray = grayscaleAndEqualize(img)
         if len(self.__cascades) == 0:
-            logger.logger.debug("Detection impossible. Any cascade not found.")
+            logger.algo_logger.debug("Detection impossible. Any cascade not found.")
             return rects
         settings = CascadeClassifierSettings()
         for cascade in self.__cascades:
@@ -164,7 +162,7 @@ class CascadeROIDetector:
     def detectAndJoin(self, image, as_list=False, algorithm=RectsUnion):
         rects = self.detect(image, as_list)
         if len(rects) == 0:
-            logger.logger.debug("ROI is not found for image")
+            logger.algo_logger.debug("ROI is not found for image")
         return self.joinRectangles(rects, algorithm)
 
     @staticmethod

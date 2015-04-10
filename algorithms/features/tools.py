@@ -2,9 +2,9 @@
 Open CV Tools Module
 Implementation of functions for basic processing of images based on OpenCV.
 """
-
-import cv2
+from __future__ import absolute_import
 import logger
+import cv2
 from matplotlib import pyplot as plt
 
 
@@ -61,8 +61,8 @@ def spiralSort(feature, width, height):
                 if not mark:
                     keys.insert(0, dis)
                     keypoints.insert(0, keypoint)
-        # logger.logger.debug(keys)
-        # logger.logger.debug(keypoints)
+        # logger.algo_logger.debug(keys)
+        # logger.algo_logger.debug(keypoints)
         return keypoints
     return None
 
@@ -85,7 +85,7 @@ def minimizeSort(feature):
                     if not mark:
                         break
                 keys.insert(i, keypoint)
-        logger.logger.debug(keys)
+        logger.algo_logger.debug(keys)
         return keys
     return None
 
