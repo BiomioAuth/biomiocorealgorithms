@@ -3,14 +3,12 @@ import tempfile
 from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_PARTIAL_RESULTS_KEY
 from biomio.protocol.storage.redis_storage import RedisStorage
 from algorithms_interface import AlgorithmsInterface
-import logging
 import os
 import binascii
 import json
 from json import dumps
+from logger import worker_logger
 
-
-logger = logging.getLogger(__name__)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
@@ -35,7 +33,8 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
     :param callback_code: code of the callback which should be executed after job is finished.
     :param result_code: code of the result in case we are running job in parallel.
     """
-    logger.info('Running verification for user - %s, with given parameters - %s' % (settings.get('userID'), settings))
+    worker_logger.info('Running verification for user - %s, with given parameters - %s' % (settings.get('userID'),
+                                                                                           settings))
     result = False
     settings.update({'database': load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))})
     settings.update({'action': 'verification'})
@@ -67,9 +66,9 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
             # Need save to redis as data request (for this we can use this dictionary)
             pass
         elif algo_result.get('status', '') == "error":
-            logger.exception('Error during verification - %s, %s, %s' % (algo_result.get('status'),
-                                                                         algo_result.get('type'),
-                                                                         algo_result.get('details')))
+            worker_logger.exception('Error during verification - %s, %s, %s' % (algo_result.get('status'),
+                                                                                algo_result.get('type'),
+                                                                                algo_result.get('details')))
             # record = dictionary:
             # key          value
             #      'status'     "error"
@@ -90,7 +89,7 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
             # Need save to redis
             pass
     except Exception as e:
-        logger.exception(e)
+        worker_logger.exception(e)
     finally:
         RedisStorage.persistence_instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
                                                                  value=result)
@@ -99,14 +98,14 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
         if results_counter <= 0:
             gathered_results = RedisStorage.persistence_instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
                                                                                    callback_code)
-            logger.debug('All gathered results for verification job - %s' % gathered_results)
+            worker_logger.debug('All gathered results for verification job - %s' % gathered_results)
             true_count = float(gathered_results.count('True'))
             result = ((true_count / len(gathered_results)) * 100) >= 50
             RedisStorage.persistence_instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % result_code)
             RedisStorage.persistence_instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
             RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
         shutil.rmtree(temp_image_path)
-    logger.info('Verification finished for user - %s, with result - %s' % (settings.get('userID'), result))
+    worker_logger.info('Verification finished for user - %s, with result - %s' % (settings.get('userID'), result))
 
 
 def training_job(images, fingerprint, settings, callback_code):
@@ -117,7 +116,8 @@ def training_job(images, fingerprint, settings, callback_code):
     :param settings: dictionary which contains information about algoId and userID
     :param callback_code: code of the callback that should be executed after job is finished
     """
-    logger.info('Running training for user - %s, with given parameters - %s' % (settings.get('userID'), settings))
+    worker_logger.info('Running training for user - %s, with given parameters - %s' % (settings.get('userID'),
+                                                                                       settings))
     result = False
     settings.update({'action': 'education'})
     temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
@@ -149,9 +149,9 @@ def training_job(images, fingerprint, settings, callback_code):
                 with open(database_path, 'wb') as f:
                     f.write(dumps(database))
         elif algo_result.get('status', '') == "error":
-            logger.exception('Error during education - %s, %s, %s' % (algo_result.get('status'),
-                                                                      algo_result.get('type'),
-                                                                      algo_result.get('details')))
+            worker_logger.exception('Error during education - %s, %s, %s' % (algo_result.get('status'),
+                                                                             algo_result.get('type'),
+                                                                             algo_result.get('details')))
             # record = dictionary:
             # key          value
             #      'status'     "error"
@@ -172,8 +172,8 @@ def training_job(images, fingerprint, settings, callback_code):
             # Need save to redis
             pass
     except Exception as e:
-        logger.exception(e)
+        worker_logger.exception(e)
     finally:
         RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
         shutil.rmtree(temp_image_path)
-    logger.info('training finished for user - %s, with result - %s' % (settings.get('userID'), result))
+    worker_logger.info('training finished for user - %s, with result - %s' % (settings.get('userID'), result))
