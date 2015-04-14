@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from rq import Queue, use_connection
 from redis import Redis
 from logger import worker_logger

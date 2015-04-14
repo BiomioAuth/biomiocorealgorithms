@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import shutil
 import tempfile
 from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_PARTIAL_RESULTS_KEY
 from biomio.protocol.storage.redis_storage import RedisStorage
-from algorithms_interface import AlgorithmsInterface
+from biomio.algorithms.algorithms_interface import AlgorithmsInterface
 import os
 import binascii
 import json
