@@ -47,6 +47,10 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
         with open(temp_image, 'wb') as f:
             f.write(photo_data)
         settings.update({'data': temp_image})
+
+        # Store photos for test purposes
+        store_test_photo_helper([temp_image])
+
         algo_result = AlgorithmsInterface.verification(**settings)
         if algo_result.get('status', '') == "result":
             # record = dictionary:
@@ -109,6 +113,27 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
     logger.info('Verification finished for user - %s, with result - %s' % (settings.get('userID'), result))
 
 
+def store_test_photo_helper(image_paths):
+    import shutil
+    import os
+
+    TEST_PHOTO_PATH = os.path.join(APP_ROOT, 'algorithms', 'test_photo')
+
+    if not os.path.exists(TEST_PHOTO_PATH):
+        os.makedirs(TEST_PHOTO_PATH)
+    else:
+        for the_file in os.listdir(TEST_PHOTO_PATH):
+            file_path = os.path.join(TEST_PHOTO_PATH, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except Exception, e:
+                print e
+
+    for path in image_paths:
+        shutil.copyfile(path, os.path.join(TEST_PHOTO_PATH, os.path.basename(path)))
+
+
 def training_job(images, fingerprint, settings, callback_code):
     """
         Runs education for given user with given array of images.
@@ -130,6 +155,10 @@ def training_job(images, fingerprint, settings, callback_code):
             with open(temp_image, 'wb') as f:
                 f.write(photo_data)
             image_paths.append(temp_image)
+
+        # Store photos for test purposes
+        store_test_photo_helper(image_paths)
+
         settings.update({'data': image_paths})
         algo_result = AlgorithmsInterface.verification(**settings)
         if algo_result.get('status', '') == "update":
