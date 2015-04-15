@@ -14,6 +14,83 @@ from biomio.algorithms.algorithms.recognition.keypoints import (KeypointsObjectD
 import numpy
 import sys
 
+PROCESS_COUNT = 8 # mp.cpu_count()
+
+
+def parallel_update_hash_templateL0(etalon, data, index):
+    matcher = FlannMatcher()
+    et_cluster = etalon[index]
+    dt_cluster = data[index]
+    if et_cluster is None or len(et_cluster) == 0:
+        return index, et_cluster
+    elif dt_cluster is None or len(dt_cluster) == 0:
+        return index, et_cluster
+    else:
+        matches1 = matcher.knnMatch(et_cluster, dt_cluster, k=3)
+        matches2 = matcher.knnMatch(dt_cluster, et_cluster, k=3)
+
+        good = []
+
+        for v in matches1:
+            if len(v) >= 1:
+                for m in v:
+                    # m = v[0]
+                    for c in matches2:
+                        if len(c) >= 1:
+                            for n in c:
+                                # n = c[0]
+                                    if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
+                                        good.append(et_cluster[m.queryIdx])
+                                        good.append(dt_cluster[m.trainIdx])
+        return index, listToNumpy_ndarray(good)
+
+
+def parallel_verify_template_L0(etalon, data, index):
+    matcher = FlannMatcher()
+    et_cluster = etalon[index]
+    dt_cluster = data[index]
+    ms = []
+    val = 0
+    if ((et_cluster is None or dt_cluster is None) or
+            (len(et_cluster) <= 0 or len(dt_cluster) <= 0)):
+        logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(etalon[index]))
+                                 + " Invalid.")
+            # self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) + " Invalid.\n"
+    else:
+        matches1 = matcher.knnMatch(listToNumpy_ndarray(et_cluster, numpy.uint8),
+                                    listToNumpy_ndarray(dt_cluster, numpy.uint8), k=2)
+        matches2 = matcher.knnMatch(listToNumpy_ndarray(dt_cluster, numpy.uint8),
+                                    listToNumpy_ndarray(et_cluster, numpy.uint8), k=2)
+            # for v in matches:
+            # if len(v) >= 1:
+            # if len(v) >= 2:
+            # m = v[0]
+            # n = v[1]
+            # logger.logger.debug(str(m.distance) + " " + str(m.queryIdx) + " " + str(m.trainIdx) + " | "
+            #                     + str(n.distance) + " " + str(n.queryIdx) + " " + str(n.trainIdx))
+            # if m.distance < self.kodsettings.neighbours_distance:
+            # if m.distance < self.kodsettings.neighbours_distance * n.distance:
+            #     ms.append(m)
+            #  else:
+            #     ms.append(m)
+            #     ms.append(n)
+        for v in matches1:
+            if len(v) >= 1:
+                for m in v:
+                    # m = v[0]
+                    for c in matches2:
+                        if len(c) >= 1:
+                            for n in c:
+                                # n = c[0]
+                                if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
+                                    ms.append(m)
+        val = (len(ms) / (1.0 * len(etalon[index]))) * 100
+        logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(etalon[index]))
+                                 + " Positive: " + str(len(ms)) + " Probability: " + str(val))
+            # self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) \
+            #              + " Positive: " + str(len(ms)) + " Probability: " + str(val) + "\n"
+    return val, len(ms)
+
 
 class ClustersMatchingDetector(KeypointsObjectDetector):
     def __init__(self):
@@ -36,6 +113,21 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 logger.algo_logger.info("Detector doesn't has such template layer.")
 
     def update_hash_templateL0(self, data):
+        # self.update_hash_templateL0_parallel(data)
+        self.update_hash_templateL0_noparallel(data)
+
+    def update_hash_templateL0_parallel(self, data):
+        if len(self._etalon) == 0:
+            self._etalon = data['clusters']
+        else:
+            pool = mp.Pool(processes=PROCESS_COUNT)
+            res = [pool.apply(parallel_update_hash_templateL0, args=(self._etalon, data['clusters'], x))
+                   for x in range(len(self._etalon))]
+
+            for i, cluster in res:
+                self._etalon[i] = cluster
+
+    def update_hash_templateL0_noparallel(self, data):
         if len(self._etalon) == 0:
             self._etalon = data['clusters']
         else:
@@ -445,6 +537,29 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         return s / len(gres)
 
     def verify_template_L0(self, data):
+        # return self.verify_template_L0_parallel(data)
+        return self.verify_template_L0_noparallel(data)
+
+    def verify_template_L0_parallel(self, data):
+        res = []
+        prob = 0
+        self._log += "Test: " + data['path'] + "\n"
+        logger.algo_logger.debug("Image: " + data['path'])
+        logger.algo_logger.debug("Template size: ")
+        self._log += "Template size: " + "\n"
+
+        pool = mp.Pool(processes=PROCESS_COUNT)
+        res = [pool.apply(parallel_verify_template_L0, args=(self._etalon, data['clusters'], x))
+               for x in range(len(self._etalon))]
+
+        for r, c in res:
+            prob += r
+
+        logger.algo_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
+        self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
+        return prob / (1.0 * len(res))
+
+    def verify_template_L0_noparallel(self, data):
         matcher = FlannMatcher()
         res = []
         prob = 0
@@ -452,12 +567,24 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         logger.algo_logger.debug("Image: " + data['path'])
         logger.algo_logger.debug("Template size: ")
         self._log += "Template size: " + "\n"
+        summ = 0
+        for index in range(0, len(self._etalon)):
+            et_cluster = self._etalon[index]
+            if et_cluster is not None:
+                summ += len(et_cluster)
         for index in range(0, len(self._etalon)):
             et_cluster = self._etalon[index]
             dt_cluster = data['clusters'][index]
             ms = []
-            if et_cluster is None or dt_cluster is None:
-                break
+            if et_cluster is None:
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(-1)
+                                         + " Invalid. (Weight: 0)")
+                continue
+            if dt_cluster is None:
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
+                                         + " Positive: 0 Probability: 0 (Weight: " +
+                                         str(len(et_cluster) / (1.0 * summ)) + ")")
+                continue
             if len(et_cluster) > 0 and len(dt_cluster) > 0:
                 matches1 = matcher.knnMatch(listToNumpy_ndarray(et_cluster, numpy.uint8),
                                             listToNumpy_ndarray(dt_cluster, numpy.uint8), k=2)
@@ -489,18 +616,22 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 res.append(ms)
                 val = (len(res[index]) / (1.0 * len(self._etalon[index]))) * 100
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
-                                         + " Positive: " + str(len(res[index])) + " Probability: " + str(val))
+                                         + " Positive: " + str(len(res[index])) + " Probability: " + str(val) +
+                                        " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) \
                              + " Positive: " + str(len(res[index])) + " Probability: " + str(val) + "\n"
-                prob += val
+                prob += (len(et_cluster) / (1.0 * summ)) * val
             else:
                 res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                         + " Invalid.")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) + " Invalid.\n"
-        logger.algo_logger.info("Probability: " + str((prob / (1.0 * len(res)))))
-        self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
-        return prob / (1.0 * len(res))
+        # logger.sys_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
+        # self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
+        # return prob / (1.0 * len(res))
+        logger.algo_logger.info("Probability: " + str(prob))
+        self._log += "Probability: " + str(prob) + "\n"
+        return prob
 
     def verify_template_L1(self, data):
         matcher = FlannMatcher()
