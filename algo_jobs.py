@@ -104,8 +104,12 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
             gathered_results = RedisStorage.persistence_instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
                                                                                    callback_code)
             worker_logger.debug('All gathered results for verification job - %s' % gathered_results)
-            true_count = float(gathered_results.count('True'))
-            result = ((true_count / len(gathered_results)) * 100) >= 50
+            if results_counter < 0:
+                worker_logger.exception('Results count is less than 0, check worker jobs consistency!')
+                result = False
+            else:
+                true_count = float(gathered_results.count('True'))
+                result = ((true_count / len(gathered_results)) * 100) >= 50
             RedisStorage.persistence_instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % result_code)
             RedisStorage.persistence_instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
             RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
