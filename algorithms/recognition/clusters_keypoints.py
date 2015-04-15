@@ -97,9 +97,19 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         KeypointsObjectDetector.__init__(self)
         self._hash = []
         self._etalon = []
+        self._prob = 100
+        self._coff = 0.9
+
+    def threshold(self):
+        if self._use_template:
+            if self._template_layer == 0:
+                return self._coff * self._prob
+            else:
+                logger.algo_logger.info("Detector doesn't has such template layer.")
+        return self.kodsettings.probability
 
     def update_hash(self, data):
-        del data['data']
+        # del data['data']
         # del data['roi']
         del data['keypoints']
         del data['descriptors']
@@ -208,14 +218,14 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             for index in range(0, len(self._etalon)):
                 dt_cluster = data['clusters'][index]
                 if dt_cluster is None or len(dt_cluster) == 0:
-                    break
+                    continue
                 et_cluster = self._etalon[index]
                 # for dt in dt_cluster:
                 #     dt_is = False
                 #     weight_cluster = []
                 #     for d, c in et_cluster:
                 #         if numpy.array_equal(d, dt):
-                ##             c += 1
+                #             c += 1
                             # dt_is = True
                         # weight_cluster.append((d, c))
                     # if not dt_is:
@@ -223,10 +233,10 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                     # et_cluster = weight_cluster
                 for obj in self._hash:
                     if data['path'] == obj['path']:
-                        break
+                        continue
                     ob_cluster = obj['clusters'][index]
                     if ob_cluster is None or len(ob_cluster) == 0:
-                        break
+                        continue
                     matches1 = matcher.knnMatch(listToNumpy_ndarray(ob_cluster),
                                                 listToNumpy_ndarray(dt_cluster), k=5)
                     # matches2 = matcher.knnMatch(listToNumpy_ndarray(dt_cluster),
@@ -291,6 +301,24 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                     #                             et_cluster = new_cluster
                     self._etalon[index] = et_cluster
 
+    def update_database(self):
+        if self._use_template:
+            if self._template_layer == 0:
+                self.update_database_templateL0()
+            elif self._template_layer == 1:
+                pass
+            else:
+                logger.algo_logger.debug("Detector doesn't has such template layer.")
+
+    def update_database_templateL0(self):
+        if len(self._hash) > 0:
+            minv = sys.maxint
+            for obj in self._hash:
+                res = self.verify(obj)
+                if minv > res:
+                    minv = res
+            self._prob = minv
+
     def importSources(self, source):
         self._etalon = []
         logger.algo_logger.info("Database loading started...")
@@ -344,16 +372,22 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             self._etalon[int(c_num)] = etalon_cluster
 
     def exportSources(self):
+        data = dict()
         if self._use_template:
             if self._template_layer == 0:
-                return self.exportSources_L0Template()
+                data = self.exportSources_L0Template()
             elif self._template_layer == 1:
-                return self.exportSources_L1Template()
+                data = self.exportSources_L1Template()
             else:
                 logger.algo_logger.info("Detector doesn't has such template layer.")
         else:
-            return self.exportSources_Database()
-        return dict()
+            data = self.exportSources_Database()
+        source = dict()
+        if len(data.keys()) > 0:
+            source = dict()
+            source['data'] = data
+            source['threshold'] = self._prob
+        return source
 
     def exportSources_Database(self):
         sources = dict()

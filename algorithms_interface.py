@@ -125,6 +125,7 @@ class AlgorithmsInterface:
                     logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
                     return record
                 algorithm.addSource(imgobj)
+            algorithm.update_database()
             sources = algorithm.exportSources()
             record['status'] = "update"
             record['algoID'] = kwargs['algoID']
@@ -152,7 +153,7 @@ class AlgorithmsInterface:
                 return record
             result = algorithm.verify(imgobj)
             record['status'] = "result"
-            record['result'] = result > algorithm.kodsettings.probability
+            record['result'] = result > algorithm.threshold()
             record['userID'] = kwargs['userID']
             logger.algo_logger.info('Result::%s' % str(record['result']))
             return record
