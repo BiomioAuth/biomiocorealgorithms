@@ -11,6 +11,7 @@ from biomio.algorithms.algorithms.recognition.keypoints import (KeypointsObjectD
                        listToNumpy_ndarray, numpy_ndarrayToList,
                        BRISKDetectorType, ORBDetectorType,
                        verifying)
+import multiprocessing as mp
 import numpy
 import sys
 
@@ -324,14 +325,15 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         logger.algo_logger.info("Database loading started...")
         if self._use_template:
             if self._template_layer == 0:
-                self.importSources_L0Template(source)
+                self.importSources_L0Template(source.get('data', dict()))
             elif self._template_layer == 1:
-                self.importSources_L1Template(source)
+                self.importSources_L1Template(source.get('data', dict()))
             else:
                 logger.algo_logger.info("Detector doesn't has such template layer.")
         else:
-            self.importSources_Database(source)
-        logger.algo_logger.info("Database loading finished.")
+            self.importSources_Database(source.get('data', dict()))
+        self._prob = source.get('threshold', 100)
+        logger.algo_logger.debug("Database loading finished.")
 
     def importSources_Database(self, source):
         etalon = source['etalon']
