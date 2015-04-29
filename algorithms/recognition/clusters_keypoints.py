@@ -613,10 +613,12 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             dt_cluster = data['clusters'][index]
             ms = []
             if et_cluster is None:
+                res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(-1)
                                          + " Invalid. (Weight: 0)")
                 continue
             if dt_cluster is None:
+                res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                          + " Positive: 0 Probability: 0 (Weight: " +
                                          str(len(et_cluster) / (1.0 * summ)) + ")")
@@ -660,7 +662,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             else:
                 res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
-                                        + " Invalid.")
+                                         + " Invalid.")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) + " Invalid.\n"
         # logger.sys_logger.debug("Probability: " + str((prob / (1.0 * len(res)))))
         # self._log += "Probability: " + str((prob / (1.0 * len(res)))) + "\n"
