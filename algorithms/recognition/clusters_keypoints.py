@@ -653,7 +653,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 val = (len(res[index]) / (1.0 * len(self._etalon[index]))) * 100
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                          + " Positive: " + str(len(res[index])) + " Probability: " + str(val) +
-                                        " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
+                                         " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
                 self._log += "Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index])) \
                              + " Positive: " + str(len(res[index])) + " Probability: " + str(val) + "\n"
                 prob += (len(et_cluster) / (1.0 * summ)) * val
@@ -842,10 +842,16 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         # showClusters(clusters, out)
         data['true_clusters'] = clusters
         descriptors = []
+        active_clusters = 0
         for cluster in clusters:
             desc = detector.computeImage(data['roi'], cluster['items'])
-            descriptors.append(desc['descriptors'])
+            curr_cluster = desc['descriptors']
+            descriptors.append(curr_cluster)
+            if curr_cluster is not None and len(curr_cluster) > 0:
+                active_clusters += 1
         data['clusters'] = descriptors
+        if active_clusters < len(centers) - 2:
+            return False
         return True
 
     def filter_keypoints(self, data):
