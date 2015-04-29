@@ -1,7 +1,11 @@
 from __future__ import absolute_import
+import StringIO
 import shutil
 import tempfile
-from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_PARTIAL_RESULTS_KEY
+import cPickle
+from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_PARTIAL_RESULTS_KEY, \
+    TRAINING_DATA_TABLE_CLASS_NAME
+from biomio.mysql_storage.mysql_data_store_interface import MySQLDataStoreInterface
 from biomio.protocol.storage.redis_storage import RedisStorage
 from biomio.algorithms.algorithms_interface import AlgorithmsInterface
 import os
@@ -15,14 +19,14 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
 
 
-def load_sources(path):
-    if len(path):
-        if not os.path.exists(path):
-            return dict()
-        with open(path, "r") as data_file:
-            source = json.load(data_file)
-            return source
-    return dict()
+# def load_sources(path):
+#     if len(path):
+#         if not os.path.exists(path):
+#             return dict()
+#         with open(path, "r") as data_file:
+#             source = json.load(data_file)
+#             return source
+#     return dict()
 
 
 def verification_job(image, fingerprint, settings, callback_code, result_code):
@@ -37,7 +41,12 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
     worker_logger.info('Running verification for user - %s, with given parameters - %s' % (settings.get('userID'),
                                                                                            settings))
     result = False
-    settings.update({'database': load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))})
+    database = MySQLDataStoreInterface.get_object(table_name=TRAINING_DATA_TABLE_CLASS_NAME, object_id=fingerprint)
+    if database is not None:
+        database = cPickle.load(StringIO.StringIO(database.data))
+    else:
+        database = {}
+    settings.update({'database': database})
     settings.update({'action': 'verification'})
     temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
     try:
@@ -177,11 +186,19 @@ def training_job(images, fingerprint, settings, callback_code):
             # Need update record in algorithms database or create record for user userID and algorithm
             # algoID if it doesn't exists
             database = algo_result.get('database', None)
-            database_path = os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint)
+            # database_path = os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint)
             if database is not None:
+                data_buffer = cPickle.dumps(database, cPickle.HIGHEST_PROTOCOL)
+                try:
+                    MySQLDataStoreInterface.create_data(table_name=TRAINING_DATA_TABLE_CLASS_NAME, probe_id=fingerprint,
+                                                        data=data_buffer)
+                except Exception as e:
+                    if '1062 Duplicate entry' in str(e):
+                        MySQLDataStoreInterface.update_data(table_name=TRAINING_DATA_TABLE_CLASS_NAME,
+                                                            object_id=fingerprint, data=data_buffer)
                 result = True
-                with open(database_path, 'wb') as f:
-                    f.write(dumps(database))
+                # with open(database_path, 'wb') as f:
+                #     f.write(dumps(database))
         elif algo_result.get('status', '') == "error":
             worker_logger.exception('Error during education - %s, %s, %s' % (algo_result.get('status'),
                                                                              algo_result.get('type'),
