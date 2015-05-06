@@ -511,6 +511,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
 
     @verifying
     def verify(self, data):
+        self._last_error = ""
         if self._use_template:
             if self._template_layer == 0:
                 return self.verify_template_L0(data)
@@ -821,6 +822,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
         # ROI detection
         rect = self._eyeROI.detectAndJoin(data['roi'], False)
         if len(rect) <= 0:
+            logger.algo_logger.info("Eye ROI wasn't found.")
+            self._last_error = "Eye ROI wasn't found."
             return False
         # ROI cutting
         lefteye = (rect[0] + rect[3], rect[1] + rect[3] / 2)
@@ -853,6 +856,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 active_clusters += 1
         data['clusters'] = descriptors
         if active_clusters < len(centers) - 2:
+            logger.algo_logger.info("Number of clusters are insufficient for the recognition.")
+            self._last_error = "Number of clusters are insufficient for the recognition."
             return False
         return True
 

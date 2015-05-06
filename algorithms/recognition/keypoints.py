@@ -114,12 +114,16 @@ class KeypointsObjectDetector:
         self._template_layer = 0
         self._use_roi = True
         self._log = ""
+        self._last_error = ""
 
     def threshold(self):
         return self.kodsettings.probability
 
     def log(self):
         return self._log
+
+    def last_error(self):
+        return self._last_error
 
     def setUseTemplate(self, use):
         self._use_template = use
@@ -131,6 +135,7 @@ class KeypointsObjectDetector:
         self._use_roi = use
 
     def addSource(self, data):
+        self._last_error = ""
         logger.algo_logger.info("Training started...")
         logger.algo_logger.info(data['path'])
         if self.data_detect(data):
@@ -174,6 +179,8 @@ class KeypointsObjectDetector:
             img, rect = self._cascadeROI.detectAndJoinWithRotation(data['data'], False, RectsFiltering)
             data['data'] = img
             if len(rect) <= 0:
+                logger.algo_logger.info("Face ROI wasn't found.")
+                self._last_error = "Face ROI wasn't found."
                 return False
             print rect
             # ROI cutting
@@ -196,6 +203,7 @@ class KeypointsObjectDetector:
             obj = detector.detectAndComputeImage(data['roi'])
         except Exception as err:
             logger.algo_logger.debug(err.message)
+            self._last_error = err.message
             return False
         data['keypoints'] = obj['keypoints']
         data['descriptors'] = obj['descriptors']
