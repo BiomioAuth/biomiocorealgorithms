@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 __author__ = 'vitalius.parubochyi'
 import logger
 from biomio.algorithms.algorithms.imgobj import loadImageObject
@@ -166,6 +167,8 @@ class AlgorithmsInterface:
                 record['result'] = result > algorithm.threshold()
                 record['userID'] = kwargs['userID']
                 logger.algo_logger.info('Result::%s' % str(record['result']))
+                logger.algo_logger.debug('Result::%s (%s > %s)' % str(record['result']), str(result),
+                                         str(algorithm.threshold()))
                 return record
         else:
             record['status'] = "error"

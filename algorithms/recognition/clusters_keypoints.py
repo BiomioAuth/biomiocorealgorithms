@@ -313,7 +313,7 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
 
     def update_database_templateL0(self):
         if len(self._hash) > 0:
-            minv = sys.maxint
+            minv = self._prob
             for obj in self._hash:
                 res = self.verify(obj)
                 if minv > res:
@@ -332,7 +332,8 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
                 logger.algo_logger.info("Detector doesn't has such template layer.")
         else:
             self.importSources_Database(source.get('data', dict()))
-        self._prob = source.get('threshold', 100)
+        self._prob = float(source.get('threshold', 100))
+        logger.algo_logger.info("Threshold: %s" % str(self._prob))
         logger.algo_logger.debug("Database loading finished.")
 
     def importSources_Database(self, source):
@@ -386,7 +387,6 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             data = self.exportSources_Database()
         source = dict()
         if len(data.keys()) > 0:
-            source = dict()
             source['data'] = data
             source['threshold'] = self._prob
         return source
