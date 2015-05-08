@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import cPickle
 from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_PARTIAL_RESULTS_KEY, \
-    TRAINING_DATA_TABLE_CLASS_NAME
+    TRAINING_DATA_TABLE_CLASS_NAME, REDIS_JOB_RESULTS_ERROR
 from biomio.mysql_storage.mysql_data_store_interface import MySQLDataStoreInterface
 from biomio.protocol.storage.redis_storage import RedisStorage
 from biomio.algorithms.algorithms_interface import AlgorithmsInterface
@@ -40,6 +40,9 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
     """
     worker_logger.info('Running verification for user - %s, with given parameters - %s' % (settings.get('userID'),
                                                                                            settings))
+    if RedisStorage.persistence_instance().exists(key=REDIS_JOB_RESULTS_ERROR % (callback_code, result_code)):
+        worker_logger.info('Job interrupted because of job_results_error key existence.')
+        return
     result = False
     # database = MySQLDataStoreInterface.get_object(table_name=TRAINING_DATA_TABLE_CLASS_NAME, object_id=fingerprint)
     # if database is not None:
@@ -83,6 +86,8 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
             worker_logger.exception('Error during verification - %s, %s, %s' % (algo_result.get('status'),
                                                                                 algo_result.get('type'),
                                                                                 algo_result.get('details')))
+            if 'Internal algorithm' in algo_result.get('type', ''):
+                error = algo_result.get('details', {}).get('message', '')
             # record = dictionary:
             # key          value
             #      'status'     "error"
@@ -105,25 +110,40 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
     except Exception as e:
         worker_logger.exception(e)
     finally:
-        RedisStorage.persistence_instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
-                                                                 value=result)
-        results_counter = RedisStorage.persistence_instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
-                                                                                  result_code)
-        if results_counter <= 0:
-            gathered_results = RedisStorage.persistence_instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
-                                                                                   callback_code)
-            worker_logger.debug('All gathered results for verification job - %s' % gathered_results)
-            if results_counter < 0:
-                worker_logger.exception('Results count is less than 0, check worker jobs consistency!')
-                result = False
+        if error is not None or RedisStorage.persistence_instance().exists(
+                key=REDIS_JOB_RESULTS_ERROR % (callback_code, result_code)):
+            result = dict(verified=False, error=error if error is not None else '')
+            RedisStorage.persistence_instance().store_data(key=REDIS_JOB_RESULTS_ERROR % (callback_code, result_code),
+                                                           ex=300, result=result)
+            store_verification_results(result=result, callback_code=callback_code, result_code=result_code)
+            if error is not None:
+                worker_logger.info('Job was finished with internal algorithm error %s ' % error)
             else:
-                true_count = float(gathered_results.count('True'))
-                result = ((true_count / len(gathered_results)) * 100) >= 50
-            RedisStorage.persistence_instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % result_code)
-            RedisStorage.persistence_instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
-            RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
+                worker_logger.info('Job was not stored because of job_results_error key existence.')
+        else:
+            RedisStorage.persistence_instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
+                                                                     value=result)
+            results_counter = RedisStorage.persistence_instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
+                                                                                      result_code)
+            if results_counter <= 0:
+                gathered_results = RedisStorage.persistence_instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
+                                                                                       callback_code)
+                worker_logger.debug('All gathered results for verification job - %s' % gathered_results)
+                if results_counter < 0:
+                    worker_logger.exception('Results count is less than 0, check worker jobs consistency!')
+                    result = dict(verified=False)
+                else:
+                    true_count = float(gathered_results.count('True'))
+                    result = dict(verified=((true_count / len(gathered_results)) * 100) >= 50)
+                store_verification_results(result=result, callback_code=callback_code, result_code=result_code)
         shutil.rmtree(temp_image_path)
     worker_logger.info('Verification finished for user - %s, with result - %s' % (settings.get('userID'), result))
+
+
+def store_verification_results(result, callback_code, result_code):
+    RedisStorage.persistence_instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % result_code)
+    RedisStorage.persistence_instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
+    RedisStorage.persistence_instance().store_data(key=REDIS_PROBE_RESULT_KEY % callback_code, result=result)
 
 
 def store_test_photo_helper(image_paths):
