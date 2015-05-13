@@ -207,7 +207,7 @@ def training_job(images, fingerprint, settings, callback_code):
             # algoID if it doesn't exists
             database = algo_result.get('database')
             database_path = os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint)
-            database = load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))
+            database = algo_result.get('database', None)
             if database is not None:
                 # data_buffer = cPickle.dumps(database, cPickle.HIGHEST_PROTOCOL)
                 # worker_logger.debug(fingerprint)
