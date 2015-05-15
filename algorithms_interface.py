@@ -62,7 +62,7 @@ class AlgorithmsInterface:
             details['param'] = 'userID'
             details['message'] = "The user ID is empty."
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
         logger.algo_logger.info('User ID: %s' % kwargs['userID'])
         if not kwargs.get('algoID', None):
@@ -72,7 +72,7 @@ class AlgorithmsInterface:
             details['param'] = 'algoID'
             details['message'] = "The algorithm ID is empty."
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
         logger.algo_logger.info('Algorithm ID: %s' % kwargs['algoID'])
         algorithm = AlgorithmsInterface.getAlgorithm(kwargs['algoID'])
@@ -83,7 +83,7 @@ class AlgorithmsInterface:
             details['param'] = 'algoID'
             details['message'] = "Such algorithm ID %s doesn't exist." % kwargs['algoID']
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
         if not kwargs.get('data', None):
             record['status'] = "error"
@@ -92,7 +92,7 @@ class AlgorithmsInterface:
             details['param'] = 'data'
             details['message'] = "The data source is empty."
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
         if not algorithm.importSettings(AlgorithmsInterface.loadSettings(kwargs['algoID'])):
             record['status'] = "error"
@@ -100,7 +100,7 @@ class AlgorithmsInterface:
             details = dict()
             details['message'] = "Cannot loading settings."
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
         if not kwargs.get('action', None):
             record['status'] = "error"
@@ -109,7 +109,7 @@ class AlgorithmsInterface:
             details['param'] = 'action'
             details['message'] = "The action parameter is empty."
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
         if kwargs['action'] == 'education':
             if kwargs.get('database', None):
@@ -123,7 +123,7 @@ class AlgorithmsInterface:
                     details['param'] = 'data'
                     details['message'] = "Such data %s doesn't exists." % kwargs['data']
                     record['details'] = details
-                    logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+                    logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
                     return record
                 algorithm.addSource(imgobj)
             algorithm.update_database()
@@ -150,7 +150,7 @@ class AlgorithmsInterface:
                 details['param'] = 'data'
                 details['message'] = "Such data %s doesn't exists." % kwargs['data']
                 record['details'] = details
-                logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+                logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
                 return record
             result = algorithm.verify(imgobj)
             if not result and algorithm.last_error() != "":
@@ -160,7 +160,7 @@ class AlgorithmsInterface:
                 details['param'] = 'data'
                 details['message'] = algorithm.last_error()
                 record['details'] = details
-                logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+                logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
                 return record
             else:
                 record['status'] = "result"
@@ -175,7 +175,7 @@ class AlgorithmsInterface:
             details['param'] = 'action'
             details['message'] = "Such action %s doesn't exists." % kwargs['action']
             record['details'] = details
-            logger.algo_logger.info('Error::%s::%s' % record['type'], details['message'])
+            logger.algo_logger.info('Error::%s::%s' % (record['type'], details['message']))
             return record
 
     @staticmethod
