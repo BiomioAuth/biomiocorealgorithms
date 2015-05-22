@@ -52,6 +52,7 @@ def verification_job(image, fingerprint, settings, callback_code, result_code):
     settings.update({'database': load_sources(os.path.join(ALGO_DB_PATH, "%s.json" % fingerprint))})
     settings.update({'action': 'verification'})
     temp_image_path = tempfile.mkdtemp(dir=APP_ROOT)
+    error = None
     try:
         fd, temp_image = tempfile.mkstemp(dir=temp_image_path)
         os.close(fd)
