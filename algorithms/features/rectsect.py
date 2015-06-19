@@ -9,12 +9,14 @@ def intersectRectangles(rects):
     right = []
     half = len(rects) / 2
     i = 0
+    # TODO: How I can modify this section?
     for rect in rects:
         if i < half:
             left.append(rect)
         else:
             right.append(rect)
         i += 1
+    #
     left = intersectRectangles(left)
     right = intersectRectangles(right)
     rect = _interRect(left, right)

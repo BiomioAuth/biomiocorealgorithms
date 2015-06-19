@@ -6,6 +6,7 @@ def filterRectangles(rects):
         return rects[0]
 
     rect = [0, 0, 0, 0]
+    # TODO: Any thoughts?
     for r in rects:
         if r[2] > rect[2] and r[3] > rect[3]:
             rect = r
