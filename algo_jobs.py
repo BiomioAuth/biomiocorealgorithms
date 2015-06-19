@@ -11,6 +11,7 @@ from biomio.constants import REDIS_PROBE_RESULT_KEY, REDIS_RESULTS_COUNTER_KEY, 
 from biomio.mysql_storage.mysql_data_store_interface import MySQLDataStoreInterface
 from biomio.protocol.storage.redis_storage import RedisStorage
 from biomio.algorithms.algorithms_interface import AlgorithmsInterface
+from biomio.protocol.settings import settings as biomio_settings
 import os
 import binascii
 import json
@@ -187,7 +188,7 @@ def training_job(images, fingerprint, settings, callback_code, try_type, ai_code
         worker_logger.info('Telling AI that we are starting training with code - %s' % ai_code)
         ai_response_type.update({'status': 'in-progress'})
         response_type = base64.b64encode(json.dumps(ai_response_type))
-        register_biometrics_url = settings.ai_rest_url % (REST_REGISTER_BIOMETRICS % (ai_code, response_type))
+        register_biometrics_url = biomio_settings.ai_rest_url % (REST_REGISTER_BIOMETRICS % (ai_code, response_type))
         response = requests.post(register_biometrics_url)
         try:
             response.raise_for_status()
@@ -279,7 +280,8 @@ def training_job(images, fingerprint, settings, callback_code, try_type, ai_code
             worker_logger.info('Telling AI that training is finished with code - %s and result - %s' %
                                (ai_code, result))
             response_type = base64.b64encode(json.dumps(ai_response_type))
-            register_biometrics_url = settings.ai_rest_url % (REST_REGISTER_BIOMETRICS % (ai_code, response_type))
+            register_biometrics_url = biomio_settings.ai_rest_url % (REST_REGISTER_BIOMETRICS %
+                                                                     (ai_code, response_type))
             response = requests.post(register_biometrics_url)
             try:
                 response.raise_for_status()
