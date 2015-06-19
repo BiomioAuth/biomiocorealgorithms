@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import logger
-from biomio.algorithms.algorithms.features.matchers import FlannMatcher
+from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
 from biomio.algorithms.algorithms.recognition.clusters_keypoints import ClustersMatchingDetector
 from biomio.algorithms.algorithms.recognition.keypoints import (listToNumpy_ndarray, numpy_ndarrayToList,
                                                                 verifying)
@@ -63,7 +63,7 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
 
     @verifying
     def verify(self, data):
-        matcher = FlannMatcher()
+        matcher = Matcher(BruteForceMatcherType)
         gres = []
         for d in self._hash:
             res = []

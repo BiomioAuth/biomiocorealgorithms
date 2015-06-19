@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import logger
-from biomio.algorithms.algorithms.features.matchers import FlannMatcher
+from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
 from biomio.algorithms.algorithms.recognition.clusters_keypoints import ClustersMatchingDetector
 from biomio.algorithms.algorithms.recognition.keypoints import (listToNumpy_ndarray, numpy_ndarrayToList,
                                                                 verifying)
@@ -25,7 +25,7 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
         if len(self._etalon) == 0:
             self._etalon = data['clusters']
         else:
-            matcher = FlannMatcher()
+            matcher = Matcher(BruteForceMatcherType)
             for index in range(0, len(self._etalon)):
                 et_cluster = self._etalon[index]
                 dt_cluster = data['clusters'][index]
@@ -94,7 +94,7 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
         return self.verify_template_L0(data)
 
     def verify_template_L0(self, data):
-        matcher = FlannMatcher()
+        matcher = Matcher(BruteForceMatcherType)
         res = []
         prob = 0
         logger.algo_logger.debug("Image: " + data['path'])
