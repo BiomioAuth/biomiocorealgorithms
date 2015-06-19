@@ -4,9 +4,7 @@ from tools import distance, mass_center
 
 def FOREL(items, radius):
     clusters = []
-    local_items = []
-    for item in items:
-        local_items.append(item)
+    local_items = [item for item in items]
     while len(local_items) > 0:
         index = random.randint(0, len(local_items) - 1)
         curr = local_items[index].pt

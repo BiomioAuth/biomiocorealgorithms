@@ -1,6 +1,6 @@
+from tools import distance, mass_center, sort_clusters
 import random
 import sys
-from tools import distance, mass_center, sort_clusters
 
 
 def KMeans(items, cluster_count, init_centers=[], max_distance=0):

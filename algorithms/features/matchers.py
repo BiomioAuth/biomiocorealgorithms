@@ -6,6 +6,7 @@ FlannBasedMatcherType = 1
 
 BruteForceHammingMatcher = 2
 
+
 def MatcherCreator(descriptorMatcherType):
     """
     Function that create <DescriptorMatcher object> by the selected type.

@@ -75,9 +75,7 @@ class CascadeROIDetector:
             logger.algo_logger.debug("The cascade file %s does not exist." % abs_path)
 
     def cascades(self):
-        cascades = []
-        for cascade in self._cascades_list:
-            cascades.append(cascade)
+        cascades = [cascade for cascade in self._cascades_list]
         return cascades
 
     def exportSettings(self):

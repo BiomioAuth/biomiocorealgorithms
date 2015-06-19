@@ -46,11 +46,7 @@ def _mergeRect(left, right, general, convex):
 
 
 def main():
-    rects = []
-    rects.append([0, 0, 4, 2])
-    rects.append([1, 1, 2, 2])
-    rects.append([2, 2, 4, 2])
-    rects.append([7, 1, 2, 2])
+    rects = [[0, 0, 4, 2], [1, 1, 2, 2], [2, 2, 4, 2], [7, 1, 2, 2]]
     print mergeRectangles(rects, True, True)
 
 if __name__ == '__main__':

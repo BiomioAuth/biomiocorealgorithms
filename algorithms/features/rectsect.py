@@ -41,11 +41,7 @@ def _interRect(left, right):
 
 
 def main():
-    rects = []
-    rects.append([0, 0, 4, 2])
-    rects.append([1, 1, 2, 2])
-    rects.append([0, 1, 4, 2])
-    # rects.append([7, 1, 2, 2])
+    rects = [[0, 0, 4, 2], [1, 1, 2, 2], [0, 1, 4, 2], [7, 1, 2, 2]]
     print intersectRectangles(rects)
 
 if __name__ == '__main__':

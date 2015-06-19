@@ -2,14 +2,9 @@ from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector,
                                            BRISKDetectorSettings, ORBDetectorSettings)
-from biomio.algorithms.algorithms.features.classifiers import (getROIImage,
-                                             RectsIntersect, RectsFiltering)
+from biomio.algorithms.algorithms.features.classifiers import (getROIImage, RectsFiltering)
 from biomio.algorithms.algorithms.recognition.features import (FeatureDetector,
                                              BRISKDetectorType, ORBDetectorType)
-from biomio.algorithms.algorithms.cvtools.visualization import (showClusters, showNumpyImage, showMatches,
-                                              drawLine, drawClusters, drawKeypoints)
-from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
-from biomio.algorithms.algorithms.recognition.tools import minDistance, meanDistance, medianDistance
 
 
 LSHashType = 0
@@ -21,7 +16,6 @@ class KODSettings:
     Keypoints Object Detector's Settings class
     """
     neighbours_distance = 1.0
-    # max_hash_length = 600
     detector_type = BRISKDetectorType
     brisk_settings = BRISKDetectorSettings()
     orb_settings = ORBDetectorSettings()
@@ -110,8 +104,6 @@ class KeypointsObjectDetector:
         self._cascadeROI = None
         self._detector = None
         self._eyeROI = None
-        self._use_template = False
-        self._template_layer = 0
         self._use_roi = True
         self._log = ""
         self._last_error = ""
@@ -124,12 +116,6 @@ class KeypointsObjectDetector:
 
     def last_error(self):
         return self._last_error
-
-    def setUseTemplate(self, use):
-        self._use_template = use
-
-    def setTemplateLayer(self, layer):
-        self._template_layer = layer
 
     def setUseROIDetection(self, use):
         self._use_roi = use

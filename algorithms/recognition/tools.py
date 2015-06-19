@@ -1,39 +1,19 @@
-__author__ = 'vitalius.parubochyi'
-
+import itertools
 
 def minDistance(matches):
-    dist = []
-    for match in matches:
-        for m in match:
-            dist.append(m.distance)
-    # print 'distance: min: %.3f' % min(dist)
-    return min(dist)
+    return min(itertools.chain(*matches), key=lambda p: p.distance).distance
 
 
 def maxDistance(matches):
-    dist = []
-    for match in matches:
-        for m in match:
-            dist.append(m.distance)
-    # print 'distance: max: %.3f' % max(dist)
-    return max(dist)
+    return max(itertools.chain(*matches), key=lambda p: p.distance).distance
 
 
 def meanDistance(matches):
-    dist = []
-    for match in matches:
-        for m in match:
-            dist.append(m.distance)
-
-    # print 'distance: mean: %.3f' % (sum(dist) / len(dist))
+    dist = [m.distance for m in itertools.chain(*matches)]
     return sum(dist) / len(dist)
 
 
 def medianDistance(matches):
-    dist = []
-    for match in matches:
-        for m in match:
-            dist.append(m.distance)
-
+    dist = [m.distance for m in itertools.chain(*matches)]
     dist.sort()
     return dist[int(len(dist) / 2)]
