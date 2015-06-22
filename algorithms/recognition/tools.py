@@ -1,4 +1,5 @@
 import itertools
+import numpy
 
 def minDistance(matches):
     return min(itertools.chain(*matches), key=lambda p: p.distance).distance
@@ -9,11 +10,8 @@ def maxDistance(matches):
 
 
 def meanDistance(matches):
-    dist = [m.distance for m in itertools.chain(*matches)]
-    return sum(dist) / len(dist)
+    return numpy.mean([m.distance for m in itertools.chain(*matches)])
 
 
 def medianDistance(matches):
-    dist = [m.distance for m in itertools.chain(*matches)]
-    dist.sort()
-    return dist[int(len(dist) / 2)]
+    return numpy.median([m.distance for m in itertools.chain(*matches)])
