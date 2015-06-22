@@ -124,6 +124,12 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
                                             listToNumpy_ndarray(dt_cluster, numpy.uint8), k=2)
                 matches2 = matcher.knnMatch(listToNumpy_ndarray(dt_cluster, numpy.uint8),
                                             listToNumpy_ndarray(et_cluster, numpy.uint8), k=2)
+                # TODO: I'm not sure how modify this section, but I think about something like this:
+                #
+                # for m in list(itertools.chain(*matches1)):
+                #     for n in list(itertools.chain(*matches2)):
+                #         if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
+                #             ms.append(m)
                 for v in matches1:
                     if len(v) >= 1:
                         for m in v:
