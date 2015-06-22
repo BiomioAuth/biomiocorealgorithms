@@ -5,6 +5,7 @@ from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, i
 from biomio.algorithms.algorithms.features.rectmerge import mergeRectangles
 from biomio.algorithms.algorithms.features.rectsect import intersectRectangles
 from biomio.algorithms.algorithms.features.rectfilter import filterRectangles
+import itertools
 import cv2
 import os
 
@@ -104,8 +105,12 @@ class CascadeROIDetector:
                 # minSize=settings.minSize,
                 minSize=self.classifierSettings.minSize,
                 flags=self.classifierSettings.flags)
-            # if len(lrects) != 0:
-                # lrects[:,2:] += lrects[:,:2]
+            # TODO: Can I write something like this for add elements to array (array maybe not empty)?
+            #
+            #   if as_list:
+            #       rects += [r for r in lrects]
+            #   else:
+            #       rects.append(lrects)
             if as_list:
                 for r in lrects:
                     rects.append(r)
@@ -141,11 +146,6 @@ class CascadeROIDetector:
 
         # 180
         img3 = self._rotate(img2)
-        # c_rect = self.detectAndJoin(img3, as_list, algorithm)
-        # if len(c_rect) > 0:
-        #     if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-        #         rect = c_rect
-        #         img = img3
 
         # 270
         img4 = self._rotate(img3)
@@ -176,8 +176,4 @@ class CascadeROIDetector:
 
     @staticmethod
     def toList(rects):
-        rs = []
-        for r in rects:
-            for c in r:
-                rs.append(c)
-        return rs
+        return list(itertools.chain(*rects))

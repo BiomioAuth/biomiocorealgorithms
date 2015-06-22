@@ -14,9 +14,7 @@ def mass_center(items):
 
 
 def sort_clusters(clusters):
-    clus = []
-    for i in range(0, len(clusters), 1):
-        clus.append(dict())
+    clus = [dict() for c in clusters]
     for cluster in clusters:
         clus[cluster['id']] = cluster
     return clus
