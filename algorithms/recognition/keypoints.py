@@ -85,7 +85,6 @@ def identifying(fn):
 def verifying(fn):
     def wrapped(self, data):
         logger.algo_logger.info("Verifying...")
-        self._log = ""
         res = False
         if self.data_detect(data):
             if data is not None:
@@ -105,14 +104,10 @@ class KeypointsObjectDetector:
         self._detector = None
         self._eyeROI = None
         self._use_roi = True
-        self._log = ""
         self._last_error = ""
 
     def threshold(self):
         return self.kodsettings.probability
-
-    def log(self):
-        return self._log
 
     def last_error(self):
         return self._last_error
@@ -155,13 +150,9 @@ class KeypointsObjectDetector:
     def detect(self, data):
         logger.algo_logger.info("Detector doesn't support image detection.")
 
-    def compare(self, f_imgobj, s_imgobj):
-        logger.algo_logger.info("Detector doesn't support image comparison.")
-
     def data_detect(self, data):
         # ROI detection
         if self._use_roi:
-            # rect = self._cascadeROI.detectAndJoin(data['data'], False, RectsFiltering)
             img, rect = self._cascadeROI.detectAndJoinWithRotation(data['data'], False, RectsFiltering)
             data['data'] = img
             if len(rect) <= 0:
