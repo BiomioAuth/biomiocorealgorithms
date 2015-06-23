@@ -25,13 +25,4 @@ def FOREL(items, radius):
 
 
 def neighbour_objects(items, center, radius):
-    # TODO: Do make sense change this function like this?
-    #
-    # return filter(lambda i: distance(i.pt, center) <= radius, items)
-    result = []
-    for i in items:
-        point = i.pt
-        dis = distance(point, center)
-        if dis <= radius:
-            result.append(i)
-    return result
+    return filter(lambda i: distance(i.pt, center) <= radius, items)
