@@ -57,7 +57,7 @@ def BruteForceMatcher():
 
 def defaultFlannBasedLSHIndexParams():
     return dict(algorithm=defines.FLANN_INDEX_LSH,
-                table_number=12,       # 12
+                table_number=12,      # 12
                 key_size=20,          # 20
                 multi_probe_level=2)  # 2
 

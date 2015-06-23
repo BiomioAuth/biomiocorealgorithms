@@ -4,21 +4,9 @@ def mergeRectangles(rects, general=True, convex=True):
         return rects
     if len(rects) == 1:
         return rects[0]
-
-    left = []
-    right = []
     half = len(rects) / 2
-    i = 0
-    # TODO: How I can modify this section?
-    for rect in rects:
-        if i < half:
-            left.append(rect)
-        else:
-            right.append(rect)
-        i += 1
-    #
-    left = mergeRectangles(left, general, convex)
-    right = mergeRectangles(right, general, convex)
+    left = mergeRectangles(rects[:half], general, convex)
+    right = mergeRectangles(rects[half:], general, convex)
     return _mergeRect(left, right, general, convex)
 
 

@@ -87,5 +87,5 @@ class ClustersMatchingDetector(KeypointsObjectDetector):
             img['data'] = data['roi']
             img['keypoints'] = cluster['items']
             if p > 0.02:
-                keypoints = [item for item in cluster['items']]
+                keypoints += [item for item in cluster['items']]
         data['keypoints'] = keypoints
