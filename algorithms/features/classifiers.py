@@ -105,15 +105,8 @@ class CascadeROIDetector:
                 # minSize=settings.minSize,
                 minSize=self.classifierSettings.minSize,
                 flags=self.classifierSettings.flags)
-            # TODO: Can I write something like this for add elements to array (array maybe not empty)?
-            #
-            #   if as_list:
-            #       rects += [r for r in lrects]
-            #   else:
-            #       rects.append(lrects)
             if as_list:
-                for r in lrects:
-                    rects.append(r)
+                rects += itertools.chain(*lrects)
             else:
                 rects.append(lrects)
         if len(rects) == 0:
