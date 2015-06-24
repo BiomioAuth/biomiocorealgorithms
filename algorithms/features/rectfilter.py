@@ -1,13 +1,6 @@
-
 def filterRectangles(rects):
     if len(rects) == 0:
         return rects
     if len(rects) == 1:
         return rects[0]
-
-    rect = [0, 0, 0, 0]
-    # TODO: Any thoughts?
-    for r in rects:
-        if r[2] > rect[2] and r[3] > rect[3]:
-            rect = r
-    return rect
+    return reduce(lambda p, q: q if q[2] > p[2] and q[3] > p[3] else p, rects, [0]*4)

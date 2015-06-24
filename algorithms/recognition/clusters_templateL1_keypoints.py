@@ -149,6 +149,14 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
                                             listToNumpy_ndarray(dt_cluster, numpy.uint8), k=2)
                 matches2 = matcher.knnMatch(listToNumpy_ndarray(dt_cluster, numpy.uint8),
                                             listToNumpy_ndarray(et_cluster, numpy.uint8), k=2)
+                # TODO: Similarly to the previous:
+                # ms = map(
+                #     lambda(x, _): et_cluster[x.queryIdx], itertools.ifilter(
+                #         lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
+                #             itertools.chain(*matches1), itertools.chain(*matches2)
+                #         )
+                #     )
+                # )
                 for v in matches1:
                     if len(v) >= 1:
                         for m in v:

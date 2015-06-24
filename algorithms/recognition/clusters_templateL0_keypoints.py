@@ -4,6 +4,7 @@ from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMa
 from biomio.algorithms.algorithms.recognition.clusters_keypoints import ClustersMatchingDetector
 from biomio.algorithms.algorithms.recognition.keypoints import (listToNumpy_ndarray, numpy_ndarrayToList,
                                                                 verifying)
+import itertools
 import numpy
 import sys
 
@@ -124,20 +125,13 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
                                             listToNumpy_ndarray(dt_cluster, numpy.uint8), k=2)
                 matches2 = matcher.knnMatch(listToNumpy_ndarray(dt_cluster, numpy.uint8),
                                             listToNumpy_ndarray(et_cluster, numpy.uint8), k=2)
-                # TODO: I'm not sure how modify this section, but I think about something like this:
-                #
-                # for m in list(itertools.chain(*matches1)):
-                #     for n in list(itertools.chain(*matches2)):
-                #         if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
-                #             ms.append(m)
-                for v in matches1:
-                    if len(v) >= 1:
-                        for m in v:
-                            for c in matches2:
-                                if len(c) >= 1:
-                                    for n in c:
-                                        if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
-                                            ms.append(m)
+                ms = map(
+                    lambda(x, _): x, itertools.ifilter(
+                        lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
+                            itertools.chain(*matches1), itertools.chain(*matches2)
+                        )
+                    )
+                )
                 res.append(ms)
                 val = (len(res[index]) / (1.0 * len(self._etalon[index]))) * 100
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
