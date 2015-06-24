@@ -128,7 +128,6 @@ class CascadeROIDetector:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
                 img = image
-
         # 90
         img2 = self._rotate(image)
         c_rect = self.detectAndJoin(img2, as_list, algorithm)
@@ -136,10 +135,8 @@ class CascadeROIDetector:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
                 img = img2
-
         # 180
         img3 = self._rotate(img2)
-
         # 270
         img4 = self._rotate(img3)
         c_rect = self.detectAndJoin(img4, as_list, algorithm)

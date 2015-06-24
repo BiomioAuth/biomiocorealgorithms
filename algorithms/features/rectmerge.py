@@ -26,13 +26,7 @@ def _mergeRect(left, right, general, convex):
             if p_bottom < right[1] + right[3]:
                 p_bottom = right[1] + right[3]
             return [p_left, p_top, p_right - p_left, p_bottom - p_top]
-        else:
-            return [0, 0, 0, 0]
-    else:
-        if general:
-            return [0, 0, 0, 0]
-        else:
-            return [0, 0, 0, 0]
+    return [0, 0, 0, 0]
 
 
 def main():
