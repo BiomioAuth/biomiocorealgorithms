@@ -38,6 +38,15 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
                     matches1 = matcher.knnMatch(et_cluster, dt_cluster, k=3)
                     matches2 = matcher.knnMatch(dt_cluster, et_cluster, k=3)
                     good = []
+                    # TODO: This more difficult:
+                    #
+                    # good += map(
+                    #     lambda(x, _): [et_cluster[x.queryIdx], dt_cluster[x.trainIdx]], itertools.ifilter(
+                    #         lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
+                    #             itertools.chain(*matches1), itertools.chain(*matches2)
+                    #         )
+                    #     )
+                    # )
                     for v in matches1:
                         if len(v) >= 1:
                             for m in v:

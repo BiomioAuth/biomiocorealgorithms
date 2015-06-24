@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector,
-                                           BRISKDetectorSettings, ORBDetectorSettings)
+                                                             BRISKDetectorSettings, ORBDetectorSettings)
 from biomio.algorithms.algorithms.features.classifiers import (getROIImage, RectsFiltering)
 from biomio.algorithms.algorithms.recognition.features import (FeatureDetector,
-                                             BRISKDetectorType, ORBDetectorType)
+                                                               BRISKDetectorType, ORBDetectorType)
 
 
 LSHashType = 0
@@ -78,7 +78,6 @@ def identifying(fn):
                 res = fn(self, data)
         logger.algo_logger.info("Identifying finished.")
         return res
-
     return wrapped
 
 
@@ -91,7 +90,6 @@ def verifying(fn):
                 res = fn(self, data)
         logger.algo_logger.info("Verifying finished.")
         return res
-
     return wrapped
 
 
