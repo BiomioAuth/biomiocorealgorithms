@@ -1,4 +1,3 @@
-
 def intersectRectangles(rects):
     if len(rects) == 0:
         return rects

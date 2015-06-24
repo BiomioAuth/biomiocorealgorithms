@@ -2,8 +2,8 @@ from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
 from biomio.algorithms.algorithms.recognition.clusters_keypoints import ClustersMatchingDetector
-from biomio.algorithms.algorithms.recognition.keypoints import (listToNumpy_ndarray, numpy_ndarrayToList,
-                                                                verifying)
+from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
+from biomio.algorithms.algorithms.recognition.keypoints import verifying
 import numpy
 
 

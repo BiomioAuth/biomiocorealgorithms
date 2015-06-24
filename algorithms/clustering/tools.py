@@ -3,7 +3,6 @@ def distance(p1, p2):
 
 
 def mass_center(items):
-    # TODO: We can modify this summing?
     massaX = 0
     massaY = 0
     for i in items:

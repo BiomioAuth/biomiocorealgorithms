@@ -1,7 +1,6 @@
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector)
 from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
 from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
-import numpy
 import sys
 import cv2
 

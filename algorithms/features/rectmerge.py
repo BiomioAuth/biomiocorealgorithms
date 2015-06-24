@@ -27,12 +27,12 @@ def _mergeRect(left, right, general, convex):
                 p_bottom = right[1] + right[3]
             return [p_left, p_top, p_right - p_left, p_bottom - p_top]
         else:
-            pass
+            return [0, 0, 0, 0]
     else:
         if general:
-            pass
+            return [0, 0, 0, 0]
         else:
-            pass
+            return [0, 0, 0, 0]
 
 
 def main():
