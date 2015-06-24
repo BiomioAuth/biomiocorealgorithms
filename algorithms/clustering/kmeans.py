@@ -43,6 +43,7 @@ def KMeans(items, cluster_count, init_centers=[], max_distance=0):
             news.append(cluster)
         clusters = news
         for item in items:
+            # TODO: What about this? Here I finds cluster with minimal distance to item.pt
             min_dis = sys.float_info.max
             cl = dict()
             for cluster in clusters:

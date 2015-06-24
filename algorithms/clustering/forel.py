@@ -1,5 +1,5 @@
-import random
 from tools import distance, mass_center
+import random
 
 
 def FOREL(items, radius):
