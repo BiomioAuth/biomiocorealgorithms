@@ -2,8 +2,9 @@ from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
 from biomio.algorithms.algorithms.recognition.clusters_keypoints import ClustersMatchingDetector
-from biomio.algorithms.algorithms.recognition.keypoints import (listToNumpy_ndarray, numpy_ndarrayToList,
-                                                                verifying)
+from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
+from biomio.algorithms.algorithms.recognition.keypoints import verifying
+import itertools
 import numpy
 
 
@@ -149,23 +150,22 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
                                             listToNumpy_ndarray(dt_cluster, numpy.uint8), k=2)
                 matches2 = matcher.knnMatch(listToNumpy_ndarray(dt_cluster, numpy.uint8),
                                             listToNumpy_ndarray(et_cluster, numpy.uint8), k=2)
-                # TODO: Similarly to the previous:
-                # ms = map(
-                #     lambda(x, _): et_cluster[x.queryIdx], itertools.ifilter(
-                #         lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
-                #             itertools.chain(*matches1), itertools.chain(*matches2)
+                ms = map(
+                    lambda(x, _): et_cluster[x.queryIdx], itertools.ifilter(
+                        lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
+                            itertools.chain(*matches1), itertools.chain(*matches2)
+                        )
+                    )
+                )
+                # TODO: I think, next part can be rewritten using filter() and chain() functions
+                #
+                # c_val = sum(
+                #     lambda (_, x): x[1], itertools.ifilter(
+                #         lambda(m, n): numpy.array_equal(m, n[0]), itertools.product(
+                #             ms, et_weight_cluster
                 #         )
                 #     )
                 # )
-                for v in matches1:
-                    if len(v) >= 1:
-                        for m in v:
-                            for c in matches2:
-                                if len(c) >= 1:
-                                    for n in c:
-                                        if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
-                                            ms.append(et_cluster[m.queryIdx])
-                # TODO: I think, next part can be rewritten using filter() and chain() functions
                 c_val = 0
                 for item in ms:
                     for d, c in et_weight_cluster:
