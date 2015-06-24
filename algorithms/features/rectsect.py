@@ -5,20 +5,9 @@ def intersectRectangles(rects):
     if len(rects) == 1:
         return rects[0]
 
-    left = []
-    right = []
     half = len(rects) / 2
-    i = 0
-    # TODO: How I can modify this section?
-    for rect in rects:
-        if i < half:
-            left.append(rect)
-        else:
-            right.append(rect)
-        i += 1
-    #
-    left = intersectRectangles(left)
-    right = intersectRectangles(right)
+    left = intersectRectangles(rects[:half])
+    right = intersectRectangles(rects[half:])
     rect = _interRect(left, right)
     if rect[2] <= 0 or rect[3] <= 0:
         rect[2] = 0
