@@ -162,7 +162,7 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
                 # c_val = sum(
                 #     lambda (_, x): x[1], itertools.ifilter(
                 #         lambda(m, n): numpy.array_equal(m, n[0]), itertools.product(
-                #             ms, et_weight_cluster
+                #             iter(ms), iter(et_weight_cluster)
                 #         )
                 #     )
                 # )
