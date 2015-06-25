@@ -157,21 +157,13 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
                         )
                     )
                 )
-                # TODO: I think, next part can be rewritten using filter() and chain() functions
-                #
-                # c_val = sum(
-                #     lambda (_, x): x[1], itertools.ifilter(
-                #         lambda(m, n): numpy.array_equal(m, n[0]), itertools.product(
-                #             iter(ms), iter(et_weight_cluster)
-                #         )
-                #     )
-                # )
-                c_val = 0
-                for item in ms:
-                    for d, c in et_weight_cluster:
-                        if numpy.array_equal(d, item):
-                            c_val += c
-                #
+                c_val = sum(
+                    lambda (_, x): x[1], itertools.ifilter(
+                        lambda(m, n): numpy.array_equal(m, n[0]), itertools.product(
+                            iter(ms), iter(et_weight_cluster)
+                        )
+                    )
+                )
                 res.append(c_val / cluster_weight)
                 val = (c_val / (1.0 * cluster_weight)) * 100
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(cluster_weight)
