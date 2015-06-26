@@ -37,25 +37,13 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
                 else:
                     matches1 = matcher.knnMatch(et_cluster, dt_cluster, k=3)
                     matches2 = matcher.knnMatch(dt_cluster, et_cluster, k=3)
-                    good = []
-                    # TODO: This more difficult:
-                    #
-                    # good += map(
-                    #     lambda(x, _): [et_cluster[x.queryIdx], dt_cluster[x.trainIdx]], itertools.ifilter(
-                    #         lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
-                    #             itertools.chain(*matches1), itertools.chain(*matches2)
-                    #         )
-                    #     )
-                    # )
-                    for v in matches1:
-                        if len(v) >= 1:
-                            for m in v:
-                                for c in matches2:
-                                    if len(c) >= 1:
-                                        for n in c:
-                                            if m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx:
-                                                good.append(et_cluster[m.queryIdx])
-                                                good.append(dt_cluster[m.trainIdx])
+                    good = list(itertools.chain.from_iterable(itertools.imap(
+                        lambda(x, _): (et_cluster[x.queryIdx], dt_cluster[x.trainIdx]), itertools.ifilter(
+                            lambda(m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
+                                itertools.chain(*matches1), itertools.chain(*matches2)
+                            )
+                        )
+                    )))
                     self._etalon[index] = listToNumpy_ndarray(good)
 
     def update_database(self):
