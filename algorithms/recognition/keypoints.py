@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector,
                                                              BRISKDetectorSettings, ORBDetectorSettings)
-from biomio.algorithms.algorithms.features.classifiers import (getROIImage, RectsFiltering)
+from biomio.algorithms.algorithms.cascades.classifiers import (getROIImage, RectsFiltering)
 from biomio.algorithms.algorithms.features.features import (FeatureDetector,
                                                             BRISKDetectorType, ORBDetectorType)
 

@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.clustering.forel import FOREL
 from biomio.algorithms.algorithms.clustering.kmeans import KMeans
-from biomio.algorithms.algorithms.features.classifiers import CascadeROIDetector
+from biomio.algorithms.algorithms.cascades.classifiers import CascadeROIDetector
 from biomio.algorithms.algorithms.recognition.keypoints import KeypointsObjectDetector
 
 

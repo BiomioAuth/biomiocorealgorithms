@@ -1,14 +1,15 @@
 from __future__ import absolute_import
+import itertools
+import os
+
+import cv2
+
 import logger
 from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
 from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
-from biomio.algorithms.algorithms.features.rectmerge import mergeRectangles
-from biomio.algorithms.algorithms.features.rectsect import intersectRectangles
-from biomio.algorithms.algorithms.features.rectfilter import filterRectangles
-import itertools
-import cv2
-import os
-
+from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
+from biomio.algorithms.algorithms.cascades.rectsect import intersectRectangles
+from biomio.algorithms.algorithms.cascades.rectfilter import filterRectangles
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
