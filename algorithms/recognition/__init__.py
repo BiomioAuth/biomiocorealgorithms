@@ -1,8 +1,7 @@
 from keypoints import KODSettings
-from clusters_db_keypoints import ClustersDBMatchingDetector
-from clusters_templateL0_keypoints import ClustersTemplateL0MatchingDetector
-from clusters_templateL1_keypoints import ClustersTemplateL1MatchingDetector
-
+from face.clusters_db_keypoints import ClustersDBMatchingDetector
+from face.clusters_templateL0_keypoints import ClustersTemplateL0MatchingDetector
+from face.clusters_templateL1_keypoints import ClustersTemplateL1MatchingDetector
 
 def getClustersMatchingDetectorWithoutTemplate():
     detector = ClustersDBMatchingDetector()

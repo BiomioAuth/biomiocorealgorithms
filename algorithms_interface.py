@@ -3,8 +3,7 @@ import logger
 from biomio.algorithms.algorithms.imgobj import loadImageObject
 from biomio.algorithms.algorithms.recognition import (getClustersMatchingDetectorWithoutTemplate,
                                                       getClustersMatchingDetectorWithL0Template,
-                                                      getClustersMatchingDetectorWithL1Template,
-                                                      getIntersectMatchingDetector)
+                                                      getClustersMatchingDetectorWithL1Template)
 import json
 import os
 

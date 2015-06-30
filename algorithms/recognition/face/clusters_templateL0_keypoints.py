@@ -1,12 +1,14 @@
 from __future__ import absolute_import
+import itertools
+import sys
+
+import numpy
+
 import logger
 from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
-from biomio.algorithms.algorithms.recognition.clusters_keypoints import ClustersMatchingDetector
+from biomio.algorithms.algorithms.recognition.face.clusters_keypoints import ClustersMatchingDetector
 from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
 from biomio.algorithms.algorithms.recognition.keypoints import verifying
-import itertools
-import numpy
-import sys
 
 
 class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
