@@ -1,20 +1,14 @@
+import itertools
+
+
 def distance(p1, p2):
     return pow(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2), 0.5)
 
 
 def mass_center(items):
-    massaX = 0
-    massaY = 0
-    for i in items:
-        point = i.pt
-        massaX += point[0]
-        massaY += point[1]
-    result = (massaX / len(items), massaY / len(items))
-    return result
+    return tuple(map(lambda x: sum(x)/len(items), itertools.izip(
+        *itertools.imap(lambda x: x.pt, items))))
 
 
 def sort_clusters(clusters):
-    clus = [dict() for c in clusters]
-    for cluster in clusters:
-        clus[cluster['id']] = cluster
-    return clus
+    return sorted(clusters, key=lambda x: x['id'])
