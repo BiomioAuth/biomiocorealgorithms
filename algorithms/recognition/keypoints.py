@@ -7,10 +7,6 @@ from biomio.algorithms.algorithms.features.features import (FeatureDetector,
                                                             BRISKDetectorType, ORBDetectorType)
 
 
-LSHashType = 0
-NearPyHashType = 1
-
-
 class KODSettings:
     """
     Keypoints Object Detector's Settings class
