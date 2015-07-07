@@ -29,8 +29,7 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
             self._etalon = data['clusters']
         else:
             matcher = Matcher(BruteForceMatcherType)
-            for index in range(0, len(self._etalon)):
-                et_cluster = self._etalon[index]
+            for index, et_cluster in enumerate(self._etalon):
                 dt_cluster = data['clusters'][index]
                 if et_cluster is None or len(et_cluster) == 0:
                     self._etalon[index] = et_cluster
@@ -77,8 +76,7 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
 
     def exportSources_L0Template(self):
         sources = dict()
-        for index in range(0, len(self._etalon)):
-            cluster = self._etalon[index]
+        for index, cluster in enumerate(self._etalon):
             cluster_dict = dict()
             i_desc = 0
             if cluster is None:
@@ -95,26 +93,17 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
 
     def verify_template_L0(self, data):
         matcher = Matcher(BruteForceMatcherType)
-        res = []
         prob = 0
         logger.algo_logger.debug("Image: " + data['path'])
         logger.algo_logger.debug("Template size: ")
-        # TODO: I modified next for, but maybe we can modify it more.
-        summ = 0
-        for et_cluster in self._etalon:
-            if et_cluster is not None:
-                summ += len(et_cluster)
-        for index in range(0, len(self._etalon)):
-            et_cluster = self._etalon[index]
+        summ = sum(itertools.imap(lambda x: len(x) if x else 0, self._etalon))
+        for index, et_cluster in enumerate(self._etalon):
             dt_cluster = data['clusters'][index]
-            ms = []
             if et_cluster is None:
-                res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(-1)
                                          + " Invalid. (Weight: 0)")
                 continue
             if dt_cluster is None:
-                res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                          + " Positive: 0 Probability: 0 (Weight: " +
                                          str(len(et_cluster) / (1.0 * summ)) + ")")
@@ -131,14 +120,12 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
                         )
                     )
                 )
-                res.append(ms)
-                val = (len(res[index]) / (1.0 * len(self._etalon[index]))) * 100
+                val = (len(ms) / (1.0 * len(self._etalon[index]))) * 100
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
-                                         + " Positive: " + str(len(res[index])) + " Probability: " + str(val) +
+                                         + " Positive: " + str(len(ms)) + " Probability: " + str(val) +
                                          " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
                 prob += (len(et_cluster) / (1.0 * summ)) * val
             else:
-                res.append(ms)
                 logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
                                          + " Invalid.")
         logger.algo_logger.debug("Probability: " + str(prob))

@@ -7,6 +7,7 @@ from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMa
 from biomio.algorithms.algorithms.recognition.face.clusters_keypoints import ClustersMatchingDetector
 from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
 from biomio.algorithms.algorithms.recognition.keypoints import verifying
+import itertools
 
 
 class ClustersDBMatchingDetector(ClustersMatchingDetector):
@@ -26,12 +27,11 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
         logger.algo_logger.debug("Database loading finished.")
 
     def importSources_Database(self, source):
-        for j in range(0, len(source.keys())):
-            self._hash.append(dict())
+        self._hash = [dict() for _ in source.keys()]
         for c_num, item in source.iteritems():
-            item_data = [[] for key in item.keys()]
+            item_data = [[] for _ in item.keys()]
             for d_num, cluster in item.iteritems():
-                desc = [[] for c_key in cluster.keys()]
+                desc = [[] for _ in cluster.keys()]
                 for e_num, descriptor in cluster.iteritems():
                     desc[int(e_num)] = listToNumpy_ndarray(descriptor)
                 item_data[int(d_num)] = desc
@@ -49,16 +49,13 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
 
     def exportSources_Database(self):
         etalon = dict()
-        i = 0
-        for data in self._hash:
-            i += 1
+        for i, data in enumerate(self._hash):
             elements = dict()
-            for index in range(0, len(data["clusters"])):
-                cluster = data["clusters"][index]
+            for index, cluster in enumerate(data["clusters"]):
                 desc = dict()
                 if cluster is not None:
-                    for indx in range(0, len(cluster)):
-                        desc[indx] = numpy_ndarrayToList(cluster[indx])
+                    for indx, c in enumerate(cluster):
+                        desc[indx] = numpy_ndarrayToList(c)
                 elements[str(index)] = desc
             etalon[str(i)] = elements
         return etalon
@@ -69,22 +66,18 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
         gres = []
         for d in self._hash:
             res = []
-            for i in range(0, len(d['clusters'])):
+            for i, source in enumerate(d['clusters']):
                 test = data['clusters'][i]
-                source = d['clusters'][i]
                 if (test is None) or (source is None) or (len(test) == 0) or (len(source) == 0):
                     logger.algo_logger.debug("Cluster #" + str(i + 1) + ": Invalid")
                 else:
                     matches = matcher.knnMatch(listToNumpy_ndarray(test, numpy.uint8),
                                                listToNumpy_ndarray(source, numpy.uint8), k=1)
-                    ms = []
-                    # TODO: I think, this for can be modified. Do you have some idea?
-                    for v in matches:
-                        if len(v) >= 1:
-                            m = v[0]
-                            if m.distance < self.kodsettings.neighbours_distance:
-                                ms.append(m)
-                    prob = len(ms) / (1.0 * len(matches))
+                    ms = sum(itertools.imap(
+                        lambda v: len(v) >= 1 and v[0].distance < self.kodsettings.neighbours_distance,
+                        matches)
+                    )
+                    prob = ms / (1.0 * len(matches))
                     res.append(prob * 100)
                     logger.algo_logger.debug("Cluster #" + str(i + 1) + " (Size: " + str(len(source)) + "): "
                                              + str(prob * 100) + "%")
