@@ -93,7 +93,7 @@ class KeypointsObjectDetector:
     kodsettings = KODSettings()
 
     def __init__(self):
-        self._hash = None
+        self._database = None
         self._cascadeROI = None
         self._detector = None
         self._eyeROI = None

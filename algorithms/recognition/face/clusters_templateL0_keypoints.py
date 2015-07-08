@@ -21,7 +21,7 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
     def update_hash(self, data):
         del data['keypoints']
         del data['descriptors']
-        self._hash.append(data)
+        self._database.append(data)
         self.update_hash_templateL0(data)
 
     def update_hash_templateL0(self, data):
@@ -49,7 +49,7 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
 
     def update_database(self):
         try:
-            self._prob = min(self._hash, key=self.verify_template_L0)
+            self._prob = min(self._database, key=self.verify_template_L0)
         except:
             self._prob = sys.maxint
 
@@ -120,13 +120,13 @@ class ClustersTemplateL0MatchingDetector(ClustersMatchingDetector):
                         )
                     )
                 )
-                val = (len(ms) / (1.0 * len(self._etalon[index]))) * 100
-                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
+                val = (len(ms) / (1.0 * len(et_cluster))) * 100
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_cluster))
                                          + " Positive: " + str(len(ms)) + " Probability: " + str(val) +
                                          " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
                 prob += (len(et_cluster) / (1.0 * summ)) * val
             else:
-                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(self._etalon[index]))
+                logger.algo_logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_cluster))
                                          + " Invalid.")
         logger.algo_logger.debug("Probability: " + str(prob))
         return prob

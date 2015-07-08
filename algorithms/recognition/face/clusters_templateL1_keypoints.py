@@ -17,7 +17,7 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
     def update_hash(self, data):
         del data['keypoints']
         del data['descriptors']
-        self._hash.append(data)
+        self._database.append(data)
         self.update_hash_templateL1(data)
 
     def update_hash_templateL1(self, data):
@@ -32,7 +32,7 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
         :param data:
         :return:
         """
-        if len(self._hash) == 1:
+        if len(self._database) == 1:
             self._etalon = map(lambda cluster:
                                [] if cluster is None else [(desc, 1) for desc in cluster],
                                data['clusters'])
@@ -42,7 +42,7 @@ class ClustersTemplateL1MatchingDetector(ClustersMatchingDetector):
                 dt_cluster = data['clusters'][index]
                 if dt_cluster is None or len(dt_cluster) == 0:
                     continue
-                for obj in self._hash:
+                for obj in self._database:
                     if data['path'] == obj['path']:
                         continue
                     ob_cluster = obj['clusters'][index]

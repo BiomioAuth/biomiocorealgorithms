@@ -9,7 +9,7 @@ from biomio.algorithms.algorithms.recognition.keypoints import KeypointsObjectDe
 class ClustersMatchingDetector(KeypointsObjectDetector):
     def __init__(self):
         KeypointsObjectDetector.__init__(self)
-        self._hash = []
+        self._database = []
         self._etalon = []
         self._prob = 100
         self._coff = 0.9

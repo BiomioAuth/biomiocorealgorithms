@@ -17,7 +17,7 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
     def update_hash(self, data):
         del data['keypoints']
         del data['descriptors']
-        self._hash.append(data)
+        self._database.append(data)
 
     def importSources(self, source):
         self._etalon = []
@@ -27,7 +27,7 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
         logger.algo_logger.debug("Database loading finished.")
 
     def importSources_Database(self, source):
-        self._hash = [dict() for _ in source.keys()]
+        self._database = [dict() for _ in source.keys()]
         for c_num, item in source.iteritems():
             item_data = [[] for _ in item.keys()]
             for d_num, cluster in item.iteritems():
@@ -37,7 +37,7 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
                 item_data[int(d_num)] = desc
             obj = dict()
             obj["clusters"] = item_data
-            self._hash[int(c_num) - 1] = obj
+            self._database[int(c_num) - 1] = obj
 
     def exportSources(self):
         data = self.exportSources_Database()
@@ -49,7 +49,7 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
 
     def exportSources_Database(self):
         etalon = dict()
-        for i, data in enumerate(self._hash):
+        for i, data in enumerate(self._database):
             elements = dict()
             for index, cluster in enumerate(data["clusters"]):
                 desc = dict()
@@ -64,7 +64,7 @@ class ClustersDBMatchingDetector(ClustersMatchingDetector):
     def verify(self, data):
         matcher = Matcher(BruteForceMatcherType)
         gres = []
-        for d in self._hash:
+        for d in self._database:
             res = []
             for i, source in enumerate(d['clusters']):
                 test = data['clusters'][i]
