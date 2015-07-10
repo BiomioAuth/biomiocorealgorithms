@@ -97,13 +97,11 @@ class CascadeROIDetector:
         if len(self.__cascades) == 0:
             logger.algo_logger.debug("Detection impossible. Any cascade not found.")
             return rects
-        settings = CascadeClassifierSettings()
         for cascade in self.__cascades:
             lrects = cascade.detectMultiScale(
                 gray,
                 scaleFactor=self.classifierSettings.scaleFactor,
                 minNeighbors=self.classifierSettings.minNeighbors,
-                # minSize=settings.minSize,
                 minSize=self.classifierSettings.minSize,
                 flags=self.classifierSettings.flags)
             if as_list:
@@ -157,12 +155,11 @@ class CascadeROIDetector:
     @staticmethod
     def joinRectangles(rects, algorithm=RectsUnion):
         if len(rects) > 0:
-            if algorithm == RectsUnion:
-                return mergeRectangles(CascadeROIDetector.toList(rects))
-            elif algorithm == RectsIntersect:
-                return intersectRectangles(CascadeROIDetector.toList(rects))
-            elif algorithm == RectsFiltering:
-                return filterRectangles(CascadeROIDetector.toList(rects))
+            strategies = {RectsUnion: mergeRectangles,
+                          RectsIntersect: intersectRectangles,
+                          RectsFiltering: filterRectangles}
+            if strategies.keys().__contains__(algorithm):
+                return strategies[algorithm](CascadeROIDetector.toList(rects))
         return []
 
     @staticmethod
