@@ -107,16 +107,3 @@ class FeatureDetector:
         fea_image['descriptors'] = descriptors
         return fea_image
 
-    def match(self, obj, scn):
-        matches = self._matcher.knnMatch(obj['descriptors'], scn['descriptors'], k=2)
-
-        #Apply ratio test
-        good = []
-        for m, n in matches:
-            print str(m.imgIdx) + " " + str(m.distance) + " " + str(n.imgIdx) + " " + str(n.distance)
-            if m.distance < 0.75 * n.distance:
-                good.append([m])
-                print 'true'
-
-        # img1 = obj.image()
-        # img2 = scn_feature.image()
