@@ -1,22 +1,12 @@
-
 def intersectRectangles(rects):
     if len(rects) == 0:
         return rects
     if len(rects) == 1:
         return rects[0]
 
-    left = []
-    right = []
     half = len(rects) / 2
-    i = 0
-    for rect in rects:
-        if i < half:
-            left.append(rect)
-        else:
-            right.append(rect)
-        i += 1
-    left = intersectRectangles(left)
-    right = intersectRectangles(right)
+    left = intersectRectangles(rects[:half])
+    right = intersectRectangles(rects[half:])
     rect = _interRect(left, right)
     if rect[2] <= 0 or rect[3] <= 0:
         rect[2] = 0
@@ -41,11 +31,7 @@ def _interRect(left, right):
 
 
 def main():
-    rects = []
-    rects.append([0, 0, 4, 2])
-    rects.append([1, 1, 2, 2])
-    rects.append([0, 1, 4, 2])
-    # rects.append([7, 1, 2, 2])
+    rects = [[0, 0, 4, 2], [1, 1, 2, 2], [0, 1, 4, 2], [7, 1, 2, 2]]
     print intersectRectangles(rects)
 
 if __name__ == '__main__':

@@ -1,30 +1,18 @@
-__author__ = 'vitalius.parubochyi'
-
 from keypoints import KODSettings
-from clusters_keypoints import ClustersMatchingDetector
-from intersect_keypoints import IntersectMatchingDetector
-
+from face.clusters_db_keypoints import ClustersDBMatchingDetector
+from face.clusters_templateL0_keypoints import ClustersTemplateL0MatchingDetector
+from face.clusters_templateL1_keypoints import ClustersTemplateL1MatchingDetector
 
 def getClustersMatchingDetectorWithoutTemplate():
-    detector = ClustersMatchingDetector()
-    detector.setUseTemplate(False)
+    detector = ClustersDBMatchingDetector()
     return detector
 
 
 def getClustersMatchingDetectorWithL0Template():
-    detector = ClustersMatchingDetector()
-    detector.setUseTemplate(True)
-    detector.setTemplateLayer(0)
+    detector = ClustersTemplateL0MatchingDetector()
     return detector
 
 
 def getClustersMatchingDetectorWithL1Template():
-    detector = ClustersMatchingDetector()
-    detector.setUseTemplate(True)
-    detector.setTemplateLayer(1)
-    return detector
-
-
-def getIntersectMatchingDetector():
-    detector = IntersectMatchingDetector()
+    detector = ClustersTemplateL1MatchingDetector()
     return detector

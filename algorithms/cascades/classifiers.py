@@ -1,13 +1,15 @@
 from __future__ import absolute_import
+import itertools
+import os
+
+import cv2
+
 import logger
 from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
 from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
-from biomio.algorithms.algorithms.features.rectmerge import mergeRectangles
-from biomio.algorithms.algorithms.features.rectsect import intersectRectangles
-from biomio.algorithms.algorithms.features.rectfilter import filterRectangles
-import cv2
-import os
-
+from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
+from biomio.algorithms.algorithms.cascades.rectsect import intersectRectangles
+from biomio.algorithms.algorithms.cascades.rectfilter import filterRectangles
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
@@ -75,9 +77,7 @@ class CascadeROIDetector:
             logger.algo_logger.debug("The cascade file %s does not exist." % abs_path)
 
     def cascades(self):
-        cascades = []
-        for cascade in self._cascades_list:
-            cascades.append(cascade)
+        cascades = [cascade for cascade in self._cascades_list]
         return cascades
 
     def exportSettings(self):
@@ -97,20 +97,15 @@ class CascadeROIDetector:
         if len(self.__cascades) == 0:
             logger.algo_logger.debug("Detection impossible. Any cascade not found.")
             return rects
-        settings = CascadeClassifierSettings()
         for cascade in self.__cascades:
             lrects = cascade.detectMultiScale(
                 gray,
                 scaleFactor=self.classifierSettings.scaleFactor,
                 minNeighbors=self.classifierSettings.minNeighbors,
-                # minSize=settings.minSize,
                 minSize=self.classifierSettings.minSize,
                 flags=self.classifierSettings.flags)
-            # if len(lrects) != 0:
-                # lrects[:,2:] += lrects[:,:2]
             if as_list:
-                for r in lrects:
-                    rects.append(r)
+                rects += itertools.chain(*lrects)
             else:
                 rects.append(lrects)
         if len(rects) == 0:
@@ -132,7 +127,6 @@ class CascadeROIDetector:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
                 img = image
-
         # 90
         img2 = self._rotate(image)
         c_rect = self.detectAndJoin(img2, as_list, algorithm)
@@ -140,15 +134,8 @@ class CascadeROIDetector:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
                 img = img2
-
         # 180
         img3 = self._rotate(img2)
-        # c_rect = self.detectAndJoin(img3, as_list, algorithm)
-        # if len(c_rect) > 0:
-        #     if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-        #         rect = c_rect
-        #         img = img3
-
         # 270
         img4 = self._rotate(img3)
         c_rect = self.detectAndJoin(img4, as_list, algorithm)
@@ -168,18 +155,13 @@ class CascadeROIDetector:
     @staticmethod
     def joinRectangles(rects, algorithm=RectsUnion):
         if len(rects) > 0:
-            if algorithm == RectsUnion:
-                return mergeRectangles(CascadeROIDetector.toList(rects))
-            elif algorithm == RectsIntersect:
-                return intersectRectangles(CascadeROIDetector.toList(rects))
-            elif algorithm == RectsFiltering:
-                return filterRectangles(CascadeROIDetector.toList(rects))
+            strategies = {RectsUnion: mergeRectangles,
+                          RectsIntersect: intersectRectangles,
+                          RectsFiltering: filterRectangles}
+            if strategies.keys().__contains__(algorithm):
+                return strategies[algorithm](CascadeROIDetector.toList(rects))
         return []
 
     @staticmethod
     def toList(rects):
-        rs = []
-        for r in rects:
-            for c in r:
-                rs.append(c)
-        return rs
+        return list(itertools.chain(*rects))

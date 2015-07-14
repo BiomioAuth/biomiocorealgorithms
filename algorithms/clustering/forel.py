@@ -1,12 +1,10 @@
-import random
 from tools import distance, mass_center
+import random
 
 
 def FOREL(items, radius):
     clusters = []
-    local_items = []
-    for item in items:
-        local_items.append(item)
+    local_items = [item for item in items]
     while len(local_items) > 0:
         index = random.randint(0, len(local_items) - 1)
         curr = local_items[index].pt
@@ -27,10 +25,4 @@ def FOREL(items, radius):
 
 
 def neighbour_objects(items, center, radius):
-    result = []
-    for i in items:
-        point = i.pt
-        dis = distance(point, center)
-        if dis <= radius:
-            result.append(i)
-    return result
+    return filter(lambda i: distance(i.pt, center) <= radius, items)

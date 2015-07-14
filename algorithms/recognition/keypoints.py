@@ -1,19 +1,10 @@
 from __future__ import absolute_import
 import logger
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector,
-                                           BRISKDetectorSettings, ORBDetectorSettings)
-from biomio.algorithms.algorithms.features.classifiers import (getROIImage,
-                                             RectsIntersect, RectsFiltering)
-from biomio.algorithms.algorithms.recognition.features import (FeatureDetector,
-                                             BRISKDetectorType, ORBDetectorType)
-from biomio.algorithms.algorithms.cvtools.visualization import (showClusters, showNumpyImage, showMatches,
-                                              drawLine, drawClusters, drawKeypoints)
-from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
-from biomio.algorithms.algorithms.recognition.tools import minDistance, meanDistance, medianDistance
-
-
-LSHashType = 0
-NearPyHashType = 1
+                                                             BRISKDetectorSettings, ORBDetectorSettings)
+from biomio.algorithms.algorithms.cascades.classifiers import (getROIImage, RectsFiltering)
+from biomio.algorithms.algorithms.features.features import (FeatureDetector,
+                                                            BRISKDetectorType, ORBDetectorType)
 
 
 class KODSettings:
@@ -21,7 +12,6 @@ class KODSettings:
     Keypoints Object Detector's Settings class
     """
     neighbours_distance = 1.0
-    # max_hash_length = 600
     detector_type = BRISKDetectorType
     brisk_settings = BRISKDetectorSettings()
     orb_settings = ORBDetectorSettings()
@@ -84,21 +74,18 @@ def identifying(fn):
                 res = fn(self, data)
         logger.algo_logger.info("Identifying finished.")
         return res
-
     return wrapped
 
 
 def verifying(fn):
     def wrapped(self, data):
         logger.algo_logger.info("Verifying...")
-        self._log = ""
         res = False
         if self.data_detect(data):
             if data is not None:
                 res = fn(self, data)
         logger.algo_logger.info("Verifying finished.")
         return res
-
     return wrapped
 
 
@@ -106,30 +93,18 @@ class KeypointsObjectDetector:
     kodsettings = KODSettings()
 
     def __init__(self):
-        self._hash = None
+        self._database = None
         self._cascadeROI = None
         self._detector = None
         self._eyeROI = None
-        self._use_template = False
-        self._template_layer = 0
         self._use_roi = True
-        self._log = ""
         self._last_error = ""
 
     def threshold(self):
         return self.kodsettings.probability
 
-    def log(self):
-        return self._log
-
     def last_error(self):
         return self._last_error
-
-    def setUseTemplate(self, use):
-        self._use_template = use
-
-    def setTemplateLayer(self, layer):
-        self._template_layer = layer
 
     def setUseROIDetection(self, use):
         self._use_roi = use
@@ -169,13 +144,9 @@ class KeypointsObjectDetector:
     def detect(self, data):
         logger.algo_logger.info("Detector doesn't support image detection.")
 
-    def compare(self, f_imgobj, s_imgobj):
-        logger.algo_logger.info("Detector doesn't support image comparison.")
-
     def data_detect(self, data):
         # ROI detection
         if self._use_roi:
-            # rect = self._cascadeROI.detectAndJoin(data['data'], False, RectsFiltering)
             img, rect = self._cascadeROI.detectAndJoinWithRotation(data['data'], False, RectsFiltering)
             data['data'] = img
             if len(rect) <= 0:

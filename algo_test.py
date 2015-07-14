@@ -1,6 +1,3 @@
-__author__ = 'vitalius.parubochyi'
-
-
 from algorithms_interface import AlgorithmsInterface
 import json
 import os

@@ -1,7 +1,6 @@
 from biomio.algorithms.algorithms.features.detectors import (BRISKDetector, ORBDetector)
-from biomio.algorithms.algorithms.features.matchers import FlannMatcher
+from biomio.algorithms.algorithms.features.matchers import Matcher, BruteForceMatcherType
 from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
-import numpy
 import sys
 import cv2
 
@@ -21,8 +20,7 @@ class FeatureDetector:
         elif detector_type is ORBDetectorType:
             self._detector = ORBDetector()
             self._extractor = ORBDetector.extractor()
-        # self._matcher = MatcherCreator('BruteForce-Hamming')
-        self._matcher = FlannMatcher() # MatcherCreator('FlannBased')
+        self._matcher = Matcher(BruteForceMatcherType)
 
     def set_detector(self, detector):
         if detector is not None:
@@ -109,59 +107,3 @@ class FeatureDetector:
         fea_image['descriptors'] = descriptors
         return fea_image
 
-    def match(self, obj, scn):
-        matches = self._matcher.knnMatch(obj['descriptors'], scn['descriptors'], k=2)
-
-        #Apply ratio test
-        good = []
-        for m, n in matches:
-            print str(m.imgIdx) + " " + str(m.distance) + " " + str(n.imgIdx) + " " + str(n.distance)
-            if m.distance < 0.75 * n.distance:
-                good.append([m])
-                print 'true'
-
-        # img1 = obj.image()
-        # img2 = scn_feature.image()
-
-
-class ComplexDetector:
-    def __init__(self):
-        self._detector = BRISKDetector()
-        self._extractor = BRISKDetector.extractor()
-        # self._matcher = MatcherCreator('BruteForce-Hamming')
-        self._matcher = FlannMatcher() # MatcherCreator('FlannBased')
-
-    def detect(self, filepath, maskpath=None):
-        fea_image = ImageFeatures()
-
-        rect = (100, 400, 1000, 1100)
-
-        image = cvtools.loadImage(filepath)
-
-        # roiImage = ComplexDetector.getROIImage(image, rect)
-        roiImage = image
-
-        convImage = numpy.asarray(roiImage[:,:])
-        fea_image.image(convImage)
-
-        grayImage = cvtools.grayscale(convImage)
-
-        eqImage = cv2.equalizeHist(grayImage)
-        fea_image.image(eqImage)
-
-        gabor = gfilter.build_filters()
-        gImage = gfilter.process(eqImage, gabor)
-        # fea_image.image(gImage)
-        i = 0
-        for kern in gabor:
-            fimg = gfilter.process_kernel(eqImage, kern)
-            cvtools.saveImage(filepath + "_" + str(i) + ".png", fimg)
-            i += 1
-
-        mask = None
-        if maskpath is not None:
-            mask = cv2.imread(maskpath, cv2.CV_LOAD_IMAGE_GRAYSCALE)
-
-        keypoints = self._detector.detect(gImage, mask)
-        fea_image.keypoints(keypoints)
-        return fea_image
