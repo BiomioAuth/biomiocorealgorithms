@@ -1,6 +1,7 @@
-from algorithms_interface import AlgorithmsInterface
 import json
 import os
+
+from biomio.protocol.probes.plugins.face_photo_plugin.algorithms.algorithms_interface import AlgorithmsInterface
 
 PICTURE_PATH_BAD_1 = "D:/Projects/Biomio/Test1/yaleB11_P00A+000E+00.png"
 DATA_PATH_BAD_2 = "D:/Projects/Biomio/Test1/source4/data.json"
