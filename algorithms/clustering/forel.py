@@ -4,7 +4,7 @@ import random
 
 def FOREL(items, radius):
     clusters = []
-    local_items = [item for item in items]
+    local_items = items[:]
     while len(local_items) > 0:
         index = random.randint(0, len(local_items) - 1)
         curr = local_items[index].pt
@@ -14,11 +14,10 @@ def FOREL(items, radius):
             curr = cen
             neigh = neighbour_objects(local_items, curr, radius)
             cen = mass_center(neigh)
-
-        cluster = dict()
-        cluster['center'] = cen
-        cluster['items'] = neigh
-        clusters.append(cluster)
+        clusters.append({
+            'center': cen,
+            'items': neigh
+        })
         for i in neigh:
             local_items.remove(i)
     return clusters
