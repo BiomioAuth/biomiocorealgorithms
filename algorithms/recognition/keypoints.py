@@ -115,7 +115,10 @@ class KeypointsObjectDetector:
         logger.algo_logger.info(data['path'])
         if self.data_detect(data):
             self.update_hash(data)
+            logger.algo_logger.info("Training finished.")
+            return True
         logger.algo_logger.info("Training finished.")
+        return False
 
     def addSources(self, data_list):
         for data in data_list:
