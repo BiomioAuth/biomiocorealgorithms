@@ -95,13 +95,20 @@ class KeypointsObjectDetector:
         logger.algo_logger.info(data['path'])
         if self.data_detect(data):
             self.update_hash(data)
+            logger.algo_logger.info("Training finished.")
+            return True
         logger.algo_logger.info("Training finished.")
+        return False
 
     def addSources(self, data_list):
         if self._sources_preparing:
             self._prepare_sources(data_list)
+        count = 0
         for data in data_list:
-            self.addSource(data)
+            res = self.addSource(data)
+            if res:
+                count += 1
+        return count
 
     def importSources(self, data):
         logger.algo_logger.info("Detector cannot import sources.")
