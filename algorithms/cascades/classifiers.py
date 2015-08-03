@@ -1,15 +1,14 @@
 from __future__ import absolute_import
+from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
+from biomio.algorithms.algorithms.cascades.rectsect import intersectRectangles
+from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
+from biomio.algorithms.algorithms.cascades.rectfilter import filterRectangles
+from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
 import itertools
+import logger
+import cv2
 import os
 
-import cv2
-
-import logger
-from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
-from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
-from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
-from biomio.algorithms.algorithms.cascades.rectsect import intersectRectangles
-from biomio.algorithms.algorithms.cascades.rectfilter import filterRectangles
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
@@ -67,8 +66,10 @@ class CascadeROIDetector:
     def __init__(self):
         self.__cascades = []
         self._cascades_list = []
+        self._relative_cl = []
 
     def add_cascade(self, path):
+        self._relative_cl.append(path)
         abs_path = os.path.join(APP_ROOT, "../../", path)
         if os.path.exists(abs_path):
             self.__cascades.append(cv2.CascadeClassifier(abs_path))
@@ -82,7 +83,7 @@ class CascadeROIDetector:
 
     def exportSettings(self):
         face_cascade = dict()
-        face_cascade['ROI Cascades'] = self.cascades()
+        face_cascade['ROI Cascades'] = [cascade for cascade in self._relative_cl]
         face_cascade['Settings'] = self.classifierSettings.exportSettings()
         return face_cascade
 
@@ -129,11 +130,6 @@ class CascadeROIDetector:
                 img = image
         # 90
         img2 = self._rotate(image)
-        c_rect = self.detectAndJoin(img2, as_list, algorithm)
-        if len(c_rect) > 0:
-            if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
-                rect = c_rect
-                img = img2
         # 180
         img3 = self._rotate(img2)
         # 270
