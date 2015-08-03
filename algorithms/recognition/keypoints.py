@@ -150,7 +150,7 @@ class KeypointsObjectDetector:
         # Keypoints detection
         detector = FeatureDetector(constructDetector(self.kodsettings.detector_type, self.kodsettings.settings))
         try:
-            obj = detector.detectAndComputeImage(data['roi'])
+            obj = detector.detectAndCompute(data['roi'])
         except Exception as err:
             logger.algo_logger.debug(err.message)
             self._last_error = err.message
