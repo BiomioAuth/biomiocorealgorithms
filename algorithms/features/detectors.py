@@ -189,6 +189,8 @@ class mahotasSURFDetector(BaseDetector):
         return cvkeys, listToNumpy_ndarray([mahotasSURFDetector.getDescriptor(d) for d in descriptors])
 
     def compute(self, image, keypoints):
+        if keypoints is None or len(keypoints) == 0:
+            return keypoints, []
         mkeys = [mahotasSURFDetector.getMahotasKeypoint(keypoint) for keypoint in keypoints]
         return keypoints, listToNumpy_ndarray([mahotasSURFDetector.getDescriptor(d) for d in
                                                surf.descriptors(image, mkeys, self._settings.is_integral, True)])
