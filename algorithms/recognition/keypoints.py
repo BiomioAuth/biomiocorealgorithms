@@ -54,6 +54,19 @@ def identifying(fn):
     return wrapped
 
 
+def identifying(fn):
+    def wrapped(self, data):
+        logger.logger.debug("Identifying...")
+        res = None
+        if self.data_detect(self, data):
+            if data is not None:
+                res = fn(self, data)
+        logger.logger.debug("Identifying finished.")
+        return res
+
+    return wrapped
+
+
 def verifying(fn):
     def wrapped(self, data):
         logger.algo_logger.info("Verifying...")
@@ -102,7 +115,7 @@ class KeypointsObjectDetector:
 
     def addSources(self, data_list):
         if self._sources_preparing:
-            self._prepare_sources(data_list)
+            data_list = self._prepare_sources(data_list)
         count = 0
         for data in data_list:
             res = self.addSource(data)
@@ -142,7 +155,6 @@ class KeypointsObjectDetector:
                 logger.algo_logger.info("Face ROI wasn't found.")
                 self._last_error = "Face ROI wasn't found."
                 return False
-            print rect
             # ROI cutting
             data['roi'] = getROIImage(data['data'], rect)
         else:
@@ -166,7 +178,8 @@ class KeypointsObjectDetector:
 
     def _prepare_sources(self, data_list):
         self._use_roi = False
-        optimalROIDetection(data_list)
+        data_list = optimalROIDetection(data_list)
+        return data_list
 
     def update_hash(self, data):
         logger.algo_logger.info("The hash does not need to be updated!")

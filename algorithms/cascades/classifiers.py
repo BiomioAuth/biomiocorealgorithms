@@ -121,7 +121,7 @@ class CascadeROIDetector:
         return img
 
     def detectAndJoinWithRotation(self, image, as_list=False, algorithm=RectsUnion):
-        rect = (0, 0, 0, 0)
+        rect = [0, 0, 0, 0]
         img = image
         c_rect = self.detectAndJoin(image, as_list, algorithm)
         if len(c_rect) > 0:
@@ -140,6 +140,8 @@ class CascadeROIDetector:
                 rect = c_rect
                 img = img4
 
+        if rect[2] == 0 or rect[3] == 0:
+            rect = []
         return img, rect
 
     def detectAndJoin(self, image, as_list=False, algorithm=RectsUnion):
