@@ -37,33 +37,36 @@ def getROIImage(image, rectangle):
 
 class CascadeClassifierSettings:
     scaleFactor = 1.1
-    minNeighbors = 2
+    minNeighbors = 3
     minSize = (30, 30)
+    maxSize = (1000, 1000)
     flags = cv2.cv.CV_HAAR_SCALE_IMAGE
 
     def exportSettings(self):
-        face_settings = dict()
-        face_settings['Scale Factor'] = self.scaleFactor
-        face_settings['Minimum Neighbors'] = self.minNeighbors
-        face_settings['Minimum Size'] = self.minSize
-        return face_settings
+        settings = dict()
+        settings['Scale Factor'] = self.scaleFactor
+        settings['Minimum Neighbors'] = self.minNeighbors
+        settings['Minimum Size'] = self.minSize
+        settings['Maximum Size'] = self.maxSize
+        return settings
 
     def importSettings(self, settings):
         self.scaleFactor = settings['Scale Factor']
         self.minNeighbors = settings['Minimum Neighbors']
         self.minSize = (settings['Minimum Size'][0], settings['Minimum Size'][1])
+        self.maxSize = (settings['Maximum Size'][0], settings['Maximum Size'][1])
 
     def dump(self):
-        logger.algo_logger.info('Cascade Classifier Settings')
-        logger.algo_logger.info('Scale Factor: %f' % self.scaleFactor)
-        logger.algo_logger.info('Minimum Neighbors: %d' % self.minNeighbors)
-        logger.algo_logger.info('Minimum Size: %s' % str(self.minSize))
+        logger.logger.debug('Cascade Classifier Settings')
+        logger.logger.debug('Scale Factor: %f' % self.scaleFactor)
+        logger.logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
+        logger.logger.debug('Minimum Size: %s' % str(self.minSize))
+        logger.logger.debug('Maximum Size: %s' % str(self.maxSize))
 
 
 class CascadeROIDetector:
-    classifierSettings = CascadeClassifierSettings()
-
     def __init__(self):
+        self.classifierSettings = CascadeClassifierSettings()
         self.__cascades = []
         self._cascades_list = []
         self._relative_cl = []
@@ -104,6 +107,7 @@ class CascadeROIDetector:
                 scaleFactor=self.classifierSettings.scaleFactor,
                 minNeighbors=self.classifierSettings.minNeighbors,
                 minSize=self.classifierSettings.minSize,
+                maxSize=self.classifierSettings.maxSize,
                 flags=self.classifierSettings.flags)
             if as_list:
                 rects += itertools.chain(*lrects)

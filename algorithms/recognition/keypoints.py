@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 from biomio.algorithms.algorithms.features import (constructDetector, constructSettings, BRISKDetectorType)
-from biomio.algorithms.algorithms.cascades.classifiers import (getROIImage, RectsFiltering)
+from biomio.algorithms.algorithms.cascades.classifiers import RectsFiltering
+from biomio.algorithms.algorithms.cascades.tools import getROIImage
 from biomio.algorithms.algorithms.features.features import (FeatureDetector)
-from biomio.algorithms.algorithms.cascades.roi import optimalROIDetection
+from biomio.algorithms.algorithms.cascades.roi_optimal import OptimalROIDetector
 import logger
 
 
@@ -63,7 +64,6 @@ def identifying(fn):
                 res = fn(self, data)
         logger.logger.debug("Identifying finished.")
         return res
-
     return wrapped
 
 
@@ -178,7 +178,8 @@ class KeypointsObjectDetector:
 
     def _prepare_sources(self, data_list):
         self._use_roi = False
-        data_list = optimalROIDetection(data_list)
+        detector = OptimalROIDetector()
+        data_list = detector.detect(data_list)
         return data_list
 
     def update_hash(self, data):
