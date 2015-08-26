@@ -4,11 +4,10 @@ from biomio.algorithms.algorithms.cascades.classifiers import (CascadeROIDetecto
 from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
 from biomio.algorithms.algorithms.cascades.scripts_detectors import RotatedCascadesDetector
 from biomio.algorithms.algorithms.cascades.detectors import ROIDetectorInterface
-from biomio.algorithms.algorithms.cascades.tools import getROIImage
+from biomio.algorithms.algorithms.cascades.tools import getROIImage, loadScript
 import logger
 import cv2
 import os
-
 
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -58,13 +57,13 @@ class OptimalROIDetector(ROIDetectorInterface):
         for obj in data:
             img, rects = self._face_classifier.detectAndJoinWithRotation(obj['data'], False, RectsFiltering)
             if len(rects) <= 0:
-                logger.debug("optimalROIDetection: Face doesn't found on image %s" % obj['name'])
+                logger.algo_logger.debug("optimalROIDetection: Face doesn't found on image %s" % obj['name'])
                 continue
             obj['data'] = img
             new_images.append(obj)
         images = new_images
         for obj in images:
-            logger.debug(obj['path'])
+            logger.algo_logger.debug(obj['path'])
             image = obj['data']
             lrects = self._eyes_classifier.detectAndJoin(image, False, RectsUnion)
             obj['eyes'] = lrects
@@ -123,8 +122,9 @@ class OptimalROIDetectorSAoS(ROIDetectorInterface):
         self._face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_alt2.xml"))
         self._face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_default.xml"))
 
-        self._detector = RotatedCascadesDetector(os.path.join(SCRIPTS_PATH, "main_rotation_haarcascade_face_eyes.json"),
-                                                 os.path.join(SCRIPTS_PATH, "main_haarcascade_face.json"))
+        self._detector = RotatedCascadesDetector(loadScript(os.path.join(SCRIPTS_PATH,
+                                                                         "main_rotation_haarcascade_face_eyes.json")),
+                                                 loadScript(os.path.join(SCRIPTS_PATH, "main_haarcascade_face.json")))
 
     def detect(self, data):
         new_images = []
@@ -146,13 +146,13 @@ class OptimalROIDetectorSAoS(ROIDetectorInterface):
         rects = []
         for image in images:
             di = image['displacement']
-            if len(image['roi_rect']) == 4:
-                rects.append([image['roi_rect'][0] - di[0], image['roi_rect'][1] - di[1],
-                              image['roi_rect'][2], image['roi_rect'][3]])
+            for rec in image['roi_rect']:
+                if len(rec) == 4:
+                    rects.append([rec[0] - di[0], rec[1] - di[1], rec[2], rec[3]])
         optimal_rect = mergeRectangles(rects)
         if len(optimal_rect) == 4:
-            if 1.5 * optimal_rect[2] > optimal_rect[3]:
-                diff = 1.5 * optimal_rect[2] - optimal_rect[3]
+            if 1.3 * optimal_rect[2] > optimal_rect[3]:
+                diff = 1.3 * optimal_rect[2] - optimal_rect[3]
                 optimal_rect[1] -= int(0.3 * diff)
                 optimal_rect[3] += int(0.7 * diff)
             for image in images:
@@ -168,4 +168,4 @@ class OptimalROIDetectorSAoS(ROIDetectorInterface):
                 image['data'] = getROIImage(image['data'], rects)
                 new_images.append(image)
             images = new_images
-        return
+        return images

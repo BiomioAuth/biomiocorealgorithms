@@ -132,7 +132,6 @@ class RotatedCascadesDetector(CascadesDetectionInterface):
                     d[str(lr)] = img4
                 rects = skipEmptyRectangles(rects)
             d[str([])] = image
-            print rects
             rect = self._rotation.strategy.apply(rects)
             return d[str(rect[0])]
         return image

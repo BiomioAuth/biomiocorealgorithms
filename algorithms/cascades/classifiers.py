@@ -57,11 +57,11 @@ class CascadeClassifierSettings:
         self.maxSize = (settings['Maximum Size'][0], settings['Maximum Size'][1])
 
     def dump(self):
-        logger.logger.debug('Cascade Classifier Settings')
-        logger.logger.debug('Scale Factor: %f' % self.scaleFactor)
-        logger.logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
-        logger.logger.debug('Minimum Size: %s' % str(self.minSize))
-        logger.logger.debug('Maximum Size: %s' % str(self.maxSize))
+        logger.algo_logger.debug('Cascade Classifier Settings')
+        logger.algo_logger.debug('Scale Factor: %f' % self.scaleFactor)
+        logger.algo_logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
+        logger.algo_logger.debug('Minimum Size: %s' % str(self.minSize))
+        logger.algo_logger.debug('Maximum Size: %s' % str(self.maxSize))
 
 
 class CascadeROIDetector:

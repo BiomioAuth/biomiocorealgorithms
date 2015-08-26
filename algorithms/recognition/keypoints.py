@@ -3,7 +3,7 @@ from biomio.algorithms.algorithms.features import (constructDetector, constructS
 from biomio.algorithms.algorithms.cascades.classifiers import RectsFiltering
 from biomio.algorithms.algorithms.cascades.tools import getROIImage
 from biomio.algorithms.algorithms.features.features import (FeatureDetector)
-from biomio.algorithms.algorithms.cascades.roi_optimal import OptimalROIDetector
+from biomio.algorithms.algorithms.cascades.roi_optimal import OptimalROIDetector, OptimalROIDetectorSAoS
 import logger
 
 
@@ -57,12 +57,12 @@ def identifying(fn):
 
 def identifying(fn):
     def wrapped(self, data):
-        logger.logger.debug("Identifying...")
+        logger.algo_logger.debug("Identifying...")
         res = None
         if self.data_detect(self, data):
             if data is not None:
                 res = fn(self, data)
-        logger.logger.debug("Identifying finished.")
+        logger.algo_logger.debug("Identifying finished.")
         return res
     return wrapped
 
@@ -90,7 +90,7 @@ class KeypointsObjectDetector:
         self._detector = None
         self._eyeROI = None
         self._use_roi = True
-        self._sources_preparing = True
+        self._sources_preparing = False
         self._last_error = ""
 
     def threshold(self):
@@ -149,14 +149,9 @@ class KeypointsObjectDetector:
     def data_detect(self, data):
         # ROI detection
         if self._use_roi:
-            img, rect = self._cascadeROI.detectAndJoinWithRotation(data['data'], False, RectsFiltering)
-            data['data'] = img
-            if len(rect) <= 0:
-                logger.algo_logger.info("Face ROI wasn't found.")
-                self._last_error = "Face ROI wasn't found."
-                return False
-            # ROI cutting
-            data['roi'] = getROIImage(data['data'], rect)
+            detector = OptimalROIDetectorSAoS()
+            detector.detect([data])
+            data['roi'] = data['data']
         else:
             data['roi'] = data['data']
         # Keypoints detection
@@ -178,7 +173,7 @@ class KeypointsObjectDetector:
 
     def _prepare_sources(self, data_list):
         self._use_roi = False
-        detector = OptimalROIDetector()
+        detector = OptimalROIDetectorSAoS()
         data_list = detector.detect(data_list)
         return data_list
 
