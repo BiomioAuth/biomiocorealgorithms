@@ -109,10 +109,12 @@ class CascadeROIDetector:
                 minSize=self.classifierSettings.minSize,
                 maxSize=self.classifierSettings.maxSize,
                 flags=self.classifierSettings.flags)
+            logger.algo_logger.debug(lrects)
             if as_list:
                 rects += itertools.chain(*lrects)
             else:
                 rects.append(lrects)
+        logger.algo_logger.debug(rects)
         if len(rects) == 0:
             return []
         return rects

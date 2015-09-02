@@ -144,8 +144,6 @@ class ROIPositionStrategy(ROIManagementStrategy):
                 else:
                     print self._settings
                     if inside(r, temp, 0.1):
-                        print r
-                        print temp
                         if self._settings.get("kind", "min") == "min":
                             if r[1] <= temp[1] + self._settings.get("pos", 1.0) * temp[3]:
                                 res.append(r)
