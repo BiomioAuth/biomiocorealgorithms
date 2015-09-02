@@ -80,6 +80,12 @@ class RotatedCascadesDetector(CascadesDetectionInterface):
             img2 = self._rotate(img)
             img3 = self._rotate(img2)
             img4 = self._rotate(img3)
+            images = {
+                1: img,
+                2: img2,
+                3: img3,
+                4: img4
+            }
             d = dict()
             rects = []
             if len(self._rotation.stages) > 1:
@@ -91,19 +97,20 @@ class RotatedCascadesDetector(CascadesDetectionInterface):
                     lr1 = self._apply_stage(img, stage)
                     r1 += lr1
                     for lr in lr1:
-                        d[str(lr)] = img
+                        d[str(lr)] = 1
                     lr2 = self._apply_stage(img2, stage)
                     r2 += lr2
                     for lr in lr2:
-                        d[str(lr)] = img2
+                        d[str(lr)] = 2
                     lr3 = self._apply_stage(img3, stage)
                     r3 += lr3
                     for lr in lr3:
-                        d[str(lr)] = img3
+                        d[str(lr)] = 3
                     lr4 = self._apply_stage(img4, stage)
                     r4 += lr4
                     for lr in lr4:
-                        d[str(lr)] = img4
+                        d[str(lr)] = 4
+
                 if isRectangle(r1[0]):
                     rects.append(skipEmptyRectangles(r1))
                 if isRectangle(r2[0]):
@@ -117,21 +124,35 @@ class RotatedCascadesDetector(CascadesDetectionInterface):
                 r1 = self._apply_stage(img, stage)
                 rects += r1
                 for lr in r1:
-                    d[str(lr)] = img
+                    d[str(lr)] = 1
                 r2 = self._apply_stage(img2, stage)
                 rects += r2
                 for lr in r2:
-                    d[str(lr)] = img2
+                    d[str(lr)] = 2
                 r3 = self._apply_stage(img3, stage)
                 rects += r3
                 for lr in r3:
-                    d[str(lr)] = img3
+                    d[str(lr)] = 3
                 r4 = self._apply_stage(img4, stage)
                 rects += r4
                 for lr in r4:
-                    d[str(lr)] = img4
+                    d[str(lr)] = 4
                 rects = skipEmptyRectangles(rects)
-            d[str([])] = image
+            d[str([])] = 1
             rect = self._rotation.strategy.apply(rects)
-            return d[str(rect[0])]
+            count = {
+                1: 0,
+                2: 0,
+                3: 0,
+                4: 0
+            }
+            for rs in rect:
+                count[d[str(rs)]] += 1
+            max = 0
+            midx = 0
+            for index in range(1, 5, 1):
+                if count[index] > max:
+                    max = count[index]
+                    midx = index
+            return images[midx]
         return image
