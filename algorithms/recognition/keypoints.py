@@ -1,14 +1,7 @@
 from __future__ import absolute_import
 from biomio.algorithms.algorithms.features import (constructDetector, constructSettings, BRISKDetectorType)
-from biomio.algorithms.algorithms.cascades.classifiers import RectsFiltering
-from biomio.algorithms.algorithms.cascades.tools import getROIImage
 from biomio.algorithms.algorithms.features.features import (FeatureDetector)
-from biomio.algorithms.algorithms.cascades.roi_optimal import OptimalROIDetector, OptimalROIDetectorSAoS
 import logger
-
-
-LSHashType = 0
-NearPyHashType = 1
 
 
 class KODSettings:
@@ -51,18 +44,6 @@ def identifying(fn):
             if data is not None:
                 res = fn(self, data)
         logger.algo_logger.info("Identifying finished.")
-        return res
-    return wrapped
-
-
-def identifying(fn):
-    def wrapped(self, data):
-        logger.algo_logger.debug("Identifying...")
-        res = None
-        if self.data_detect(self, data):
-            if data is not None:
-                res = fn(self, data)
-        logger.algo_logger.debug("Identifying finished.")
         return res
     return wrapped
 
@@ -149,8 +130,7 @@ class KeypointsObjectDetector:
     def data_detect(self, data):
         # ROI detection
         if self._use_roi:
-            detector = OptimalROIDetectorSAoS()
-            detector.detect([data])
+            self._cascadeROI.detect([data])
             data['roi'] = data['data']
         else:
             data['roi'] = data['data']
@@ -173,8 +153,7 @@ class KeypointsObjectDetector:
 
     def _prepare_sources(self, data_list):
         self._use_roi = False
-        detector = OptimalROIDetectorSAoS()
-        data_list = detector.detect(data_list)
+        data_list = self._cascadeROI.detect(data_list)
         return data_list
 
     def update_hash(self, data):

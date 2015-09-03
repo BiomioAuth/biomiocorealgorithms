@@ -136,7 +136,6 @@ class ROIPositionStrategy(ROIManagementStrategy):
         if numpy.isscalar(rects[0][0]):
             rects = [rects]
         for item in rects:
-            print item
             temp = None
             for r in item:
                 if temp is None:
@@ -161,7 +160,6 @@ class ROIIncludeStrategy(ROIManagementStrategy):
         return "include"
 
     def apply(self, rects, template=[]):
-        print rects
         res = self._include(rects)
         if len(res) == 0:
             return [[]]
