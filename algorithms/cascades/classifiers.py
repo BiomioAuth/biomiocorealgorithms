@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
 from biomio.algorithms.algorithms.cascades.rectsect import intersectRectangles
-from biomio.algorithms.algorithms.cvtools.effects import grayscaleAndEqualize
+from biomio.algorithms.algorithms.cvtools.effects import grayscale
 from biomio.algorithms.algorithms.cascades.rectfilter import filterRectangles
 from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
 import itertools
@@ -97,7 +97,7 @@ class CascadeROIDetector:
 
     def detect(self, img, as_list=False):
         rects = list()
-        gray = grayscaleAndEqualize(img)
+        gray = grayscale(img)
         if len(self.__cascades) == 0:
             logger.algo_logger.debug("Detection impossible. Any cascade not found.")
             return rects
