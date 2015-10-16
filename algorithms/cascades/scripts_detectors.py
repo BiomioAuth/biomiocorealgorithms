@@ -138,8 +138,6 @@ class RotatedCascadesDetector(CascadesDetectionInterface):
                     d[str(lr)] = 4
                 rects = skipEmptyRectangles(rects)
             d[str([])] = 1
-            print rects
-            print self._rotation.strategy.type()
             rect = self._rotation.strategy.apply(rects)
             count = {
                 1: 0,
@@ -154,9 +152,10 @@ class RotatedCascadesDetector(CascadesDetectionInterface):
                 4: [0, 0, 0, 0]
             }
             for rs in rect:
-                count[d[str(rs[1])]] += 1
-                if (gl[d[str(rs[1])]][2] < rs[0][2]) and (gl[d[str(rs[1])]][3] < rs[0][3]):
-                    gl[d[str(rs[1])]] = rs[0]
+                if len(rs) > 1:
+                    count[d[str(rs[1])]] += 1
+                    if (gl[d[str(rs[1])]][2] < rs[0][2]) and (gl[d[str(rs[1])]][3] < rs[0][3]):
+                        gl[d[str(rs[1])]] = rs[0]
             max = -1
             midx = 0
             for index in range(1, 5, 1):

@@ -51,6 +51,7 @@ class ROIIntersectionStrategy(ROIManagementStrategy):
             p_bottom = right[1] + right[3]
         return [p_left, p_top, p_right - p_left, p_bottom - p_top]
 
+
 class ROIUnionStrategy(ROIManagementStrategy):
     def __init__(self, settings=dict()):
         ROIManagementStrategy.__init__(self, settings)
@@ -144,10 +145,16 @@ class ROIPositionStrategy(ROIManagementStrategy):
                     if inside(r, temp, 0.1):
                         if self._settings.get("kind", "min") == "min":
                             if r[1] <= temp[1] + self._settings.get("pos", 1.0) * temp[3]:
-                                res.append([temp, r])
+                                if self._settings.get("template", 1) == 1:
+                                    res.append([temp, r])
+                                else:
+                                    res.append(r)
                         else:
                             if r[1] >= temp[1] + self._settings.get("pos", 0.0) * temp[3]:
-                                res.append([temp, r])
+                                if self._settings.get("template", 1) == 1:
+                                    res.append([temp, r])
+                                else:
+                                    res.append(r)
         return res
 
 
@@ -160,7 +167,6 @@ class ROIIncludeStrategy(ROIManagementStrategy):
         return "include"
 
     def apply(self, rects, template=[]):
-        print rects
         res = self._include(rects)
         if len(res) == 0:
             return [[]]
