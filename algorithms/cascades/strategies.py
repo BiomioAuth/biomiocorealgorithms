@@ -169,7 +169,11 @@ class ROICenterStrategy(ROIManagementStrategy):
         return "center"
 
     def apply(self, rects, template=[]):
-        return self._center(rects)
+        res = self._center(rects)
+        if len(res) == 0:
+            return [[]]
+        else:
+            return [res] if numpy.isscalar(res[0]) else res
 
     def _center(self, rects):
         res = []
