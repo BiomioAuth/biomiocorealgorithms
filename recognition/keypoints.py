@@ -1,6 +1,6 @@
 from __future__ import absolute_import
-from biomio.algorithms.algorithms.features import (constructDetector, constructSettings, BRISKDetectorType)
-from biomio.algorithms.algorithms.features.features import (FeatureDetector)
+from biomio.algorithms.features import (constructDetector, constructSettings, BRISKDetectorType)
+from biomio.algorithms.features import (FeatureDetector)
 import logger
 
 

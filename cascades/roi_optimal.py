@@ -1,14 +1,15 @@
 from __future__ import absolute_import
+import os
+
+import cv2
+
 from biomio.algorithms.algorithms.cascades.classifiers import (CascadeROIDetector, RectsUnion, RectsFiltering,
                                                                CascadeClassifierSettings)
 from biomio.algorithms.algorithms.cascades.rectmerge import mergeRectangles
 from biomio.algorithms.algorithms.cascades.scripts_detectors import RotatedCascadesDetector
 from biomio.algorithms.algorithms.cascades.detectors import ROIDetectorInterface
-from biomio.algorithms.algorithms.cascades.tools import getROIImage, loadScript
+from biomio.algorithms.cascades.tools import getROIImage, loadScript
 import logger
-import cv2
-import os
-
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 CASCADES_PATH = os.path.join(APP_ROOT, "..", "data", "haarcascades")

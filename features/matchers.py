@@ -1,5 +1,6 @@
-import defines
 import cv2
+
+from biomio.algorithms.features import defines
 
 BruteForceMatcherType = 0
 FlannBasedMatcherType = 1

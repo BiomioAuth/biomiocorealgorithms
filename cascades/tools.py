@@ -1,8 +1,9 @@
-from biomio.algorithms.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
 import json
-import cv2
 import os
 
+import cv2
+
+from biomio.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS_PATH = os.path.join(APP_ROOT, "scripts")

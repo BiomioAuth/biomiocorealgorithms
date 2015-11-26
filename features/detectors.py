@@ -1,9 +1,11 @@
 from __future__ import absolute_import
-from biomio.algorithms.algorithms.cvtools.types import listToNumpy_ndarray
+
 from mahotas.features import surf
-import logger
 import numpy
 import cv2
+
+from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+import logger
 
 
 class BaseDetector:
