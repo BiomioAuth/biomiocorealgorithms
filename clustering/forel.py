@@ -1,6 +1,5 @@
+from tools import distance, mass_center
 import random
-
-from biomio.algorithms.clustering.tools import distance, mass_center
 
 
 def FOREL(items, radius):

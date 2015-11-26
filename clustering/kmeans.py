@@ -1,6 +1,5 @@
+from tools import distance, mass_center, sort_clusters
 import random
-
-from biomio.algorithms.clustering.tools import distance, mass_center, sort_clusters
 
 
 def get_cluster(id, center, items):
