@@ -1,5 +1,4 @@
-from algorithms.interfaces import AlgorithmProcessInterface, logger
-import os
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 
 class FinalTrainingProcess(AlgorithmProcessInterface):
     def __init__(self):

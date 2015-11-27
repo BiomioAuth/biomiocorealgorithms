@@ -1,31 +1,29 @@
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
+from defs import (JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, STATUS_ERROR, STATUS_RESULT,
+                  REDIS_CLUSTER_JOB_ACTION, REDIS_GENERAL_DATA, REDIS_TEMPLATE_RESULT,
+                  ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR)
+from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from biomio.algorithms.features import matcherForDetector, dtypeForDetector
+from biomio.algorithms.recognition.kodsettings import KODSettings
+from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+from biomio.algorithms.features.matchers import Matcher
+from messages import create_result_message
+from settings import loadSettings
 import itertools
 import ast
 
-from algorithms.interfaces import AlgorithmProcessInterface, logger
-from defs import (JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED,
-                  REDIS_CLUSTER_JOB_ACTION, REDIS_GENERAL_DATA, REDIS_TEMPLATE_RESULT,
-                  STATUS_ERROR, STATUS_RESULT,
-                  ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR)
-from algorithms.features import matcherForDetector, dtypeForDetector
-from algorithms.recognition.kodsettings import KODSettings
-from algorithms.cvtools.types import listToNumpy_ndarray
-from algorithms.features.matchers import Matcher
-from messages import create_result_message
-from biomio.algorithms.recognition.processes.settings.settings import get_settings
-from settings import loadSettings
-
 
 class ClusterMatchingProcess(AlgorithmProcessInterface):
-    def __init__(self):
-        AlgorithmProcessInterface.__init__(self)
+    def __init__(self, worker):
+        AlgorithmProcessInterface.__init__(self, "", worker)
         self._classname = "ClusterMatchingProcess"
         self._cluster_match_process = self
         self._final_process = AlgorithmProcessInterface()
 
-    def cluster_matching_process(self, process):
+    def set_cluster_matching_process(self, process):
         self._cluster_match_process = process
 
-    def final_training_process(self, process):
+    def set_final_training_process(self, process):
         self._final_process = process
 
     def handler(self, result):
@@ -34,7 +32,6 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
             if result['status'] == STATUS_ERROR:
                 logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
             elif result['status'] == STATUS_RESULT:
-                worker = WorkerInterface.instance()
                 res_data = result['data']
                 cluster_id = res_data['cluster_id']
                 current_key = REDIS_CLUSTER_JOB_ACTION % cluster_id
@@ -49,7 +46,6 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                             logger.debug("TEST##CLUSTERS")
                             logger.debug(current_key)
                             logger.debug(data['step'])
-
                             logger.debug("IMAGE FAULT")
                             general_key = REDIS_GENERAL_DATA % data['userID']
                             fault = 0
@@ -94,8 +90,7 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                 'cluster_id': cluster_id
                             }
                             RedisStorage.persistence_instance().store_data(current_key, **data)
-                            worker.run_job(self._cluster_match_process.job,
-                                           callback=self._cluster_match_process.handler, **job_data)
+                            self._cluster_match_process.run(self._worker, **job_data)
                     else:
                         logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
                 else:

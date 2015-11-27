@@ -1,24 +1,22 @@
-import os
-
-from algorithms.interfaces import AlgorithmProcessInterface
-from algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
-from algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
-from algorithms.cvtools.types import numpy_ndarrayToList
-from algorithms.cascades.defines import SCRIPTS_PATH
-from algorithms.cvtools.effects import rotate90
-from messages import create_error_message, create_result_message
-from handling import load_temp_data, save_temp_data
+from biomio.algorithms.interfaces import AlgorithmProcessInterface
+from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
+from biomio.algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from messages import create_error_message, create_result_message
+from biomio.algorithms.cvtools import numpy_ndarrayToList
+from biomio.algorithms.cascades import SCRIPTS_PATH
+from biomio.algorithms.cvtools.effects import rotate90
+from handling import load_temp_data, save_temp_data
+import os
 
 
 class RotationDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path):
-        AlgorithmProcessInterface.__init__(self)
+        AlgorithmProcessInterface.__init__(self, temp_data_path)
         self._classname = "RotationDetectionProcess"
-        self._temp_data_path = temp_data_path
         self._r_result_process = AlgorithmProcessInterface()
 
-    def rotation_result_process(self, process):
+    def set_rotation_result_process(self, process):
         self._r_result_process = process
 
     def handler(self, result):

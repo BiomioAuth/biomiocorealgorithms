@@ -1,27 +1,24 @@
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
+from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
+from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
+from biomio.algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
+from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
+from biomio.algorithms.cascades.tools import loadScript, getROIImage
+from messages import create_error_message, create_result_message
+from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+from handling import load_temp_data, save_temp_data
 import ast
 import os
 
-from algorithms.interfaces import AlgorithmProcessInterface, logger
-from algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
-from algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from algorithms.cascades.defines import SCRIPTS_PATH, CASCADES_PATH
-from algorithms.cascades.rectmerge import mergeRectangles
-from algorithms.cvtools.types import listToNumpy_ndarray
-from algorithms.cascades.tools import loadScript, getROIImage
-from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
-from messages import create_error_message, create_result_message
-from handling import load_temp_data, save_temp_data
-from biomio.algorithms.recognition.processes.settings.settings import get_settings
-
 
 class RotationResultProcess(AlgorithmProcessInterface):
-    def __init__(self, temp_data_path):
-        AlgorithmProcessInterface.__init__(self)
+    def __init__(self, temp_data_path, worker):
+        AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
         self._classname = "RotationResultProcess"
-        self._temp_data_path = temp_data_path
         self._data_detect_process = AlgorithmProcessInterface()
 
-    def data_detection_process(self, process):
+    def set_data_detection_process(self, process):
         self._data_detect_process = process
 
     def handler(self, result):
@@ -30,8 +27,7 @@ class RotationResultProcess(AlgorithmProcessInterface):
             if result['status'] == STATUS_ERROR:
                 pass
             elif result['status'] == STATUS_RESULT:
-                worker = WorkerInterface.instance()
-                self._data_detect_process.run(worker, **result['data'])
+                self._data_detect_process.run(self._worker, **result['data'])
 
     def job(self, callback_code, **kwargs):
         self._job_logger_info(**kwargs)

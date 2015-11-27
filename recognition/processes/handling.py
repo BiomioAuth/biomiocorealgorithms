@@ -1,9 +1,8 @@
 from __future__ import absolute_import
+from biomio.algorithms.cvtools.system import saveNumpyImage, loadNumpyImage
 import tempfile
 import json
 import os
-
-from biomio.algorithms.cvtools.system import saveNumpyImage, loadNumpyImage
 
 
 def save_temp_data(data, path, images=[]):

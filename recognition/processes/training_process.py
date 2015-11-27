@@ -1,16 +1,16 @@
-from algorithms.interfaces import AlgorithmProcessInterface, logger
-from biomio.algorithms.recognition.processes.defs import STATUS_ERROR, STATUS_RESULT, ERROR_FORMAT, INTERNAL_TRAINING_ERROR
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
+from biomio.algorithms.recognition.processes.defs import (STATUS_ERROR, STATUS_RESULT,
+                                                          ERROR_FORMAT, UNKNOWN_ERROR,
+                                                          INTERNAL_TRAINING_ERROR, INVALID_ALGORITHM_SETTINGS)
 from biomio.algorithms.recognition.processes.messages import create_error_message, create_result_message
-from biomio.algorithms.recognition.processes.defs import INVALID_ALGORITHM_SETTINGS, UNKNOWN_ERROR
-from algorithms.imgobj import loadImageObject
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
 from biomio.algorithms.recognition.processes.handling import save_temp_data
+from biomio.algorithms.imgobj import loadImageObject
 
 class TrainingProcess(AlgorithmProcessInterface):
-    def __init__(self, temp_data_path):
-        AlgorithmProcessInterface.__init__(self)
+    def __init__(self, temp_data_path, worker):
+        AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
         self._classname = "TrainingProcess"
-        self._temp_data_path = temp_data_path
         self._detect_process = AlgorithmProcessInterface()
         self._rotate_process = AlgorithmProcessInterface()
 
@@ -26,16 +26,15 @@ class TrainingProcess(AlgorithmProcessInterface):
             if result['status'] == STATUS_ERROR:
                 pass
             elif result['status'] == STATUS_RESULT:
-                worker = WorkerInterface.instance()
                 res = result.get('data', [])
                 if result['type'] == 'detection' and len(res) == 1:
-                    self._detect_process.run(worker, **res[0])
+                    self._detect_process.run(self._worker, **res[0])
                 elif result['type'] == 'rotation' and len(res) == 2:
-                    self._rotate_process.run(worker, kwargs_list_for_results_gatherer=res[0], **res[1])
+                    self._rotate_process.run(self._worker, kwargs_list_for_results_gatherer=res[0], **res[1])
                 else:
                     logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, "Invalid Data Format."))
-                    worker.run_job(self._error_process.job, callback=self._error_process.handler,
-                                   kwargs_list_for_results_gatherer=res[0], **res[1])
+                    if self._error_process:
+                        self._error_process.run(self._worker, kwargs_list_for_results_gatherer=res[0], **res[1])
             else:
                 logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Unknown Message"))
         else:

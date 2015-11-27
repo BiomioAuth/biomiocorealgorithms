@@ -1,9 +1,10 @@
-from algorithms.interfaces import AlgorithmProcessInterface
+from biomio.algorithms.interfaces import AlgorithmProcessInterface
 import os
 
+
 class MainTrainingProcess(AlgorithmProcessInterface):
-    def __init__(self):
-        AlgorithmProcessInterface.__init__(self)
+    def __init__(self, temp_data_path, worker):
+        AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
         self._classname = "MainTrainingProcess"
         self._training_process = AlgorithmProcessInterface()
 
@@ -18,11 +19,10 @@ class MainTrainingProcess(AlgorithmProcessInterface):
 
     def process(self, **kwargs):
         self._process_logger_info(kwargs)
-        worker = WorkerInterface.instance()
-        if not os.path.exists(TEMP_DATA_PATH):
-            os.mkdir(TEMP_DATA_PATH, 0o777)
-            os.chmod(TEMP_DATA_PATH, 0o777)
+        if not os.path.exists(self._temp_data_path):
+            os.mkdir(self._temp_data_path, 0o777)
+            os.chmod(self._temp_data_path, 0o777)
         for image_path in kwargs["data"]:
             settings = kwargs.copy()
             settings['path'] = image_path
-            worker.run_job(self._training_process.job, callback=self._training_process.handler, **settings)
+            self._training_process.run(self._worker, **settings)

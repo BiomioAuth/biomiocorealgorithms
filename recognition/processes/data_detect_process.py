@@ -1,35 +1,31 @@
-import ast
-
-from algorithms.interfaces import AlgorithmProcessInterface, logger
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from defs import (STATUS_RESULT, STATUS_ERROR, REDIS_GENERAL_DATA, REDIS_CLUSTER_JOB_ACTION,
-                  JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED,
-                  INTERNAL_TRAINING_ERROR)
-from algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from algorithms.recognition.kodsettings import KODSettings
-from algorithms.features.features import FeatureDetector
-from algorithms.cvtools.types import numpy_ndarrayToList
-from algorithms.features import constructDetector
-from algorithms.cascades.tools import loadScript
-from algorithms.clustering.kmeans import KMeans
-from algorithms.clustering.forel import FOREL
-from messages import create_error_message, create_result_message
-from handling import load_temp_data, save_temp_data
+                  JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, INTERNAL_TRAINING_ERROR)
+from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from biomio.algorithms.recognition.kodsettings import KODSettings
+from messages import create_error_message, create_result_message
+from biomio.algorithms.features.features import FeatureDetector
+from biomio.algorithms.cvtools.types import numpy_ndarrayToList
+from biomio.algorithms.features import constructDetector
+from biomio.algorithms.cascades.tools import loadScript
+from biomio.algorithms.clustering import KMeans, FOREL
+from handling import load_temp_data, save_temp_data
 from settings import loadSettings
+import ast
 
 
 class DataDetectionProcess(AlgorithmProcessInterface):
-    def __init__(self, temp_data_path):
-        AlgorithmProcessInterface.__init__(self)
+    def __init__(self, temp_data_path, worker):
+        AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
         self._classname = "DataDetectionProcess"
-        self._temp_data_path = temp_data_path
         self._cluster_match_process = AlgorithmProcessInterface()
         self._final_process = AlgorithmProcessInterface()
 
-    def cluster_matching_process(self, process):
+    def set_cluster_matching_process(self, process):
         self._cluster_match_process = process
 
-    def final_training_process(self, process):
+    def set_final_training_process(self, process):
         self._final_process = process
 
     def handler(self, result):
@@ -50,8 +46,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
             elif result['status'] == STATUS_RESULT:
                 logger.algo_logger.debug(result['data'][0]['data_file'])
                 res_data = load_temp_data(result['data'][0]['data_file'], remove=False)
-                logger.algo_logger.debug(res_data["name"])
-                worker = WorkerInterface.instance()
+                logger.debug(res_data["name"])
                 for key, cluster in res_data['clusters'].iteritems():
                     current_key = REDIS_CLUSTER_JOB_ACTION % key
                     logger.debug(current_key)
@@ -85,8 +80,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                     'algoID': data['algoID'],
                                     'cluster_id': key
                                 }
-                                worker.run_job(self._cluster_match_process.job,
-                                               callback=self._cluster_match_process.handler, **job_data)
+                                self._cluster_match_process.run(self._worker, **job_data)
                             else:
                                 if data['step'] == 5:
                                     template_key = REDIS_TEMPLATE_RESULT % data['userID']
