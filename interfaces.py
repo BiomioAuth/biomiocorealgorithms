@@ -3,8 +3,9 @@ from logger import algo_logger as logger
 
 
 class AlgorithmProcessInterface:
-    def __init__(self, temp_data_path=''):
+    def __init__(self, temp_data_path='', worker=None):
         self._temp_data_path = temp_data_path
+        self._worker = worker
         self._classname = "AlgorithmProcessInterface"
         self._error_process = None
 
@@ -46,9 +47,9 @@ class AlgorithmProcessInterface:
 
 class AlgorithmInterface:
 
-    def training(self, **kwargs):
+    def training(self, callback=None, **kwargs):
         raise NotImplementedError
 
-    def apply(self, **kwargs):
+    def apply(self, callback=None, **kwargs):
         raise NotImplementedError
 
