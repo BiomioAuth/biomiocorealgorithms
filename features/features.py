@@ -1,7 +1,6 @@
-import cv2
-
+from biomio.algorithms.features.detectors import BaseDetector
 from biomio.algorithms.cvtools import grayscaleAndEqualize
-from biomio.algorithms.features import BaseDetector
+import cv2
 
 
 class BaseDecorator(BaseDetector):
