@@ -1,7 +1,6 @@
-import numpy
-
-from biomio.algorithms.clustering.tools import distance
 from biomio.algorithms.cascades.tools import inside
+from biomio.algorithms.clustering import distance
+import numpy
 
 
 class ROIManagementStrategy:

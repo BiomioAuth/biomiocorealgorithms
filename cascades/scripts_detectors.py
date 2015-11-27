@@ -1,8 +1,7 @@
-import cv2
-
+from biomio.algorithms.cascades.tools import skipEmptyRectangles, isRectangle
 from classifiers import CascadeROIDetector
 from strategies import StrategyFactory
-from biomio.algorithms.cascades.tools import skipEmptyRectangles, isRectangle
+import cv2
 
 
 class DetectorStage:
