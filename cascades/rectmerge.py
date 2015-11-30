@@ -1,4 +1,3 @@
-
 def mergeRectangles(rects):
     if len(rects) == 0:
         return rects
@@ -29,6 +28,7 @@ def _mergeRect(left, right):
 def main():
     rects = [[0, 0, 4, 2], [1, 1, 2, 2], [2, 2, 4, 2], [7, 1, 2, 2]]
     print mergeRectangles(rects)
+
 
 if __name__ == '__main__':
     main()

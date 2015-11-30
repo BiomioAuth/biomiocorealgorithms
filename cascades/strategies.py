@@ -1,5 +1,5 @@
-from biomio.algorithms.cascades.tools import inside
 from biomio.algorithms.clustering import distance
+from tools import inside
 import numpy
 
 
