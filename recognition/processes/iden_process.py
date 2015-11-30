@@ -1,4 +1,4 @@
-from algorithms.interfaces import AlgorithmProcessInterface
+from biomio.algorithms.interfaces import AlgorithmProcessInterface
 
 
 class IdentificationProcess(AlgorithmProcessInterface):
