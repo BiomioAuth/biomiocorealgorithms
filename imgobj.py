@@ -21,4 +21,3 @@ def loadImageObject(path):
             'data': loadNumpyImage(path)}
         return data
     return None
-

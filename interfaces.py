@@ -1,5 +1,4 @@
-# from logger import logger
-from logger import algo_logger as logger
+from biomio.algorithms.logger import logger
 
 
 class AlgorithmProcessInterface:
@@ -52,4 +51,3 @@ class AlgorithmInterface:
 
     def apply(self, callback=None, **kwargs):
         raise NotImplementedError
-
