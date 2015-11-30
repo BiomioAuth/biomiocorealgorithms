@@ -1,10 +1,9 @@
-from __future__ import absolute_import
 from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsUnion, RectsFiltering,
                                                     CascadeClassifierSettings)
 from biomio.algorithms.cascades import mergeRectangles, SCRIPTS_PATH, CASCADES_PATH
 from biomio.algorithms.cascades.scripts_detectors import RotatedCascadesDetector
 from biomio.algorithms.cascades.tools import getROIImage, loadScript
-import logger
+from biomio.algorithms.logger import logger
 import cv2
 import os
 
@@ -19,7 +18,6 @@ class ROIDetectorInterface:
 
 class OptimalROIDetector(ROIDetectorInterface):
     def __init__(self):
-        ROIDetectorInterface.__init__(self)
         self._d = 100
 
         self._face_classifier = CascadeROIDetector()
@@ -60,13 +58,13 @@ class OptimalROIDetector(ROIDetectorInterface):
         for obj in data:
             img, rects = self._face_classifier.detectAndJoinWithRotation(obj['data'], False, RectsFiltering)
             if len(rects) <= 0:
-                logger.algo_logger.debug("optimalROIDetection: Face doesn't found on image %s" % obj['name'])
+                logger.debug("optimalROIDetection: Face doesn't found on image %s" % obj['name'])
                 continue
             obj['data'] = img
             new_images.append(obj)
         images = new_images
         for obj in images:
-            logger.algo_logger.debug(obj['path'])
+            logger.debug(obj['path'])
             image = obj['data']
             lrects = self._eyes_classifier.detectAndJoin(image, False, RectsUnion)
             obj['eyes'] = lrects
@@ -112,7 +110,6 @@ class OptimalROIDetector(ROIDetectorInterface):
 
 class OptimalROIDetectorSAoS(ROIDetectorInterface):
     def __init__(self):
-        ROIDetectorInterface.__init__(self)
         self._d = 100
 
         self._face_classifier = CascadeROIDetector()

@@ -1,35 +1,13 @@
-from __future__ import absolute_import
-from biomio.algorithms.cvtools import grayscale, numpy_darrayToIplImage, iplImageToNumpy_darray
-from biomio.algorithms.cascades import intersectRectangles, filterRectangles, mergeRectangles
-import itertools
-import logger
+from biomio.algorithms.cascades import intersectRectangles, filterRectangles, mergeRectangles, APP_ROOT
+from biomio.algorithms.cvtools import grayscale, rotate90
+from biomio.algorithms.logger import logger
 import cv2
 import os
-
-
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-ALGO_DB_PATH = os.path.join(APP_ROOT, 'algorithms', 'data')
 
 
 RectsUnion = 0
 RectsIntersect = 1
 RectsFiltering = 2
-
-
-def getROIImage(image, rectangle):
-    """
-    Cut rectangle ROI (Region of Image) on the image.
-
-    :param image: numpy.ndarray image.
-    :param rectangle: list[x, y, width, height]
-    :return: numpy.ndarray ROI image.
-    """
-    im = numpy_darrayToIplImage(image)
-    cv2.cv.SetImageROI(im, (rectangle[0], rectangle[1], rectangle[2], rectangle[3]))
-    out = cv2.cv.CreateImage(cv2.cv.GetSize(im), im.depth, im.nChannels)
-    cv2.cv.Copy(im, out)
-    cv2.cv.ResetImageROI(out)
-    return iplImageToNumpy_darray(out)
 
 
 class CascadeClassifierSettings:
@@ -54,11 +32,11 @@ class CascadeClassifierSettings:
         self.maxSize = (settings['Maximum Size'][0], settings['Maximum Size'][1])
 
     def dump(self):
-        logger.algo_logger.debug('Cascade Classifier Settings')
-        logger.algo_logger.debug('Scale Factor: %f' % self.scaleFactor)
-        logger.algo_logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
-        logger.algo_logger.debug('Minimum Size: %s' % str(self.minSize))
-        logger.algo_logger.debug('Maximum Size: %s' % str(self.maxSize))
+        logger.debug('Cascade Classifier Settings')
+        logger.debug('Scale Factor: %f' % self.scaleFactor)
+        logger.debug('Minimum Neighbors: %d' % self.minNeighbors)
+        logger.debug('Minimum Size: %s' % str(self.minSize))
+        logger.debug('Maximum Size: %s' % str(self.maxSize))
 
 
 class CascadeROIDetector:
@@ -71,14 +49,17 @@ class CascadeROIDetector:
     def add_cascade(self, path):
         self._relative_cl.append(path)
         abs_path = os.path.join(APP_ROOT, "../../", path)
+        logger.debug("####### %s" % abs_path)
         if os.path.exists(abs_path):
             self.__cascades.append(cv2.CascadeClassifier(abs_path))
             self._cascades_list.append(abs_path)
         else:
-            logger.algo_logger.debug("The cascade file %s does not exist." % abs_path)
+            logger.debug("Such file does not exist.")
 
     def cascades(self):
-        cascades = [cascade for cascade in self._cascades_list]
+        cascades = []
+        for cascade in self._cascades_list:
+            cascades.append(cascade)
         return cascades
 
     def exportSettings(self):
@@ -96,7 +77,7 @@ class CascadeROIDetector:
         rects = list()
         gray = grayscale(img)
         if len(self.__cascades) == 0:
-            logger.algo_logger.debug("Detection impossible. Any cascade not found.")
+            logger.debug("Detection impossible. Any cascade not found.")
             return rects
         for cascade in self.__cascades:
             lrects = cascade.detectMultiScale(
@@ -106,20 +87,15 @@ class CascadeROIDetector:
                 minSize=self.classifierSettings.minSize,
                 maxSize=self.classifierSettings.maxSize,
                 flags=self.classifierSettings.flags)
+            logger.debug(lrects)
             if as_list:
                 rects += [r for r in lrects]
             else:
                 rects.append(lrects)
+        logger.debug(rects)
         if len(rects) == 0:
             return []
         return rects
-
-    def _rotate(self, image):
-        rows = image.shape[0]
-        cols = image.shape[1]
-        M = cv2.getRotationMatrix2D((cols/2.0, cols/2.0), 90, 1)
-        img = cv2.warpAffine(image, M, (rows, cols))
-        return img
 
     def detectAndJoinWithRotation(self, image, as_list=False, algorithm=RectsUnion):
         rect = [0, 0, 0, 0]
@@ -130,17 +106,16 @@ class CascadeROIDetector:
                 rect = c_rect
                 img = image
         # 90
-        img2 = self._rotate(image)
+        img2 = rotate90(image)
         # 180
-        img3 = self._rotate(img2)
+        img3 = rotate90(img2)
         # 270
-        img4 = self._rotate(img3)
+        img4 = rotate90(img3)
         c_rect = self.detectAndJoin(img4, as_list, algorithm)
         if len(c_rect) > 0:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
                 img = img4
-
         if rect[2] == 0 or rect[3] == 0:
             rect = []
         return img, rect
@@ -148,19 +123,24 @@ class CascadeROIDetector:
     def detectAndJoin(self, image, as_list=False, algorithm=RectsUnion):
         rects = self.detect(image, as_list)
         if len(rects) == 0:
-            logger.algo_logger.debug("ROI is not found for image")
+            logger.debug("ROI is not found for image")
         return self.joinRectangles(rects, algorithm)
 
     @staticmethod
     def joinRectangles(rects, algorithm=RectsUnion):
         if len(rects) > 0:
-            strategies = {RectsUnion: mergeRectangles,
-                          RectsIntersect: intersectRectangles,
-                          RectsFiltering: filterRectangles}
-            if strategies.keys().__contains__(algorithm):
-                return strategies[algorithm](CascadeROIDetector.toList(rects))
+            if algorithm == RectsUnion:
+                return mergeRectangles(CascadeROIDetector.toList(rects))
+            elif algorithm == RectsIntersect:
+                return intersectRectangles(CascadeROIDetector.toList(rects))
+            elif algorithm == RectsFiltering:
+                return filterRectangles(CascadeROIDetector.toList(rects))
         return []
 
     @staticmethod
     def toList(rects):
-        return list(itertools.chain(*rects))
+        rs = []
+        for r in rects:
+            for c in r:
+                rs.append(c)
+        return rs
