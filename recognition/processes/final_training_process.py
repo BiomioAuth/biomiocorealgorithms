@@ -42,14 +42,14 @@ class FinalTrainingProcess(AlgorithmProcessInterface):
             # algoID if it doesn't exists
             database = algo_result.get('database', None)
             if database is not None:
-                _store_training_db(database, probe_id)
+                FinalTrainingProcess._store_training_db(database, probe_id)
                 result = True
         elif isinstance(algo_result, list):
             for algo_result_item in algo_result:
                 if algo_result_item.get('status', '') == "error":
-                    worker_logger.exception('Error during education - %s, %s, %s' % (algo_result_item.get('status'),
-                                                                                     algo_result_item.get('type'),
-                                                                                     algo_result_item.get('details')))
+                    logger.exception('Error during education - %s, %s, %s' % (algo_result_item.get('status'),
+                                                                              algo_result_item.get('type'),
+                                                                              algo_result_item.get('details')))
                     ai_response_type.update({'status': 'error'})
                     if 'Internal Training Error' in algo_result_item.get('type', ''):
                         error = algo_result_item.get('details', {}).get('message', '')
