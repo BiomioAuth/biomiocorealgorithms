@@ -1,6 +1,6 @@
-from algorithms.interfaces import AlgorithmProcessInterface, logger
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from biomio.algorithms.recognition.processes.defs import ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR
-from algorithms.datastructs import get_data_structure
+from biomio.algorithms.datastructs import get_data_structure
 
 
 class UpdateDataStructureProcess(AlgorithmProcessInterface):
