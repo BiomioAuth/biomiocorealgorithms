@@ -2,6 +2,7 @@ from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from defs import (JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, STATUS_ERROR, STATUS_RESULT,
                   REDIS_CLUSTER_JOB_ACTION, REDIS_GENERAL_DATA, REDIS_TEMPLATE_RESULT,
                   ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR)
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore, REDIS_DO_NOT_STORE_RESULT_KEY
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
 from biomio.algorithms.features import matcherForDetector, dtypeForDetector
 from biomio.algorithms.recognition.kodsettings import KODSettings
@@ -35,9 +36,9 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                 res_data = result['data']
                 cluster_id = res_data['cluster_id']
                 current_key = REDIS_CLUSTER_JOB_ACTION % cluster_id
-                if RedisStorage.persistence_instance().exists(current_key):
-                    data = ast.literal_eval(RedisStorage.persistence_instance().get_data(current_key))
-                    RedisStorage.persistence_instance().delete_data(current_key)
+                if AlgorithmsDataStore.instance().exists(current_key):
+                    data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
+                    AlgorithmsDataStore.instance().delete_data(current_key)
                     if data['status'] == JOB_STATUS_ACTIVE:
                         data['template'] = res_data['template']
                         queued = data.get('queued_data', None)
@@ -49,18 +50,18 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                             logger.debug("IMAGE FAULT")
                             general_key = REDIS_GENERAL_DATA % data['userID']
                             fault = 0
-                            if RedisStorage.persistence_instance().exists(general_key):
-                                general_data = ast.literal_eval(RedisStorage.persistence_instance().get_data(general_key))
+                            if AlgorithmsDataStore.instance().exists(general_key):
+                                general_data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(general_key))
                                 fault = general_data['image_fault']
                             logger.debug(fault)
                             if data['step'] == 5 - fault:
                                 template_key = REDIS_TEMPLATE_RESULT % data['userID']
                                 final_data = dict()
                                 ended = 0
-                                if RedisStorage.persistence_instance().exists(template_key):
+                                if AlgorithmsDataStore.instance().exists(template_key):
                                     final_data = ast.literal_eval(
-                                        RedisStorage.persistence_instance().get_data(template_key))
-                                    RedisStorage.persistence_instance().delete_data(template_key)
+                                        AlgorithmsDataStore.instance().get_data(template_key))
+                                    AlgorithmsDataStore.instance().delete_data(template_key)
                                     ended = final_data['ended']
                                 else:
                                     final_data['userID'] = data['userID']
@@ -74,9 +75,9 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                     if final_data['ended'] == 6:
                                         self._final_process.process(**final_data)
                                     else:
-                                        RedisStorage.persistence_instance().store_data(template_key, **final_data)
+                                        AlgorithmsDataStore.instance().store_data(template_key, **final_data)
                             else:
-                                RedisStorage.persistence_instance().store_data(current_key, **data)
+                                AlgorithmsDataStore.instance().store_data(current_key, **data)
                         else:
                             cluster = queued.pop(0)
                             data['queued_data'] = queued
@@ -89,7 +90,7 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                 'algoID': data['algoID'],
                                 'cluster_id': cluster_id
                             }
-                            RedisStorage.persistence_instance().store_data(current_key, **data)
+                            AlgorithmsDataStore.instance().store_data(current_key, **data)
                             self._cluster_match_process.run(self._worker, **job_data)
                     else:
                         logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
@@ -100,8 +101,8 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
         self._job_logger_info(**kwargs)
         data = self.process(**kwargs)
         record = create_result_message(data, 'matching')
-        BaseDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                  record_dict=record, callback_code=callback_code)
+        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
+                                                        record_dict=record, callback_code=callback_code)
 
     def process(self, **kwargs):
         self._process_logger_info(**kwargs)

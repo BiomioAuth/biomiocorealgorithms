@@ -1,13 +1,23 @@
 from biomio.algorithms.interfaces import AlgorithmProcessInterface
+from biomio.constants import REDIS_PARTIAL_RESULTS_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_DO_NOT_STORE_RESULT_KEY
 from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
 from biomio.algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
+from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
 from messages import create_error_message, create_result_message
 from biomio.algorithms.cvtools import numpy_ndarrayToList
-from biomio.algorithms.cascades import SCRIPTS_PATH
 from biomio.algorithms.cvtools.effects import rotate90
+from biomio.algorithms.cascades import SCRIPTS_PATH
 from handling import load_temp_data, save_temp_data
 import os
+
+
+def store_verification_results(result, callback_code):
+    AlgorithmsDataStore.instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % callback_code)
+    AlgorithmsDataStore.instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
+    AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
+                                                    record_dict=result, callback_code=callback_code)
 
 
 class RotationDetectionProcess(AlgorithmProcessInterface):
@@ -25,19 +35,18 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
             if result['status'] == STATUS_ERROR:
                 pass
             elif result['status'] == STATUS_RESULT:
-                worker = WorkerInterface.instance()
-                self._r_result_process.run(worker, **result['data'])
+                self._r_result_process.run(self._worker, **result['data'])
 
     def job(self, callback_code, **kwargs):
         self._job_logger_info(**kwargs)
         record = {'data_file': self.process(**kwargs)}
-        RedisStorage.persistence_instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
-                                                                 value=record)
-        results_counter = RedisStorage.persistence_instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
-                                                                                  callback_code)
+        AlgorithmsDataStore.instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
+                                                            value=record)
+        results_counter = AlgorithmsDataStore.instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
+                                                                             callback_code)
         if results_counter <= 0:
-            gathered_results = RedisStorage.persistence_instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
-                                                                                   callback_code)
+            gathered_results = AlgorithmsDataStore.instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
+                                                                              callback_code)
             if results_counter < 0:
                 result = create_error_message(INTERNAL_TRAINING_ERROR, "jobs_counter", "Number of jobs is incorrect.")
             else:

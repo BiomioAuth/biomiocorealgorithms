@@ -3,10 +3,12 @@ from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsFil
 from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from biomio.algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
 from biomio.algorithms.cascades.tools import loadScript, getROIImage
 from messages import create_error_message, create_result_message
 from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from handling import load_temp_data, save_temp_data
 import ast
 import os
@@ -34,8 +36,8 @@ class RotationResultProcess(AlgorithmProcessInterface):
         images_res_list = [ast.literal_eval(dict_str) for dict_str in kwargs['data_list']]
         kwargs['data_list'] = images_res_list
         record = self.process(**kwargs)
-        BaseDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                  record_dict=record, callback_code=callback_code)
+        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
+                                                        record_dict=record, callback_code=callback_code)
 
     def process(self, **kwargs):
         self._process_logger_info(**kwargs)

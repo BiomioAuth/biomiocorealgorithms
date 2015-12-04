@@ -1,12 +1,14 @@
 from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
-from defs import (STATUS_RESULT, STATUS_ERROR, REDIS_GENERAL_DATA, REDIS_CLUSTER_JOB_ACTION,
-                  JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, INTERNAL_TRAINING_ERROR)
+from defs import (STATUS_RESULT, STATUS_ERROR, UNKNOWN_ERROR, REDIS_GENERAL_DATA, REDIS_CLUSTER_JOB_ACTION,
+                  JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, INTERNAL_TRAINING_ERROR, ERROR_FORMAT, REDIS_TEMPLATE_RESULT)
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
 from biomio.algorithms.recognition.kodsettings import KODSettings
 from messages import create_error_message, create_result_message
 from biomio.algorithms.features.features import FeatureDetector
 from biomio.algorithms.cvtools.types import numpy_ndarrayToList
+from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from biomio.algorithms.features import constructDetector
 from biomio.algorithms.cascades.tools import loadScript
 from biomio.algorithms.clustering import KMeans, FOREL
@@ -35,24 +37,24 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                 general_key = REDIS_GENERAL_DATA % result['details']['userID']
                 data = dict()
                 fault = 0
-                if RedisStorage.persistence_instance().exists(general_key):
-                    data = ast.literal_eval(RedisStorage.persistence_instance().get_data(general_key))
-                    RedisStorage.persistence_instance().delete_data(general_key)
+                if AlgorithmsDataStore.instance().exists(general_key):
+                    data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(general_key))
+                    AlgorithmsDataStore.instance().delete_data(general_key)
                     fault = data.get('image_fault', 0)
                 data['image_fault'] = fault + 1
-                RedisStorage.persistence_instance().store_data(general_key, **data)
-                logger.algo_logger.debug("IMAGE FAULT")
-                logger.algo_logger.debug(data['image_fault'])
+                AlgorithmsDataStore.instance().store_data(general_key, **data)
+                logger.debug("IMAGE FAULT")
+                logger.debug(data['image_fault'])
             elif result['status'] == STATUS_RESULT:
-                logger.algo_logger.debug(result['data'][0]['data_file'])
+                logger.debug(result['data'][0]['data_file'])
                 res_data = load_temp_data(result['data'][0]['data_file'], remove=False)
                 logger.debug(res_data["name"])
                 for key, cluster in res_data['clusters'].iteritems():
                     current_key = REDIS_CLUSTER_JOB_ACTION % key
                     logger.debug(current_key)
-                    if RedisStorage.persistence_instance().exists(current_key):
-                        data = ast.literal_eval(RedisStorage.persistence_instance().get_data(current_key))
-                        RedisStorage.persistence_instance().delete_data(current_key)
+                    if AlgorithmsDataStore.instance().exists(current_key):
+                        data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
+                        AlgorithmsDataStore.instance().delete_data(current_key)
                         logger.debug("@$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$@")
                         logger.debug(data['status'])
                         if data['status'] == JOB_STATUS_ACTIVE:
@@ -63,7 +65,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             else:
                                 step = data['step']
                                 data['step'] = step + 1
-                            RedisStorage.persistence_instance().store_data(current_key, **data)
+                            AlgorithmsDataStore.instance().store_data(current_key, **data)
                         elif data['status'] == JOB_STATUS_FINISHED:
                             step = data['step']
                             data['step'] = step + 1
@@ -72,7 +74,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             logger.debug(data['step'])
                             if cluster is not None and len(cluster) > 0:
                                 data['status'] = JOB_STATUS_ACTIVE
-                                RedisStorage.persistence_instance().store_data(current_key, **data)
+                                AlgorithmsDataStore.instance().store_data(current_key, **data)
                                 job_data = {
                                     'cluster': cluster,
                                     'template': data['template'],
@@ -86,10 +88,10 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                     template_key = REDIS_TEMPLATE_RESULT % data['userID']
                                     final_data = dict()
                                     ended = 0
-                                    if RedisStorage.persistence_instance().exists(template_key):
+                                    if AlgorithmsDataStore.instance().exists(template_key):
                                         final_data = ast.literal_eval(
-                                            RedisStorage.persistence_instance().get_data(template_key))
-                                        RedisStorage.persistence_instance().delete_data(template_key)
+                                            AlgorithmsDataStore.instance().get_data(template_key))
+                                        AlgorithmsDataStore.instance().delete_data(template_key)
                                         ended = final_data['ended']
                                     else:
                                         final_data['userID'] = data['userID']
@@ -103,11 +105,11 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                         if final_data['ended'] == 6:
                                             self._final_process.process(final_data)
                                         else:
-                                            RedisStorage.persistence_instance().store_data(template_key, **final_data)
+                                            AlgorithmsDataStore.instance().store_data(template_key, **final_data)
                                 else:
-                                    RedisStorage.persistence_instance().store_data(current_key, **data)
+                                    AlgorithmsDataStore.instance().store_data(current_key, **data)
                         else:
-                            logger.algo_logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
+                            logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
                     else:
                         data = {
                             'template': cluster,
@@ -116,13 +118,13 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             'algoID': res_data['algoID'],
                             'step': 1
                         }
-                        RedisStorage.persistence_instance().store_data(key=current_key, **data)
+                        AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
     def job(self, callback_code, **kwargs):
         self._job_logger_info(**kwargs)
         record = self.process(**kwargs)
-        BaseDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                  record_dict=record, callback_code=callback_code)
+        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
+                                                        record_dict=record, callback_code=callback_code)
 
     def process(self, **kwargs):
         self._process_logger_info(**kwargs)
@@ -150,7 +152,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         eyeROI = CascadesDetectionInterface(loadScript("main_haarcascade_eyes_union.json", True))
         rect = eyeROI.detect(data['roi'])[1]
         if len(rect) <= 0 or len(rect[0]) <= 0:
-            logger.algo_logger.info("Eye ROI wasn't found.")
+            logger.info("Eye ROI wasn't found.")
             return create_error_message(INTERNAL_TRAINING_ERROR, "data", "Eye ROI wasn't found.", data['userID'])
         # ROI cutting
         rect = rect[0]

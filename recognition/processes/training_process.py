@@ -1,4 +1,5 @@
 from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore, REDIS_DO_NOT_STORE_RESULT_KEY
 from biomio.algorithms.recognition.processes.defs import (STATUS_ERROR, STATUS_RESULT,
                                                           ERROR_FORMAT, UNKNOWN_ERROR,
                                                           INTERNAL_TRAINING_ERROR, INVALID_ALGORITHM_SETTINGS)
@@ -38,7 +39,7 @@ class TrainingProcess(AlgorithmProcessInterface):
             else:
                 logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Unknown Message"))
         else:
-            logger.algo_logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Message is empty."))
+            logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Message is empty."))
 
     def job(self, callback_code, **kwargs):
         self._job_logger_info(**kwargs)
@@ -46,8 +47,8 @@ class TrainingProcess(AlgorithmProcessInterface):
         logger.algo_logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         logger.algo_logger.debug(record)
         logger.algo_logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-        BaseDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                  record_dict=record, callback_code=callback_code)
+        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
+                                                        record_dict=record, callback_code=callback_code)
 
     def process(self, **kwargs):
         self._process_logger_info(**kwargs)

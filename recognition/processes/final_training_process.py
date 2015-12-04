@@ -77,9 +77,9 @@ class FinalTrainingProcess(AlgorithmProcessInterface):
             # Need save to redis
             pass
         elif algo_result.get('status', '') == "error":
-            worker_logger.exception('Error during education - %s, %s, %s' % (algo_result.get('status'),
-                                                                             algo_result.get('type'),
-                                                                             algo_result.get('details')))
+            logger.exception('Error during education - %s, %s, %s' % (algo_result.get('status'),
+                                                                      algo_result.get('type'),
+                                                                      algo_result.get('details')))
             ai_response_type.update({'status': 'error'})
             if 'Internal Training Error' in algo_result.get('type', ''):
                 error = algo_result.get('details', {}).get('message', '')
@@ -102,7 +102,7 @@ class FinalTrainingProcess(AlgorithmProcessInterface):
             #       "Internal algorithm error"
             # Need save to redis
             pass
-        worker_logger.info('training finished for user - %s, with result - %s' % (algo_result.get('userID'), result))
+        logger.info('training finished for user - %s, with result - %s' % (algo_result.get('userID'), result))
 
     @staticmethod
     def _store_training_db(database, probe_id):
