@@ -13,7 +13,7 @@ class FinalTrainingProcess(AlgorithmProcessInterface):
         raise NotImplementedError
 
     def process(self, **kwargs):
-        self._process_logger_info(kwargs)
+        self._process_logger_info(**kwargs)
         data = kwargs["data"]
         sources = dict()
         for k in data['clusters_list']:
