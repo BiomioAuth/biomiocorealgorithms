@@ -7,9 +7,13 @@ class AlgorithmProcessInterface:
         self._worker = worker
         self._classname = "AlgorithmProcessInterface"
         self._error_process = None
+        self._callback = None
 
     def set_error_handler_process(self, process):
         self._error_process = process
+
+    def external_callback(self, callback):
+        self._callback = callback
 
     def handler(self, result):
         raise NotImplementedError
@@ -23,6 +27,11 @@ class AlgorithmProcessInterface:
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
         if worker is not None:
             worker.run_job(self.job, callback=self.handler,
+                           kwargs_list_for_results_gatherer=kwargs_list_for_results_gatherer, **kwargs)
+
+    def run_external(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        if worker is not None:
+            worker.run_job(self.job, callback=self._callback,
                            kwargs_list_for_results_gatherer=kwargs_list_for_results_gatherer, **kwargs)
 
     def _handler_logger_info(self, result):

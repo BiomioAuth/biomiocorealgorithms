@@ -1,9 +1,10 @@
 from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 
 class FinalTrainingProcess(AlgorithmProcessInterface):
-    def __init__(self):
+    def __init__(self, callback):
         AlgorithmProcessInterface.__init__(self)
         self._classname = "FinalTrainingProcess"
+        self.external_callback(callback)
 
     def handler(self, result):
         raise NotImplementedError

@@ -103,7 +103,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                         key_list.append(str(key))
                                         final_data['clusters_list'] = key_list
                                         if final_data['ended'] == 6:
-                                            self._final_process.process(final_data)
+                                            self._final_process.run_external(self._worker, **final_data)
                                         else:
                                             AlgorithmsDataStore.instance().store_data(template_key, **final_data)
                                 else:
