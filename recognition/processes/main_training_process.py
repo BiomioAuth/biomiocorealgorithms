@@ -22,6 +22,7 @@ class MainTrainingProcess(AlgorithmProcessInterface):
         if not os.path.exists(self._temp_data_path):
             os.mkdir(self._temp_data_path, 0o777)
             os.chmod(self._temp_data_path, 0o777)
+        kwargs.update({'temp_data_path': self._temp_data_path})
         for image_path in kwargs["data"]:
             settings = kwargs.copy()
             settings['path'] = image_path
