@@ -53,10 +53,12 @@ class RotationResultProcess(AlgorithmProcessInterface):
         if len(images_res_list) > 0:
             data_list = [load_temp_data(im_res['data_file'], remove=False) for im_res in images_res_list]
             result = dict()
-            result['algoID'] = data_list[0]['algoID']
             result["name"] = data_list[0]["name"]
             result["path"] = data_list[0]["path"]
+            result['algoID'] = data_list[0]['algoID']
             result["userID"] = data_list[0]["userID"]
+            result['data_path'] = data_list[0]['data_path']
+            result['temp_data_path'] = data_list[0]['temp_data_path']
             settings = get_settings(result['algoID'])
             images = dict()
             datagram = dict()
@@ -113,7 +115,7 @@ class RotationResultProcess(AlgorithmProcessInterface):
                 face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_default.xml"))
                 optimal_rect = face_classifier.detectAndJoin(result['data'], False, RectsFiltering)
             result['roi'] = getROIImage(result['data'], optimal_rect)
-            temp_data_path = kwargs['temp_data_path']
+            temp_data_path = result['temp_data_path']
             detection_process_data = save_temp_data(result, temp_data_path, ['data', 'roi'])
             record = create_result_message({'data_file': detection_process_data}, 'detection')
         else:
