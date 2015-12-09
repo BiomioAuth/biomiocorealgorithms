@@ -35,9 +35,9 @@ class AlgorithmProcessInterface:
             worker.run_job(job, callback=self.handler,
                            kwargs_list_for_results_gatherer=kwargs_list_for_results_gatherer, **kwargs)
 
-    def run_external(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+    def _run_external(self, worker, job, kwargs_list_for_results_gatherer=None, **kwargs):
         if worker is not None:
-            worker.run_job(self.job, callback=self._callback,
+            worker.run_job(job, callback=self._callback,
                            kwargs_list_for_results_gatherer=kwargs_list_for_results_gatherer, **kwargs)
 
     def _handler_logger_info(self, result):
