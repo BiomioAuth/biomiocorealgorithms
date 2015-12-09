@@ -136,8 +136,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
     @staticmethod
     def process(**kwargs):
         DataDetectionProcess._process_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
-        temp_data_path = kwargs['temp_data_path']
         source = load_temp_data(kwargs['data_file'], remove=False)
+        temp_data_path = source['temp_data_path']
         settings = get_settings(source['algoID'])
         logger.debug(settings)
         logger.debug(loadSettings(settings['kodsettings']))
