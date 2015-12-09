@@ -18,7 +18,7 @@ class MainTrainingProcess(AlgorithmProcessInterface):
         raise NotImplementedError
 
     def process(self, **kwargs):
-        self._process_logger_info(**kwargs)
+        MainTrainingProcess._process_logger_info(self._classname, **kwargs)
         if not os.path.exists(self._temp_data_path):
             os.mkdir(self._temp_data_path, 0o777)
             os.chmod(self._temp_data_path, 0o777)

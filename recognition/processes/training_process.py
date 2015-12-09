@@ -8,6 +8,11 @@ from biomio.algorithms.recognition.processes.settings.settings import get_settin
 from biomio.algorithms.recognition.processes.handling import save_temp_data
 from biomio.algorithms.imgobj import loadImageObject
 
+
+def job(callback_code, **kwargs):
+    TrainingProcess.job(callback_code, **kwargs)
+
+
 class TrainingProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
@@ -41,17 +46,20 @@ class TrainingProcess(AlgorithmProcessInterface):
         else:
             logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Message is empty."))
 
-    def job(self, callback_code, **kwargs):
-        self._job_logger_info(**kwargs)
-        record = self.process(**kwargs)
+    @staticmethod
+    def job(callback_code, **kwargs):
+        TrainingProcess._job_logger_info("TrainingProcess", **kwargs)
+        record = TrainingProcess.process(**kwargs)
         logger.algo_logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         logger.algo_logger.debug(record)
         logger.algo_logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
-    def process(self, **kwargs):
-        self._process_logger_info(**kwargs)
+    @staticmethod
+    def process(**kwargs):
+        TrainingProcess._process_logger_info("TrainingProcess", **kwargs)
+        temp_data_path = kwargs['temp_data_path']
         imgobj = loadImageObject(kwargs['path'])
         imgobj.update(**kwargs)
         if not imgobj:
@@ -65,11 +73,14 @@ class TrainingProcess(AlgorithmProcessInterface):
                 job_list = []
                 for i in range(0, 4, 1):
                     job_list.append({'angle': i})
-                training_process_data = save_temp_data(imgobj, self._temp_data_path, ['data'])
+                training_process_data = save_temp_data(imgobj, temp_data_path, ['data'])
                 record = create_result_message([job_list, {'data_file': training_process_data}], 'rotation')
             else:
                 logger.debug("TEST WITHOUT ROTATION")
                 imgobj['roi'] = imgobj['data']
-                detection_process_data = save_temp_data(imgobj, self._temp_data_path, ['data', 'roi'])
+                detection_process_data = save_temp_data(imgobj, temp_data_path, ['data', 'roi'])
                 record = create_result_message([{'data_file': detection_process_data}], 'detection')
         return record
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)
