@@ -25,5 +25,6 @@ class MainTrainingProcess(AlgorithmProcessInterface):
         kwargs.update({'temp_data_path': self._temp_data_path})
         for image_path in kwargs["data"]:
             settings = kwargs.copy()
+            del settings['data']
             settings['path'] = image_path
             self._training_process.run(self._worker, **settings)
