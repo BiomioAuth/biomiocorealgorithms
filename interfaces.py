@@ -27,6 +27,7 @@ class AlgorithmProcessInterface:
         raise NotImplementedError
 
     def _run(self, worker, job, kwargs_list_for_results_gatherer=None, **kwargs):
+        logger.debug(job)
         if worker is not None:
             worker.run_job(job, callback=self.handler,
                            kwargs_list_for_results_gatherer=kwargs_list_for_results_gatherer, **kwargs)
