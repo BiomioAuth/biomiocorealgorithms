@@ -127,9 +127,9 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
     @staticmethod
-    def job(self, callback_code, **kwargs):
+    def job(callback_code, **kwargs):
         DataDetectionProcess._job_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
-        record = self.process(**kwargs)
+        record = DataDetectionProcess.process(**kwargs)
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
