@@ -174,7 +174,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         leftmouth = (lefteye[0], centermouth[1])
         rightmouth = (righteye[0], centermouth[1])
         centers = [lefteye, righteye, centereye, centernose, leftmouth, rightmouth]
-        self._filter_keypoints(data)
+        DataDetectionProcess._filter_keypoints(data)
 
         clusters = KMeans(data['keypoints'], 0, centers)
         data['true_clusters'] = clusters
