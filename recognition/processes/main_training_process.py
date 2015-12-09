@@ -1,4 +1,6 @@
 from biomio.algorithms.interfaces import AlgorithmProcessInterface
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
+from defs import REDIS_CLUSTER_JOB_ACTION, REDIS_TEMPLATE_RESULT, REDIS_GENERAL_DATA
 import os
 
 
@@ -19,6 +21,12 @@ class MainTrainingProcess(AlgorithmProcessInterface):
 
     def process(self, **kwargs):
         MainTrainingProcess._process_logger_info(self._classname, **kwargs)
+        #################
+        for idx in range(0, 6, 1):
+            AlgorithmsDataStore.persistence_instance().delete_data(REDIS_CLUSTER_JOB_ACTION % idx)
+        AlgorithmsDataStore.persistence_instance().delete_data(REDIS_TEMPLATE_RESULT % kwargs['userID'])
+        AlgorithmsDataStore.persistence_instance().delete_data(REDIS_GENERAL_DATA % kwargs['userID'])
+        #################
         if not os.path.exists(self._temp_data_path):
             os.mkdir(self._temp_data_path, 0o777)
             os.chmod(self._temp_data_path, 0o777)
