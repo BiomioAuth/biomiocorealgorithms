@@ -27,8 +27,8 @@ def store_verification_results(result, callback_code):
 
 
 class RotationDetectionProcess(AlgorithmProcessInterface):
-    def __init__(self, temp_data_path):
-        AlgorithmProcessInterface.__init__(self, temp_data_path)
+    def __init__(self, temp_data_path, worker):
+        AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
         self._classname = ROTATION_DETECTION_PROCESS_CLASS_NAME
         self._r_result_process = AlgorithmProcessInterface()
 
@@ -51,7 +51,6 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
                                                             value=record)
         results_counter = AlgorithmsDataStore.instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
                                                                              callback_code)
-        logger.debug(results_counter)
         if results_counter <= 0:
             gathered_results = AlgorithmsDataStore.instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
                                                                               callback_code)
