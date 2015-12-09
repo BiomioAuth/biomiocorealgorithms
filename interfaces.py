@@ -18,15 +18,17 @@ class AlgorithmProcessInterface:
     def handler(self, result):
         raise NotImplementedError
 
-    def job(self, callback_code, **kwargs):
+    @staticmethod
+    def job(callback_code, **kwargs):
         raise NotImplementedError
 
-    def process(self, **kwargs):
+    @staticmethod
+    def process(**kwargs):
         raise NotImplementedError
 
-    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+    def _run(self, worker, job, kwargs_list_for_results_gatherer=None, **kwargs):
         if worker is not None:
-            worker.run_job(self.job, callback=self.handler,
+            worker.run_job(job, callback=self.handler,
                            kwargs_list_for_results_gatherer=kwargs_list_for_results_gatherer, **kwargs)
 
     def run_external(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
@@ -40,15 +42,17 @@ class AlgorithmProcessInterface:
         logger.debug(result)
         logger.debug("+++++++++++++++++++++++++++++++++++")
 
-    def _job_logger_info(self, **kwargs):
+    @staticmethod
+    def _job_logger_info(class_name, **kwargs):
         logger.debug("-----------------------------------")
-        logger.debug("%s::Job", self._classname)
+        logger.debug("%s::Job", class_name)
         logger.debug(kwargs)
         logger.debug("-----------------------------------")
 
-    def _process_logger_info(self, **kwargs):
+    @staticmethod
+    def _process_logger_info(class_name, **kwargs):
         logger.debug("===================================")
-        logger.debug("%s::Process", self._classname)
+        logger.debug("%s::Process", class_name)
         logger.debug(kwargs)
         logger.debug("===================================")
 
