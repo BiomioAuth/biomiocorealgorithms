@@ -1,4 +1,4 @@
-from biomio.algorithms.interfaces import AlgorithmProcessInterface
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from biomio.constants import REDIS_PARTIAL_RESULTS_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_DO_NOT_STORE_RESULT_KEY
 from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
 from biomio.algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
@@ -51,6 +51,7 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
                                                             value=record)
         results_counter = AlgorithmsDataStore.instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
                                                                              callback_code)
+        logger.debug(results_counter)
         if results_counter <= 0:
             gathered_results = AlgorithmsDataStore.instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
                                                                               callback_code)
