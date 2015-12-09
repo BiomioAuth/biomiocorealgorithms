@@ -93,7 +93,7 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         source['data_angle'] = kwargs["angle"] + 1
         source['roi_rects'] = [numpy_ndarrayToList(r) for r in rects]
         source['datagram'] = d
-        temp_data_path = kwargs['temp_data_path']
+        temp_data_path = source['temp_data_path']
         training_process_data = save_temp_data(source, temp_data_path, ['data'])
         return training_process_data
 
