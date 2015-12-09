@@ -13,6 +13,12 @@ from handling import load_temp_data, save_temp_data
 import os
 
 
+ROTATION_DETECTION_PROCESS_CLASS_NAME = "RotationDetectionProcess"
+
+def job(callback_code, **kwargs):
+    RotationDetectionProcess.job(callback_code, **kwargs)
+
+
 def store_verification_results(result, callback_code):
     AlgorithmsDataStore.instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % callback_code)
     AlgorithmsDataStore.instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
@@ -23,7 +29,7 @@ def store_verification_results(result, callback_code):
 class RotationDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path):
         AlgorithmProcessInterface.__init__(self, temp_data_path)
-        self._classname = "RotationDetectionProcess"
+        self._classname = ROTATION_DETECTION_PROCESS_CLASS_NAME
         self._r_result_process = AlgorithmProcessInterface()
 
     def set_rotation_result_process(self, process):
@@ -37,9 +43,10 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
             elif result['status'] == STATUS_RESULT:
                 self._r_result_process.run(self._worker, **result['data'])
 
-    def job(self, callback_code, **kwargs):
-        self._job_logger_info(**kwargs)
-        record = {'data_file': self.process(**kwargs)}
+    @staticmethod
+    def job(callback_code, **kwargs):
+        RotationDetectionProcess._job_logger_info(ROTATION_DETECTION_PROCESS_CLASS_NAME, **kwargs)
+        record = {'data_file': RotationDetectionProcess.process(**kwargs)}
         AlgorithmsDataStore.instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
                                                             value=record)
         results_counter = AlgorithmsDataStore.instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
@@ -53,8 +60,9 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
                 result = create_result_message({'data_list': gathered_results}, 'detection')
             store_verification_results(result=result, callback_code=callback_code)
 
-    def process(self, **kwargs):
-        self._process_logger_info(**kwargs)
+    @staticmethod
+    def process(**kwargs):
+        RotationDetectionProcess._process_logger_info(ROTATION_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         source = load_temp_data(kwargs['data_file'], remove=False)
         settings = get_settings(source['algoID'])
         img = source['data']
@@ -85,5 +93,9 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         source['data_angle'] = kwargs["angle"] + 1
         source['roi_rects'] = [numpy_ndarrayToList(r) for r in rects]
         source['datagram'] = d
-        training_process_data = save_temp_data(source, self._temp_data_path, ['data'])
+        temp_data_path = kwargs['temp_data_path']
+        training_process_data = save_temp_data(source, temp_data_path, ['data'])
         return training_process_data
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

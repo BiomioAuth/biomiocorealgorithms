@@ -14,10 +14,16 @@ import ast
 import os
 
 
+ROTATION_RESULT_PROCESS_CLASS_NAME = "RotationResultProcess"
+
+def job(callback_code, **kwargs):
+    RotationResultProcess.job(callback_code, **kwargs)
+
+
 class RotationResultProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._classname = "RotationResultProcess"
+        self._classname = ROTATION_RESULT_PROCESS_CLASS_NAME
         self._data_detect_process = AlgorithmProcessInterface()
 
     def set_data_detection_process(self, process):
@@ -31,16 +37,18 @@ class RotationResultProcess(AlgorithmProcessInterface):
             elif result['status'] == STATUS_RESULT:
                 self._data_detect_process.run(self._worker, **result['data'])
 
-    def job(self, callback_code, **kwargs):
-        self._job_logger_info(**kwargs)
+    @staticmethod
+    def job(callback_code, **kwargs):
+        RotationResultProcess._job_logger_info(ROTATION_RESULT_PROCESS_CLASS_NAME, **kwargs)
         images_res_list = [ast.literal_eval(dict_str) for dict_str in kwargs['data_list']]
         kwargs['data_list'] = images_res_list
-        record = self.process(**kwargs)
+        record = RotationResultProcess.process(**kwargs)
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
-    def process(self, **kwargs):
-        self._process_logger_info(**kwargs)
+    @staticmethod
+    def process(**kwargs):
+        RotationResultProcess._process_logger_info(ROTATION_RESULT_PROCESS_CLASS_NAME, **kwargs)
         images_res_list = kwargs['data_list']
         if len(images_res_list) > 0:
             data_list = [load_temp_data(im_res['data_file'], remove=False) for im_res in images_res_list]
@@ -105,8 +113,12 @@ class RotationResultProcess(AlgorithmProcessInterface):
                 face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_default.xml"))
                 optimal_rect = face_classifier.detectAndJoin(result['data'], False, RectsFiltering)
             result['roi'] = getROIImage(result['data'], optimal_rect)
-            detection_process_data = save_temp_data(result, self._temp_data_path, ['data', 'roi'])
+            temp_data_path = kwargs['temp_data_path']
+            detection_process_data = save_temp_data(result, temp_data_path, ['data', 'roi'])
             record = create_result_message({'data_file': detection_process_data}, 'detection')
         else:
             record = create_error_message(INTERNAL_TRAINING_ERROR, "data_list", "Empty list of data.")
         return record
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

@@ -17,10 +17,16 @@ from settings import loadSettings
 import ast
 
 
+DATA_DETECTION_PROCESS_CLASS_NAME = "DataDetectionProcess"
+
+def job(callback_code, **kwargs):
+    DataDetectionProcess.job(callback_code, **kwargs)
+
+
 class DataDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._classname = "DataDetectionProcess"
+        self._classname = DATA_DETECTION_PROCESS_CLASS_NAME
         self._cluster_match_process = AlgorithmProcessInterface()
         self._final_process = AlgorithmProcessInterface()
 
@@ -120,14 +126,17 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                         }
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
+    @staticmethod
     def job(self, callback_code, **kwargs):
-        self._job_logger_info(**kwargs)
+        DataDetectionProcess._job_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         record = self.process(**kwargs)
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
-    def process(self, **kwargs):
-        self._process_logger_info(**kwargs)
+    @staticmethod
+    def process(**kwargs):
+        DataDetectionProcess._process_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
+        temp_data_path = kwargs['temp_data_path']
         source = load_temp_data(kwargs['data_file'], remove=False)
         settings = get_settings(source['algoID'])
         logger.debug(settings)
@@ -142,13 +151,14 @@ class DataDetectionProcess(AlgorithmProcessInterface):
             source['descriptors'] = obj['descriptors']
             if source['descriptors'] is None:
                 source['descriptors'] = []
-            record = self._detect_process(source, detector, self._temp_data_path)
+            record = DataDetectionProcess._detect_process(source, detector, temp_data_path)
         except Exception as err:
             logger.debug(err.message)
             record = create_error_message(INTERNAL_TRAINING_ERROR, 'data', err.message)
         return record
 
-    def _detect_process(self, data, detector, path):
+    @staticmethod
+    def _detect_process(data, detector, path):
         eyeROI = CascadesDetectionInterface(loadScript("main_haarcascade_eyes_union.json", True))
         rect = eyeROI.detect(data['roi'])[1]
         if len(rect) <= 0 or len(rect[0]) <= 0:
@@ -190,7 +200,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         matching_process_data = save_temp_data(data, path, ['data', 'roi'])
         return create_result_message([{'data_file': matching_process_data}], 'matching')
 
-    def _filter_keypoints(self, data):
+    @staticmethod
+    def _filter_keypoints(data):
         clusters = FOREL(data['keypoints'], 20)
         keypoints = []
         for cluster in clusters:
@@ -198,3 +209,6 @@ class DataDetectionProcess(AlgorithmProcessInterface):
             if p > 0.02:
                 keypoints += [item for item in cluster['items']]
         data['keypoints'] = keypoints
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

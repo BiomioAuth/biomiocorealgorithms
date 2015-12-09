@@ -26,6 +26,9 @@ class AlgorithmProcessInterface:
     def process(**kwargs):
         raise NotImplementedError
 
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        raise NotImplementedError
+
     def _run(self, worker, job, kwargs_list_for_results_gatherer=None, **kwargs):
         logger.debug(job)
         if worker is not None:

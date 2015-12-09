@@ -14,10 +14,16 @@ import itertools
 import ast
 
 
+CLUSTER_MATCHING_PROCESS_CLASS_NAME = "ClusterMatchingProcess"
+
+def job(callback_code, **kwargs):
+    ClusterMatchingProcess.job(callback_code, **kwargs)
+
+
 class ClusterMatchingProcess(AlgorithmProcessInterface):
     def __init__(self, worker):
         AlgorithmProcessInterface.__init__(self, "", worker)
-        self._classname = "ClusterMatchingProcess"
+        self._classname = CLUSTER_MATCHING_PROCESS_CLASS_NAME
         self._cluster_match_process = self
         self._final_process = AlgorithmProcessInterface()
 
@@ -97,15 +103,17 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                 else:
                     logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
 
-    def job(self, callback_code, **kwargs):
-        self._job_logger_info(**kwargs)
-        data = self.process(**kwargs)
+    @staticmethod
+    def job(callback_code, **kwargs):
+        ClusterMatchingProcess._job_logger_info(CLUSTER_MATCHING_PROCESS_CLASS_NAME, **kwargs)
+        data = ClusterMatchingProcess.process(**kwargs)
         record = create_result_message(data, 'matching')
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
-    def process(self, **kwargs):
-        self._process_logger_info(**kwargs)
+    @staticmethod
+    def process(**kwargs):
+        ClusterMatchingProcess._process_logger_info(CLUSTER_MATCHING_PROCESS_CLASS_NAME, **kwargs)
         data = kwargs.copy()
         settings = get_settings(data['algoID'])
         logger.debug(settings)
@@ -132,3 +140,6 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
             et_cluster = good
         data['template'] = et_cluster
         return data
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)
