@@ -59,7 +59,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                     current_key = REDIS_CLUSTER_JOB_ACTION % key
                     logger.debug(current_key)
                     if AlgorithmsDataStore.instance().exists(current_key):
-                        data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
+                        data = AlgorithmsDataStore.instance().get_data(current_key)
+                        # data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
                         AlgorithmsDataStore.instance().delete_data(current_key)
                         logger.debug("@$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$@")
                         logger.debug(data['status'])
