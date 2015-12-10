@@ -67,8 +67,9 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                 final_data = dict()
                                 ended = 0
                                 if AlgorithmsDataStore.instance().exists(template_key):
-                                    final_data = ast.literal_eval(
-                                        AlgorithmsDataStore.instance().get_data(template_key))
+                                    final_data = AlgorithmsDataStore.instance().get_data(template_key)
+                                    # final_data = ast.literal_eval(
+                                    #     AlgorithmsDataStore.instance().get_data(template_key))
                                     AlgorithmsDataStore.instance().delete_data(template_key)
                                     ended = final_data['ended']
                                 else:
