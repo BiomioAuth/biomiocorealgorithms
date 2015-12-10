@@ -91,7 +91,14 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                 }
                                 self._cluster_match_process.run(self._worker, **job_data)
                             else:
-                                if data['step'] == 5:
+                                fault = 0
+                                general_key = REDIS_GENERAL_DATA % data['userID']
+                                if AlgorithmsDataStore.instance().exists(general_key):
+                                    general_data = AlgorithmsDataStore.instance().get_data(general_key)
+                                    # general_data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(general_key))
+                                    fault = general_data['image_fault']
+                                logger.debug(fault)
+                                if data['step'] == 5 - fault:
                                     template_key = REDIS_TEMPLATE_RESULT % data['userID']
                                     final_data = dict()
                                     ended = 0
