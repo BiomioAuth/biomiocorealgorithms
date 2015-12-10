@@ -51,7 +51,7 @@ class RotationResultProcess(AlgorithmProcessInterface):
         RotationResultProcess._process_logger_info(ROTATION_RESULT_PROCESS_CLASS_NAME, **kwargs)
         images_res_list = kwargs['data_list']
         if len(images_res_list) > 0:
-            data_list = [load_temp_data(im_res['data_file'], remove=False) for im_res in images_res_list]
+            data_list = [load_temp_data(im_res['data_file'], remove=True) for im_res in images_res_list]
             result = dict()
             result["name"] = data_list[0]["name"]
             result["path"] = data_list[0]["path"]

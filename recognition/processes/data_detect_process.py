@@ -53,14 +53,13 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                 logger.debug(data['image_fault'])
             elif result['status'] == STATUS_RESULT:
                 logger.debug(result['data'][0]['data_file'])
-                res_data = load_temp_data(result['data'][0]['data_file'], remove=False)
+                res_data = load_temp_data(result['data'][0]['data_file'], remove=True)
                 logger.debug(res_data["name"])
                 for key, cluster in res_data['clusters'].iteritems():
                     current_key = REDIS_CLUSTER_JOB_ACTION % key
                     logger.debug(current_key)
                     if AlgorithmsDataStore.instance().exists(current_key):
                         data = AlgorithmsDataStore.instance().get_data(current_key)
-                        # data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
                         AlgorithmsDataStore.instance().delete_data(current_key)
                         logger.debug("@$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$@")
                         logger.debug(data['status'])
@@ -95,7 +94,6 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                 general_key = REDIS_GENERAL_DATA % data['userID']
                                 if AlgorithmsDataStore.instance().exists(general_key):
                                     general_data = AlgorithmsDataStore.instance().get_data(general_key)
-                                    # general_data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(general_key))
                                     fault = general_data['image_fault']
                                 logger.debug(fault)
                                 if data['step'] == 5 - fault:
@@ -148,7 +146,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
     @staticmethod
     def process(**kwargs):
         DataDetectionProcess._process_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
-        source = load_temp_data(kwargs['data_file'], remove=False)
+        source = load_temp_data(kwargs['data_file'], remove=True)
         temp_data_path = source['temp_data_path']
         settings = get_settings(source['algoID'])
         logger.debug(settings)
