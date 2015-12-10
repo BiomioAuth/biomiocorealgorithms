@@ -76,7 +76,7 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                     final_data['userID'] = data['userID']
                                     final_data['algoID'] = data['algoID']
                                     final_data['temp_data_path'] = data['temp_data_path']
-                                    final_data['data_path'] = data['data_path']
+                                    final_data['general_data'] = data['general_data']
                                 if final_data.get(str(cluster_id), None) is None:
                                     final_data['ended'] = ended + 1
                                     final_data[str(cluster_id)] = data['template']

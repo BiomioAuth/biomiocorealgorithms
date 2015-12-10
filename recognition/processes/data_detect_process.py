@@ -111,7 +111,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                         final_data['userID'] = data['userID']
                                         final_data['algoID'] = data['algoID']
                                         final_data['temp_data_path'] = data['temp_data_path']
-                                        final_data['data_path'] = data['data_path']
+                                        final_data['general_data'] = data['general_data']
                                     if final_data.get(str(key), None) is None:
                                         final_data['ended'] = ended + 1
                                         final_data[str(key)] = data['template']
@@ -133,7 +133,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             'userID': res_data['userID'],
                             'algoID': res_data['algoID'],
                             'temp_data_path': res_data['temp_data_path'],
-                            'data_path': res_data['data_path'],
+                            'general_data': res_data['general_data'],
                             'step': 1
                         }
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)

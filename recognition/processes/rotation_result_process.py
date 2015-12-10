@@ -57,7 +57,7 @@ class RotationResultProcess(AlgorithmProcessInterface):
             result["path"] = data_list[0]["path"]
             result['algoID'] = data_list[0]['algoID']
             result["userID"] = data_list[0]["userID"]
-            result['data_path'] = data_list[0]['data_path']
+            result['general_data'] = data_list[0]['general_data']
             result['temp_data_path'] = data_list[0]['temp_data_path']
             settings = get_settings(result['algoID'])
             images = dict()
