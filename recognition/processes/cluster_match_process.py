@@ -43,7 +43,8 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                 cluster_id = res_data['cluster_id']
                 current_key = REDIS_CLUSTER_JOB_ACTION % cluster_id
                 if AlgorithmsDataStore.instance().exists(current_key):
-                    data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
+                    data = AlgorithmsDataStore.instance().get_data(current_key)
+                    # data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(current_key))
                     AlgorithmsDataStore.instance().delete_data(current_key)
                     if data['status'] == JOB_STATUS_ACTIVE:
                         data['template'] = res_data['template']
@@ -57,7 +58,8 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                             general_key = REDIS_GENERAL_DATA % data['userID']
                             fault = 0
                             if AlgorithmsDataStore.instance().exists(general_key):
-                                general_data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(general_key))
+                                general_data = AlgorithmsDataStore.instance().get_data(general_key)
+                                # general_data = ast.literal_eval(AlgorithmsDataStore.instance().get_data(general_key))
                                 fault = general_data['image_fault']
                             logger.debug(fault)
                             if data['step'] == 5 - fault:
