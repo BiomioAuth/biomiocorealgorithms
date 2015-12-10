@@ -23,9 +23,9 @@ class MainTrainingProcess(AlgorithmProcessInterface):
         MainTrainingProcess._process_logger_info(self._classname, **kwargs)
         #################
         for idx in range(0, 6, 1):
-            AlgorithmsDataStore.persistence_instance().delete_data(REDIS_CLUSTER_JOB_ACTION % idx)
-        AlgorithmsDataStore.persistence_instance().delete_data(REDIS_TEMPLATE_RESULT % kwargs['userID'])
-        AlgorithmsDataStore.persistence_instance().delete_data(REDIS_GENERAL_DATA % kwargs['userID'])
+            AlgorithmsDataStore.instance().delete_data(REDIS_CLUSTER_JOB_ACTION % idx)
+        AlgorithmsDataStore.instance().delete_data(REDIS_TEMPLATE_RESULT % kwargs['userID'])
+        AlgorithmsDataStore.instance().delete_data(REDIS_GENERAL_DATA % kwargs['userID'])
         #################
         if not os.path.exists(self._temp_data_path):
             os.mkdir(self._temp_data_path, 0o777)
