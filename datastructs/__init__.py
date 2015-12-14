@@ -1,4 +1,4 @@
-from nearpyhash import NearPyHash
+from nearpyhash import NearPyHash, NearPyHashSettings
 
 __structures_list = {
     NearPyHash.type(): NearPyHash
