@@ -35,6 +35,9 @@ class NearPyHash(DataStructure):
     def store_vector(self, v, data=None):
         return self.engine.store_vector(v, data)
 
+    def store_vectors(self, vs, data=None):
+        return self.engine.store_vectors(vs, data)
+
     def candidate_count(self, v):
         return self.engine.candidate_count(v)
 

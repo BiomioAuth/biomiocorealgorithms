@@ -1,7 +1,9 @@
-from nearpyhash import NearPyHash, NearPyHashSettings
+from nearpyhash import NearPyHash
+from wnearpyhash import wNearPyHash
 
 __structures_list = {
-    NearPyHash.type(): NearPyHash
+    NearPyHash.type(): NearPyHash,
+    wNearPyHash.type(): wNearPyHash
 }
 
 def get_data_structure(structure_type):
