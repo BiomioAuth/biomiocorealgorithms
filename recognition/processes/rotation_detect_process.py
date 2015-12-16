@@ -63,7 +63,7 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
     @staticmethod
     def process(**kwargs):
         RotationDetectionProcess._process_logger_info(ROTATION_DETECTION_PROCESS_CLASS_NAME, **kwargs)
-        source = load_temp_data(kwargs['data_file'], remove=True)
+        source = load_temp_data(kwargs['data_file'], remove=False)
         settings = get_settings(source['algoID'])
         img = source['data']
         for i in range(0, kwargs["angle"], 1):
