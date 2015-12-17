@@ -2,7 +2,6 @@ import numpy as np
 from nearpy.distances import CosineDistance
 from nearpy.filters import NearestFilter, UniqueFilter
 from xnearpy import get_projection_by_type, RANDOM_BINARY_PROJECTIONS
-from nearpyhash import NearPyHashSettings
 
 DEFAULT_NEAR_PY_HASH_SETTINGS = {
     'projections': [(RANDOM_BINARY_PROJECTIONS, {})],
