@@ -1,5 +1,5 @@
 from nearpyhash import NearPyHash
-from wnearpyhash import wNearPyHash
+from wnearpyhash import wNearPyHash, DEFAULT_NEAR_PY_HASH_SETTINGS
 
 __structures_list = {
     NearPyHash.type(): NearPyHash,
