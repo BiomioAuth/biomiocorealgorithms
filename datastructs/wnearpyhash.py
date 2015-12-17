@@ -30,6 +30,7 @@ class wNearPyHash:
             proj = get_projection_by_type(projection[0])(settings['projection_name'], settings['projection_count'])
             if len(projection[1].keys()) > 0:
                 proj.apply_config(projection[1])
+            proj.reset(settings['dimension'])
             self.lshashes.append(proj)
 
     @staticmethod
