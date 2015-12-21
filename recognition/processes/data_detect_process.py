@@ -27,7 +27,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
         self._classname = DATA_DETECTION_PROCESS_CLASS_NAME
-        self._cluster_match_process = AlgorithmProcessInterface()
+        self._cluster_match_process = None
         self._final_process = AlgorithmProcessInterface()
 
     def set_cluster_matching_process(self, process):
@@ -38,6 +38,14 @@ class DataDetectionProcess(AlgorithmProcessInterface):
 
     def handler(self, result):
         self._handler_logger_info(result)
+        if self._cluster_match_process is not None:
+            self._matching_handler(result)
+        elif self._final_process is not None:
+            self._final_process.run(self._worker, **result['data'])
+        else:
+            logger.debug("Handler not found!!!")
+
+    def _matching_handler(self, result):
         if result is not None:
             if result['status'] == STATUS_ERROR:
                 general_key = REDIS_GENERAL_DATA % result['details']['userID']

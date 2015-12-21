@@ -1,5 +1,10 @@
 from biomio.algorithms.interfaces import AlgorithmProcessInterface
 
+IDENTIFICATION_RE_PROCESS_CLASS_NAME = "IdentificationREProcess"
+
+def job(callback_code, **kwargs):
+    IdentificationREProcess.job(callback_code, **kwargs)
+
 
 class IdentificationREProcess(AlgorithmProcessInterface):
     """
@@ -7,14 +12,17 @@ class IdentificationREProcess(AlgorithmProcessInterface):
     """
     def __init__(self):
         AlgorithmProcessInterface.__init__(self)
+        self._classname = IDENTIFICATION_RE_PROCESS_CLASS_NAME
 
     def handler(self, result):
-        pass
+        raise NotImplementedError
 
-    def job(self, callback_code, **kwargs):
-        pass
+    @staticmethod
+    def job(callback_code, **kwargs):
+        raise NotImplementedError
 
-    def process(self, **kwargs):
+    @staticmethod
+    def process(**kwargs):
         """
 
         :param kwargs: dict
@@ -43,3 +51,6 @@ class IdentificationREProcess(AlgorithmProcessInterface):
                     db_score[key] = lcount
             print db_score
             print gsum * 0.3
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

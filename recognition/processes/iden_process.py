@@ -1,17 +1,32 @@
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from biomio.algorithms.interfaces import AlgorithmProcessInterface
+from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
+
+IDENTIFICATION_PROCESS_CLASS_NAME = "RotationDetectionProcess"
+
+def job(callback_code, **kwargs):
+    IdentificationProcess.job(callback_code, **kwargs)
 
 
 class IdentificationProcess(AlgorithmProcessInterface):
     def __init__(self):
         AlgorithmProcessInterface.__init__(self)
+        self._classname = IDENTIFICATION_PROCESS_CLASS_NAME
 
     def handler(self, result):
-        pass
+        self._handler_logger_info(result)
 
-    def job(self, callback_code, **kwargs):
-        self._job_logger(**kwargs)
 
-    def process(self, **kwargs):
+    @staticmethod
+    def job(callback_code, **kwargs):
+        IdentificationProcess._job_logger_info(IDENTIFICATION_PROCESS_CLASS_NAME, **kwargs)
+        record = IdentificationProcess.process(**kwargs)
+        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
+                                                        record_dict=record, callback_code=callback_code)
+
+    @staticmethod
+    def process(**kwargs):
+        IdentificationProcess._process_logger_info(IDENTIFICATION_PROCESS_CLASS_NAME, **kwargs)
         """
 
         :param kwargs:
@@ -39,3 +54,6 @@ class IdentificationProcess(AlgorithmProcessInterface):
                 lcount += 1
                 db["candidates_score"][item[1]] = lcount
         return db
+
+    def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)
