@@ -41,7 +41,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         if self._cluster_match_process is not None:
             self._matching_handler(result)
         elif self._final_process is not None:
-            self._final_process.run(self._worker, **result['data'])
+            self._final_process.run(self._worker, **result['data'][0])
         else:
             logger.debug("Handler not found!!!")
 
