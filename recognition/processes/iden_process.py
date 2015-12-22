@@ -16,7 +16,6 @@ class IdentificationProcess(AlgorithmProcessInterface):
     def handler(self, result):
         self._handler_logger_info(result)
 
-
     @staticmethod
     def job(callback_code, **kwargs):
         IdentificationProcess._job_logger_info(IDENTIFICATION_PROCESS_CLASS_NAME, **kwargs)
