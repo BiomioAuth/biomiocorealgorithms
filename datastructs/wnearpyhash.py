@@ -60,6 +60,15 @@ class wNearPyHash:
             buckets.append((lshash.hash_name, data_vs))
         return buckets
 
+    def hash_vector(self, v):
+        nv = v / np.linalg.norm(v)
+
+        buckets = []
+        for lshash in self.lshashes:
+            for bucket_key in lshash.hash_vector(nv):
+                buckets.append((lshash.hash_name, bucket_key))
+        return buckets
+
     def neighbours(self, v):
         """
         Hashes vector v, collects all candidate vectors from the matching
