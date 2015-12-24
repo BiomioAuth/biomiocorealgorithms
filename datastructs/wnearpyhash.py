@@ -28,9 +28,9 @@ class wNearPyHash:
         self.fetch_vector_filters = fetch_vector_filters
         for projection in settings.get('projections', []):
             proj = get_projection_by_type(projection[0])(settings['projection_name'], settings['projection_count'])
+            proj.reset(settings['dimension'])
             if len(projection[1].keys()) > 0:
                 proj.apply_config(projection[1])
-            proj.reset(settings['dimension'])
             self.lshashes.append(proj)
 
     @staticmethod
@@ -117,3 +117,8 @@ class wNearPyHash:
 
         # If there is no vector filter, just return list of candidates
         return candidates
+
+    def get_config(self):
+        projections = []
+        for lshash in self.lshashes:
+            projections.append(())

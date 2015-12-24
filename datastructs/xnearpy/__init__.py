@@ -13,5 +13,13 @@ _PROJ_DICT = {
     PCA_DISCRETIZED_PROJECTIONS: PCADiscretizedProjections
 }
 
+_TYPES_DICT = {
+    RandomBinaryProjections.__class__: RANDOM_BINARY_PROJECTIONS
+}
+
 def get_projection_by_type(proj_type):
     return _PROJ_DICT.get(proj_type, None)
+
+def get_type_by_projection(projection):
+    return None
+
