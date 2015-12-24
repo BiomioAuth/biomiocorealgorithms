@@ -9,8 +9,6 @@ def load_json(path):
         return source
 
 def save_json(path, data):
-    if not os.path.isfile(path):
-        return False
     with open(path, 'w') as outfile:
         json.dump(data, outfile)
     return True
