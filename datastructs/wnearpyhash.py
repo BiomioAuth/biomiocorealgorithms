@@ -1,7 +1,7 @@
 import numpy as np
 from nearpy.distances import CosineDistance
 from nearpy.filters import NearestFilter, UniqueFilter
-from xnearpy import get_projection_by_type, RANDOM_BINARY_PROJECTIONS
+from xnearpy import get_projection_by_type, get_type_by_projection, RANDOM_BINARY_PROJECTIONS
 
 DEFAULT_NEAR_PY_HASH_SETTINGS = {
     'projections': [(RANDOM_BINARY_PROJECTIONS, {})],
@@ -121,4 +121,11 @@ class wNearPyHash:
     def get_config(self):
         projections = []
         for lshash in self.lshashes:
-            projections.append(())
+            projections.append((get_type_by_projection(lshash), lshash.get_config()))
+        settings = {
+            'projections': projections,
+            'projection_name': self._settings['projection_name'],
+            'projection_count': self._settings['projection_count'],
+            'dimension': self._settings['dimension']
+        }
+        return settings
