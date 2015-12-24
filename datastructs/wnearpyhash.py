@@ -1,7 +1,8 @@
-import numpy as np
-from nearpy.distances import CosineDistance
-from nearpy.filters import NearestFilter, UniqueFilter
 from xnearpy import get_projection_by_type, get_type_by_projection, RANDOM_BINARY_PROJECTIONS
+from nearpy.filters import NearestFilter, UniqueFilter
+from nearpy.distances import CosineDistance
+from biomio.algorithms.cvtools.types import numpy_ndarrayToList
+import numpy as np
 
 DEFAULT_NEAR_PY_HASH_SETTINGS = {
     'projections': [(RANDOM_BINARY_PROJECTIONS, {})],
@@ -121,7 +122,9 @@ class wNearPyHash:
     def get_config(self):
         projections = []
         for lshash in self.lshashes:
-            projections.append((get_type_by_projection(lshash), lshash.get_config()))
+            config = lshash.get_config()
+            config['normals'] = numpy_ndarrayToList(config['normals'])
+            projections.append((get_type_by_projection(lshash), config))
         settings = {
             'projections': projections,
             'projection_name': self._settings['projection_name'],
