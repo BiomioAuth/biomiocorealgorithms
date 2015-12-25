@@ -35,6 +35,8 @@ def load_temp_data(path, remove=True, load_saved=True):
             if saved is not None:
                 for im in saved:
                     img = loadNumpyImage(source[im])
+                    if remove:
+                        os.remove(source[im])
                     source[im] = img
     return source
 
