@@ -38,6 +38,11 @@ class wNearPyHash:
     def type():
         return "wNearPyHash"
 
+    def hash_list(self):
+        hashes = [lshash.hash_name for lshash in self.lshashes]
+        return hashes
+
+
     def hash_vectors(self, vs, data=None):
         """
         [
