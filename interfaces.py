@@ -68,3 +68,12 @@ class AlgorithmInterface:
 
     def apply(self, callback=None, **kwargs):
         raise NotImplementedError
+
+
+class AlgorithmEstimation:
+
+    def estimate_training(self, data, database):
+        raise NotImplementedError
+
+    def estimate_verification(self, data, database):
+        raise NotImplementedError
