@@ -1,5 +1,5 @@
 """
-Open CV Tools
+OpenCV Tools
 System Module
 Implementation of functions for image loading and saving based on OpenCV.
 
@@ -12,8 +12,8 @@ import cv2
 
 def loadIplImage(filename):
     """
-    Open CV Tools/System Module
-    Wrapper for OpenCV cv2.cv.LoadImage(filename, iscolor=None) function.
+    OpenCV Tools/System Module
+        Wrapper for OpenCV cv2.cv.LoadImage(filename, iscolor=None) function.
 
     :param filename: Name of the image file (string)
     :return: IplImage image object
@@ -24,8 +24,8 @@ def loadIplImage(filename):
 
 def loadNumpyImage(filename):
     """
-    Open CV Tools/System Module
-    Wrapper for OpenCV cv2.imread(filename, flags=None) function.
+    OpenCV Tools/System Module
+        Wrapper for OpenCV cv2.imread(filename, flags=None) function.
 
     :param filename: Name of the image file (string)
     :return: numpy.ndarray image object
@@ -35,8 +35,8 @@ def loadNumpyImage(filename):
 
 def saveNumpyImage(filename, image):
     """
-    Open CV Tools/System Module
-    Wrapper for OpenCV cv2.imwrite(filename, img, params=None) function.
+    OpenCV Tools/System Module
+        Wrapper for OpenCV cv2.imwrite(filename, img, params=None) function.
 
     :param filename: Name of saving image file
     :param image: numpy.ndarray image object
@@ -47,8 +47,8 @@ def saveNumpyImage(filename, image):
 
 def saveKeypoints(filename, imgobj):
     """
-    Open CV Tools/System Module
-    Simple wrapper for save image with keypoints.
+    OpenCV Tools/System Module
+        Wrapper for save image with keypoints.
 
     :param filename: Name of saving image file
     :param imgobj: image object. For details see algorithms.imgobj
