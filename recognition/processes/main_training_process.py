@@ -18,6 +18,23 @@ class MainTrainingProcess(AlgorithmProcessInterface):
         raise NotImplementedError
 
     def process(self, **kwargs):
+        """
+        Process function for training starting.
+
+        :param kwargs: settings dictionary:
+            {
+                'algoID': algorithm identifier string,
+                'general_data':
+                {
+                    'ai_code': AI code string,
+                    'data_path': image data path,
+                    'try_type': try type string,
+                    'probe_id': probe identifier string
+                },
+                'userID': user identifier string,
+                'data': image paths list
+            }
+        """
         MainTrainingProcess._process_logger_info(self._classname, **kwargs)
         if not os.path.exists(self._temp_data_path):
             os.mkdir(self._temp_data_path, 0o777)

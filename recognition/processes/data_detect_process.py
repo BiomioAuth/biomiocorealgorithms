@@ -37,6 +37,21 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         self._final_process = process
 
     def handler(self, result):
+        """
+        Callback function for corresponding job function.
+
+        :param result: data result dictionary:
+            {
+                'status': 'result',
+                'data':
+                    [
+                        {
+                            'data_file': data file path
+                        }
+                    ],
+                'type': 'matching'
+            }
+        """
         self._handler_logger_info(result)
         if self._cluster_match_process is not None:
             self._matching_handler(result)
@@ -146,6 +161,15 @@ class DataDetectionProcess(AlgorithmProcessInterface):
 
     @staticmethod
     def job(callback_code, **kwargs):
+        """
+        Job function for data detection (Feature Detection, Feature Clustering and Feature Extraction).
+
+        :param callback_code: callback function identifier
+        :param kwargs: settings dictionary:
+            {
+                'data_file': data file path
+            }
+        """
         DataDetectionProcess._job_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         record = DataDetectionProcess.process(**kwargs)
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,

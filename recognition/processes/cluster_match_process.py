@@ -34,6 +34,23 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
         self._final_process = process
 
     def handler(self, result):
+        """
+        Callback function for corresponding job function.
+
+        :param result: data result dictionary:
+            {
+                'status': 'result',
+                'data':
+                {
+                    'userID': user identifier string,
+                    'algoID': algorithm identifier string,
+                    'template': descriptor list,
+                    'cluster_id': cluster identifier,
+                    'cluster': descriptor list
+                },
+                'type': 'matching'
+            }
+        """
         self._handler_logger_info(result)
         if result is not None:
             if result['status'] == STATUS_ERROR:
@@ -110,6 +127,19 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
 
     @staticmethod
     def job(callback_code, **kwargs):
+        """
+        Job function for cluster matching of template cluster and data cluster.
+
+        :param callback_code: callback function identifier
+        :param kwargs: settings dictionary:
+            {
+                'cluster_id': cluster identifier,
+                'userID': user identifier string,
+                'template': descriptor list,
+                'algoID': algorithm identifier string,
+                'cluster': descriptor list
+            }
+        """
         ClusterMatchingProcess._job_logger_info(CLUSTER_MATCHING_PROCESS_CLASS_NAME, **kwargs)
         data = ClusterMatchingProcess.process(**kwargs)
         record = create_result_message(data, 'matching')

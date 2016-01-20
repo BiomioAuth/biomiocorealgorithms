@@ -36,6 +36,25 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         self._r_result_process = process
 
     def handler(self, result):
+        """
+        Callback function for corresponding job function.
+
+        :param result: data result dictionary:
+            {
+                'status': 'result',
+                'data':
+                {
+                    'data_list': string dict list
+                        [
+                            "{'data_file': data file path}",
+                            "{'data_file': data file path}",
+                            "{'data_file': data file path}",
+                            "{'data_file': data file path}"
+                        ]
+                },
+                'type': 'detection'
+            }
+        """
         self._handler_logger_info(result)
         if result is not None:
             if result['status'] == STATUS_ERROR:
@@ -45,6 +64,16 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
 
     @staticmethod
     def job(callback_code, **kwargs):
+        """
+        Job function for rotation detecting.
+
+        :param callback_code: callback function identifier
+        :param kwargs: settings dictionary:
+            {
+                'data_file': data file path,
+                'angle': angle key value
+            }
+        """
         RotationDetectionProcess._job_logger_info(ROTATION_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         record = {'data_file': RotationDetectionProcess.process(**kwargs)}
         AlgorithmsDataStore.instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,

@@ -30,6 +30,19 @@ class RotationResultProcess(AlgorithmProcessInterface):
         self._data_detect_process = process
 
     def handler(self, result):
+        """
+        Callback function for corresponding job function.
+
+        :param result: data result dictionary:
+            {
+                'status': 'result',
+                'data':
+                {
+                    'data_file': data file path
+                },
+                'type': 'detection'
+            }
+        """
         self._handler_logger_info(result)
         if result is not None:
             if result['status'] == STATUS_ERROR:
@@ -39,6 +52,21 @@ class RotationResultProcess(AlgorithmProcessInterface):
 
     @staticmethod
     def job(callback_code, **kwargs):
+        """
+        Job function for handling rotation results.
+
+        :param callback_code: callback function identifier
+        :param kwargs: settings dictionary:
+            {
+                'data_list': string dict list
+                    [
+                        "{'data_file': data file path}",
+                        "{'data_file': data file path}",
+                        "{'data_file': data file path}",
+                        "{'data_file': data file path}"
+                    ]
+            }
+        """
         RotationResultProcess._job_logger_info(ROTATION_RESULT_PROCESS_CLASS_NAME, **kwargs)
         images_res_list = [ast.literal_eval(dict_str) for dict_str in kwargs['data_list']]
         kwargs['data_list'] = images_res_list

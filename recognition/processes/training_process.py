@@ -27,6 +27,28 @@ class TrainingProcess(AlgorithmProcessInterface):
         self._rotate_process = process
 
     def handler(self, result):
+        """
+        Callback function for corresponding job function.
+
+        :param result: data result dictionary:
+        Rotation Result Type ('type'):
+            {
+                'status': 'result',
+                'data':
+                [
+                    [
+                        {'angle': 0},
+                        {'angle': 1},
+                        {'angle': 2},
+                        {'angle': 3}
+                    ],
+                    {
+                        'data_file': temp data file path
+                    }
+                ],
+                'type': result type
+            }
+        """
         self._handler_logger_info(result)
         if result is not None:
             if result['status'] == STATUS_ERROR:
@@ -48,6 +70,25 @@ class TrainingProcess(AlgorithmProcessInterface):
 
     @staticmethod
     def job(callback_code, **kwargs):
+        """
+        Job function for training starting.
+
+        :param callback_code: callback function identifier
+        :param kwargs: settings dictionary:
+            {
+                'path': image file path,
+                'userID': user identifier string,
+                'general_data':
+                {
+                    'ai_code': AI code string,
+                    'data_path': images data path,
+                    'probe_id': probe identifier string,
+                    'try_type': try type string
+                },
+                'algoID': algorithm identifier string,
+                'temp_data_path': temporary data path
+            }
+        """
         TrainingProcess._job_logger_info("TrainingProcess", **kwargs)
         record = TrainingProcess.process(**kwargs)
         logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
