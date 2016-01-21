@@ -57,9 +57,8 @@ def classKeyPointToArray(keypoint, with_points=False):
     """
     OpenCV Tools/Types Module
         Convert KeyPoint Class to numpy.ndarray object.
-        If with_points is True, method include coordinates
-    of keypoint into output array, otherwise returns array
-    without them.
+    If with_points is True, method include coordinates of keypoint 
+    into output array, otherwise returns array without them.
 
     :param keypoint: KeyPoint OpenCV object
     :param with_points: bool flag
