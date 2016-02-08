@@ -1,32 +1,31 @@
-from __future__ import absolute_import
 from biomio.algorithms.features.features import (FeatureDetector)
 from biomio.algorithms.recognition.kodsettings import KODSettings
 from biomio.algorithms.features import (constructDetector)
-import logger
+from biomio.algorithms.logger import logger
 
 
 def identifying(fn):
     def wrapped(self, data):
-        logger.algo_logger.info("Identifying...")
+        logger.info("Identifying...")
         res = None
         if self.data_detect(self, data):
             if data is not None:
                 res = fn(self, data)
-        logger.algo_logger.info("Identifying finished.")
+        logger.info("Identifying finished.")
         return res
     return wrapped
 
 
 def verifying(fn):
     def wrapped(self, data):
-        logger.algo_logger.info("Verifying...")
+        logger.info("Verifying...")
         res = False
         if self._sources_preparing:
             self._prepare_sources([data])
         if self.data_detect(data):
             if data is not None:
                 res = fn(self, data)
-        logger.algo_logger.info("Verifying finished.")
+        logger.info("Verifying finished.")
         return res
     return wrapped
 
@@ -54,13 +53,13 @@ class KeypointsObjectDetector:
 
     def addSource(self, data):
         self._last_error = ""
-        logger.algo_logger.info("Training started...")
-        logger.algo_logger.info(data['path'])
+        logger.info("Training started...")
+        logger.info(data['path'])
         if self.data_detect(data):
             self.update_hash(data)
-            logger.algo_logger.info("Training finished.")
+            logger.info("Training finished.")
             return True
-        logger.algo_logger.info("Training finished.")
+        logger.info("Training finished.")
         return False
 
     def addSources(self, data_list):
@@ -74,27 +73,27 @@ class KeypointsObjectDetector:
         return count
 
     def importSources(self, data):
-        logger.algo_logger.info("Detector cannot import sources.")
+        logger.info("Detector cannot import sources.")
 
     def exportSources(self):
-        logger.algo_logger.info("Detector cannot export sources.")
+        logger.info("Detector cannot export sources.")
 
     def importSettings(self, settings):
-        logger.algo_logger.info("Detector cannot import settings.")
+        logger.info("Detector cannot import settings.")
 
     def exportSettings(self):
-        logger.algo_logger.info("Detector cannot export settings.")
+        logger.info("Detector cannot export settings.")
 
     @identifying
     def identify(self, data):
-        logger.algo_logger.info("Detector doesn't support image identification.")
+        logger.info("Detector doesn't support image identification.")
 
     @verifying
     def verify(self, data):
-        logger.algo_logger.info("Detector doesn't support image verification.")
+        logger.info("Detector doesn't support image verification.")
 
     def detect(self, data):
-        logger.algo_logger.info("Detector doesn't support image detection.")
+        logger.info("Detector doesn't support image detection.")
 
     def data_detect(self, data):
         # ROI detection
@@ -108,7 +107,7 @@ class KeypointsObjectDetector:
         try:
             obj = detector.detectAndCompute(data['roi'])
         except Exception as err:
-            logger.algo_logger.debug(err.message)
+            logger.debug(err.message)
             self._last_error = err.message
             return False
         data['keypoints'] = obj['keypoints']
@@ -126,7 +125,7 @@ class KeypointsObjectDetector:
         return data_list
 
     def update_hash(self, data):
-        logger.algo_logger.info("The hash does not need to be updated!")
+        logger.info("The hash does not need to be updated!")
 
     def update_database(self):
-        logger.algo_logger.info("The database does not need to be updated!")
+        logger.info("The database does not need to be updated!")

@@ -3,8 +3,8 @@ OpenCV Tools
 Types Module
 Implementation of functions for basic type conversion based on OpenCV.
 """
-import cv2.cv as cv
 import numpy
+import cv2
 
 
 def numpy_darrayToIplImage(source):
@@ -15,8 +15,8 @@ def numpy_darrayToIplImage(source):
     :param source: numpy.ndarray object
     :return: IplImage object
     """
-    bitmap = cv.CreateImageHeader((source.shape[1], source.shape[0]), cv.IPL_DEPTH_8U, 3)
-    cv.SetData(bitmap, source.tostring(), source.dtype.itemsize * 3 * source.shape[1])
+    bitmap = cv2.cv.CreateImageHeader((source.shape[1], source.shape[0]), cv2.cv.IPL_DEPTH_8U, 3)
+    cv2.cv.SetData(bitmap, source.tostring(), source.dtype.itemsize * 3 * source.shape[1])
     return bitmap
 
 
@@ -57,7 +57,7 @@ def classKeyPointToArray(keypoint, with_points=False):
     """
     OpenCV Tools/Types Module
         Convert KeyPoint Class to numpy.ndarray object.
-    If with_points is True, method include coordinates of keypoint 
+    If with_points is True, method include coordinates of keypoint
     into output array, otherwise returns array without them.
 
     :param keypoint: KeyPoint OpenCV object
@@ -73,3 +73,17 @@ def classKeyPointToArray(keypoint, with_points=False):
     darray.append(keypoint.response)
     darray.append(keypoint.octave)
     return numpy.array(darray)
+
+
+def copyKeyPoint(keypoint):
+    """
+    OpenCV Tools/Types Module
+        Copy KeyPoint object and return copy.
+
+    :param keypoint: KeyPoint object instance
+    :return: KeyPoint object instance
+    """
+    return cv2.KeyPoint(keypoint.pt[0], keypoint.pt[1],
+                        keypoint.size, keypoint.angle,
+                        keypoint.response, keypoint.octave,
+                        keypoint.class_id)

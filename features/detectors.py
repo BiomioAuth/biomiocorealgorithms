@@ -1,7 +1,6 @@
-from __future__ import absolute_import
 from biomio.algorithms.cvtools import listToNumpy_ndarray
+from biomio.algorithms.logger import logger
 from mahotas.features import surf
-import logger
 import numpy
 import cv2
 
@@ -11,6 +10,14 @@ class BaseDetector:
         print self.__class__
         self._detector = None
         self._extractor = None
+
+    def descriptorSize(self):
+        logger.debug(self._detector.__dict__)
+        return self._detector.size()
+
+    def descriptorType(self):
+        logger.debug(self._detector.__dict__)
+        return self._detector.type()
 
     @staticmethod
     def defaultSettings():
@@ -26,7 +33,7 @@ class BaseDetector:
         try:
             return self._detector.detectAndCompute(image, mask)
         except Exception as err:
-            print err.message
+            logger.debug(err.message)
             return None
 
     def compute(self, image, keypoints):
@@ -35,7 +42,7 @@ class BaseDetector:
         try:
             return self._detector.compute(image, keypoints)
         except Exception as err:
-            print err.message
+            logger.debug(err.message)
             return None
 
 
@@ -58,10 +65,10 @@ class BRISKDetectorSettings:
             self.patternScale = settings['patternScale']
 
     def dump(self):
-        logger.algo_logger.debug('BRISK Detector Settings:')
-        logger.algo_logger.debug('    Threshold: %f' % self.thresh)
-        logger.algo_logger.debug('    Octaves: %f' % self.octaves)
-        logger.algo_logger.debug('    Pattern Scale: %f' % self.patternScale)
+        logger.debug('BRISK Detector Settings:')
+        logger.debug('    Threshold: %f' % self.thresh)
+        logger.debug('    Octaves: %f' % self.octaves)
+        logger.debug('    Pattern Scale: %f' % self.patternScale)
 
 
 class BRISKDetector(BaseDetector):
@@ -71,6 +78,14 @@ class BRISKDetector(BaseDetector):
                                    octaves=settings.octaves,
                                    patternScale=settings.patternScale)
         self._extractor = self._detector
+
+    @staticmethod
+    def defaultSettings():
+        return {
+            'thresh': 10,
+            'octaves': 0,
+            'scale': 1.0
+        }
 
 
 class ORBDetectorSettings:
@@ -92,10 +107,10 @@ class ORBDetectorSettings:
             self.nlevels = settings['nlevels']
 
     def dump(self):
-        logger.algo_logger.debug('ORB Detector Settings:')
-        logger.algo_logger.debug('    Features: %d' % self.features)
-        logger.algo_logger.debug('    Scale Factor: %f' % self.scaleFactor)
-        logger.algo_logger.debug('    Levels: %d' % self.nlevels)
+        logger.debug('ORB Detector Settings:')
+        logger.debug('    Features: %d' % self.features)
+        logger.debug('    Scale Factor: %f' % self.scaleFactor)
+        logger.debug('    Levels: %d' % self.nlevels)
 
 
 class ORBDetector(BaseDetector):
@@ -106,9 +121,17 @@ class ORBDetector(BaseDetector):
                                  nlevels=settings.nlevels)
         self._extractor = self._detector
 
+    @staticmethod
+    def defaultSettings():
+        return {
+            'features': 500,
+            'scaleFactor': 1.1,
+            'nlevels': 8
+        }
+
 
 class SURFDetectorSettings:
-    threshold = 300
+    threshold = 100
 
     def exportSettings(self):
         return {
@@ -120,8 +143,8 @@ class SURFDetectorSettings:
             self.threshold = settings['threshold']
 
     def dump(self):
-        logger.algo_logger.debug('SURF Detector Settings:')
-        logger.algo_logger.debug('    Threshold: %f' % self.threshold)
+        logger.debug('SURF Detector Settings:')
+        logger.debug('    Threshold: %f' % self.threshold)
 
 
 class SURFDetector(BaseDetector):
@@ -137,7 +160,7 @@ class mahotasSURFDetectorSettings:
     nr_scales = 6
     initial_step_size = 1
     threshold = 0.1
-    max_points = 1500
+    max_points = 2000
     is_integral = False
 
     def exportSettings(self):
@@ -160,30 +183,41 @@ class mahotasSURFDetectorSettings:
             self.is_integral = settings['is_integral']
 
     def dump(self):
-        logger.algo_logger.debug('Mahotas SURF Detector Settings:')
-        logger.algo_logger.debug('    Octaves: %f' % self.nr_octaves)
-        logger.algo_logger.debug('    Scales: %f' % self.nr_scales)
-        logger.algo_logger.debug('    Initial Step Size: %f' % self.initial_step_size)
-        logger.algo_logger.debug('    Threshold: %f' % self.threshold)
-        logger.algo_logger.debug('    Max Points: %f' % self.max_points)
-        logger.algo_logger.debug('    Integral: %d' % self.is_integral)
+        logger.debug('Mahotas SURF Detector Settings:')
+        logger.debug('    Octaves: %f' % self.nr_octaves)
+        logger.debug('    Scales: %f' % self.nr_scales)
+        logger.debug('    Initial Step Size: %f' % self.initial_step_size)
+        logger.debug('    Threshold: %f' % self.threshold)
+        logger.debug('    Max Points: %f' % self.max_points)
+        logger.debug('    Integral: %d' % self.is_integral)
 
 
 class mahotasSURFDetector(BaseDetector):
     def __init__(self, settings=mahotasSURFDetectorSettings()):
         BaseDetector.__init__(self)
         self._settings = settings
+        self._filtered = True
+
+    def type(self):
+        return "mSurf"
+
+    def size(self):
+        return 64
 
     def detect(self, image, mask=None):
         keypoints = surf.interest_points(image, self._settings.nr_octaves, self._settings.nr_scales,
                                          self._settings.initial_step_size, self._settings.threshold,
                                          self._settings.max_points, self._settings.is_integral)
+        if self._filtered:
+            keypoints = mahotasSURFDetector._internal_keypoints_filter(image.shape, keypoints)
         return [mahotasSURFDetector.getKeyPoint(keypoint) for keypoint in keypoints]
 
     def detectAndCompute(self, image, mask=None):
         keypoints = surf.interest_points(image, self._settings.nr_octaves, self._settings.nr_scales,
                                          self._settings.initial_step_size, self._settings.threshold,
                                          self._settings.max_points, self._settings.is_integral)
+        if self._filtered:
+            keypoints = mahotasSURFDetector._internal_keypoints_filter(image.shape, keypoints)
         descriptors = surf.descriptors(image, keypoints, self._settings.is_integral, True)
         cvkeys = [mahotasSURFDetector.getKeyPoint(keypoint) for keypoint in keypoints]
         return cvkeys, listToNumpy_ndarray([mahotasSURFDetector.getDescriptor(d) for d in descriptors])
@@ -194,6 +228,17 @@ class mahotasSURFDetector(BaseDetector):
         mkeys = [mahotasSURFDetector.getMahotasKeypoint(keypoint) for keypoint in keypoints]
         return keypoints, listToNumpy_ndarray([mahotasSURFDetector.getDescriptor(d) for d in
                                                surf.descriptors(image, mkeys, self._settings.is_integral, True)])
+
+    @staticmethod
+    def _internal_keypoints_filter(image_shape, keypoints):
+        border = 31.0
+        res = []
+        for keypoint in keypoints:
+            border_size = (border * keypoint[2]) / 2.0
+            if (border_size <= keypoint[0] and (keypoint[0] + border_size) < image_shape[0] and
+                        border_size <= keypoint[1] and (keypoint[1] + border_size) < image_shape[1]):
+                res.append(keypoint)
+        return res
 
     @staticmethod
     def getKeyPoint(keypoint):

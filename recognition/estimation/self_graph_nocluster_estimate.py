@@ -88,18 +88,6 @@ class SelfGraphNoClusterEstimation(BaseTemplateEstimation):
                 dt_pair[2] /= 1.0 * dt_normal
             # self._print_data(corr_nodes, et_self_match, dt_self_match)
             c_prob = 0
-            # for corr in corr_nodes:
-            #     for et_pair in et_self_match:
-            #         if np.array_equal(corr[0], et_pair[0]):
-            #             for dt_pair in dt_self_match:
-            #                 if np.array_equal(corr[1], dt_pair[0]):
-            #                     for c in corr_nodes:
-            #                         if np.array_equal(c[0], et_pair[1]) and np.array_equal(c[1], dt_pair[1]):
-            #                             if et_pair[2] > dt_pair[2]:
-            #                                 c_prob += dt_pair[2] / et_pair[2]
-            #                             else:
-            #                                 c_prob += et_pair[2] / dt_pair[2]
-            #                             break
             for et_pair in et_self_match:
                 end = False
                 for corr in corr_nodes:

@@ -1,8 +1,8 @@
+from biomio.algorithms.features.matchers import CrossMatching, CROSS_MATCHING_MATCHES, SelfGraph, SubsetsCalculation
 from biomio.algorithms.cvtools.types import listToNumpy_ndarray
 from base_template_estimate import BaseTemplateEstimation
 from biomio.algorithms.logger import logger
 import numpy as np
-import itertools
 import copy
 
 
@@ -10,61 +10,99 @@ class SelfGraphEstimation(BaseTemplateEstimation):
     def __init__(self, detector_type, knn):
         BaseTemplateEstimation.__init__(self, detector_type, knn)
 
+    def estimate_training(self, data, database):
+        template = database
+        if len(database.keys()) == 0 or len(database.get('clusters', [])) == 0:
+            template = {'clusters': data['clusters'], 'key_desc': data['key_desc']}
+        else:
+            for index, et_cluster in enumerate(database['clusters']):
+                dt_cluster = data['clusters'][index]
+                if et_cluster is None or len(et_cluster) == 0 or len(et_cluster) < self._knn:
+                    template['clusters'][index] = et_cluster
+                elif dt_cluster is None or len(dt_cluster) == 0 or len(dt_cluster) < self._knn:
+                    template['clusters'][index] = et_cluster
+                else:
+                    ml = CrossMatching(listToNumpy_ndarray(et_cluster, self._dtype),
+                                       listToNumpy_ndarray(dt_cluster, self._dtype),
+                                       self._matcher, self._knn, CROSS_MATCHING_MATCHES)
+                    cluster = []
+                    key_pairs = []
+                    for m in ml:
+                        et_desc = et_cluster[m.queryIdx]
+                        dt_desc = dt_cluster[m.trainIdx]
+                        if not self._find_ndarray(cluster, et_desc):
+                            cluster.append(et_desc)
+                            for pair in database['key_desc'][index]:
+                                if np.array_equal(et_desc, pair[1]):
+                                    key_pairs.append((pair[0], et_desc))
+                                    break
+                        if not self._find_ndarray(cluster, dt_desc):
+                            cluster.append(dt_desc)
+                            for pair in data['key_desc'][index]:
+                                if np.array_equal(dt_desc, pair[1]):
+                                    key_pairs.append((pair[0], dt_desc))
+                                    break
+                    template['clusters'][index] = listToNumpy_ndarray(cluster)
+                    template['key_desc'][index] = key_pairs
+        return template
+
+    def _find_ndarray(self, data, x):
+        found = False
+        for d in data:
+            if np.array_equal(d, x):
+                found = True
+                break
+        return found
+
     def estimate_verification(self, data, database):
         prob = 0
-        summ = sum(itertools.imap(lambda x: len(x) if x is not None else 0, database))
-        for index, et_cluster in enumerate(database):
-            dt_cluster = data[index]
+        summ = 0
+        for index, et_cluster in enumerate(database['clusters']):
+            dt_cluster = data['clusters'][index]
             if et_cluster is None or len(et_cluster) < self._knn:
                 logger.debug("Cluster #" + str(index + 1) + ": " + str(-1) + " Invalid. (Weight: 0)")
                 continue
             if dt_cluster is None or len(dt_cluster) < self._knn:
-                logger.debug("Cluster #" + str(index + 1) + ": " + str(len(database[index]))
+                logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_cluster))
                              + " Positive: 0 Probability: 0 (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
                 continue
             if len(et_cluster) > 0 and len(dt_cluster) > 0:
-                matches1 = self._matcher.knnMatch(listToNumpy_ndarray(et_cluster, self._dtype),
-                                                  listToNumpy_ndarray(dt_cluster, self._dtype), k=self._knn)
-                matches2 = self._matcher.knnMatch(listToNumpy_ndarray(dt_cluster, self._dtype),
-                                                  listToNumpy_ndarray(et_cluster, self._dtype), k=self._knn)
-                ml = [
-                    x for (x, _) in itertools.ifilter(
-                        lambda (m, n): m.queryIdx == n.trainIdx and m.trainIdx == n.queryIdx, itertools.product(
-                            itertools.chain(*matches1), itertools.chain(*matches2)
-                        )
-                    )
-                ]
-                # corr_nodes = [(et_cluster[m.queryIdx], dt_cluster[m.trainIdx]) for m in ml]
-                corr_nodes = []
-                for m in ml:
-                    unique = True
-                    for item in corr_nodes:
-                        if (np.array_equal(item[0], et_cluster[m.queryIdx]) or
-                                np.array_equal(item[1], dt_cluster[m.trainIdx])):
-                            if item[2] > m.distance:
-                                item[0] = et_cluster[m.queryIdx]
-                                item[1] = dt_cluster[m.trainIdx]
-                                item[2] = m.distance
-                            unique = False
-                    if unique:
-                        corr_nodes.append([et_cluster[m.queryIdx], dt_cluster[m.trainIdx], m.distance])
-                et_nodes = [m[0] for m in corr_nodes]
-                dt_nodes = [m[1] for m in corr_nodes]
-                et_self_match = self._self_matching(et_nodes)
-                dt_self_match = self._self_matching(dt_nodes)
+                ml = CrossMatching(listToNumpy_ndarray(et_cluster, self._dtype),
+                                   listToNumpy_ndarray(dt_cluster, self._dtype),
+                                   self._matcher, self._knn, CROSS_MATCHING_MATCHES)
+                corr_matches = SubsetsCalculation(ml)
+                corr_nodes = [[et_cluster[m.queryIdx], dt_cluster[m.trainIdx], m.distance] for m in corr_matches]
+                et_nodes = []
+                et_keys = []
+                dt_nodes = []
+                dt_keys = []
+                for m in corr_nodes:
+                    for pair in database['key_desc'][index]:
+                        if np.array_equal(m[0], pair[1]):
+                            et_nodes.append(m[0])
+                            et_keys.append(pair[0])
+                            break
+                    for pair in data['key_desc'][index]:
+                        if np.array_equal(m[1], pair[1]):
+                            dt_nodes.append(m[1])
+                            dt_keys.append(pair[0])
+                            break
+                et_self_graph = SelfGraph(et_keys, self._knn, et_nodes)
+                dt_self_graph = SelfGraph(dt_keys, self._knn, dt_nodes)
+                summ += len(et_self_graph)
                 # self._print_data(corr_nodes, et_self_match, dt_self_match)
                 et_normal = 0
                 dt_normal = 0
                 end = False
                 for corr in corr_nodes:
-                    for et_pair in et_self_match:
-                        if np.array_equal(corr[0], et_pair[0]):
-                            for dt_pair in dt_self_match:
-                                if np.array_equal(corr[1], dt_pair[0]):
+                    for et_pair in et_self_graph:
+                        if np.array_equal(corr[0], et_pair[1]):
+                            for dt_pair in dt_self_graph:
+                                if np.array_equal(corr[1], dt_pair[1]):
                                     for c in corr_nodes:
-                                        if np.array_equal(c[0], et_pair[1]) and np.array_equal(c[1], dt_pair[1]):
-                                            et_normal = et_pair[2]
-                                            dt_normal = dt_pair[2]
+                                        if np.array_equal(c[0], et_pair[3]) and np.array_equal(c[1], dt_pair[3]):
+                                            et_normal = et_pair[4]
+                                            dt_normal = dt_pair[4]
                                             end = True
                                             break
                                 if end:
@@ -73,72 +111,55 @@ class SelfGraphEstimation(BaseTemplateEstimation):
                             break
                     if end:
                         break
-                for et_pair in et_self_match:
-                    et_pair[2] /= 1.0 * et_normal
-                for dt_pair in dt_self_match:
-                    dt_pair[2] /= 1.0 * dt_normal
+                if et_normal == 0 or dt_normal == 0:
+                    continue
+                for et_pair in et_self_graph:
+                    et_pair[4] /= 1.0 * et_normal
+                for dt_pair in dt_self_graph:
+                    dt_pair[4] /= 1.0 * dt_normal
                 # self._print_data(corr_nodes, et_self_match, dt_self_match)
                 c_prob = 0
-                # for corr in corr_nodes:
-                #     for et_pair in et_self_match:
-                #         if np.array_equal(corr[0], et_pair[0]):
-                #             for dt_pair in dt_self_match:
-                #                 if np.array_equal(corr[1], dt_pair[0]):
-                #                     for c in corr_nodes:
-                #                         if np.array_equal(c[0], et_pair[1]) and np.array_equal(c[1], dt_pair[1]):
-                #                             if et_pair[2] > dt_pair[2]:
-                #                                 c_prob += dt_pair[2] / et_pair[2]
-                #                             else:
-                #                                 c_prob += et_pair[2] / dt_pair[2]
-                #                             break
-                for et_pair in et_self_match:
+                for et_pair in et_self_graph:
                     end = False
                     for corr in corr_nodes:
-                        if np.array_equal(corr[0], et_pair[0]):
+                        if np.array_equal(corr[0], et_pair[1]):
                             for c in corr_nodes:
-                                if np.array_equal(c[0], et_pair[1]):
-                                    for dt_pair in dt_self_match:
-                                        if np.array_equal(corr[1], dt_pair[0]) and np.array_equal(c[1], dt_pair[1]):
-                                            coeff = 0
-                                            if corr[2] == c[2] == 0:
-                                                coeff = 1
-                                            elif corr[2] > c[2]:
-                                                coeff = c[2] / corr[2]
+                                if np.array_equal(c[0], et_pair[3]):
+                                    for dt_pair in dt_self_graph:
+                                        if np.array_equal(corr[1], dt_pair[1]) and np.array_equal(c[1], dt_pair[3]):
+                                            # coeff = 0
+                                            # if corr[2] == c[2] == 0:
+                                            #     coeff = 1
+                                            # elif corr[2] > c[2]:
+                                            #     coeff = c[2] / corr[2]
+                                            # else:
+                                            #     coeff = corr[2] / c[2]
+                                            if et_pair[4] > dt_pair[4]:
+                                                c_prob += (dt_pair[4] / et_pair[4])
+                                                # c_prob += coeff * (dt_pair[4] / et_pair[4])
                                             else:
-                                                coeff = corr[2] / c[2]
-                                            if et_pair[2] > dt_pair[2]:
-                                                c_prob += coeff * (dt_pair[2] / et_pair[2])
-                                            else:
-                                                c_prob += coeff * (et_pair[2] / dt_pair[2])
+                                                c_prob += (et_pair[4] / dt_pair[4])
+                                                # c_prob += coeff * (et_pair[4] / dt_pair[4])
                                             end = True
                                             break
                                     if end:
                                         break
                             if end:
                                 break
-                val = (c_prob / (1.0 * len(et_self_match))) * 100 # * (len(ml) / (1.0 * len(et_cluster)))
-                logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_self_match)) + " Positive: "
+                val = (c_prob / (1.0 * len(et_self_graph))) * 100 # * (len(ml) / (1.0 * len(et_cluster)))
+                logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_self_graph)) + " Positive: "
                              + str(c_prob) + " Probability: " + str(val)
                              + " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")"
                              )
-                prob += (len(et_cluster) / (1.0 * summ)) * val
-                # prob += val
+                # prob += (len(et_cluster) / (1.0 * summ)) * val
+                prob += c_prob
             else:
                 logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_cluster)) + " Invalid.")
+                continue
+        prob = (prob / (1.0 * summ)) * 100
         # prob /= 1.0 * len(database)
         logger.debug("Probability: " + str(prob))
         return prob
-
-    def _self_matching(self, descriptors):
-        self_match = []
-        for desc in descriptors:
-            query_set = [desc]
-            train_set = [d for d in descriptors if not np.array_equal(desc, d)]
-            s_match = self._matcher.knnMatch(listToNumpy_ndarray(query_set, self._dtype),
-                                             listToNumpy_ndarray(train_set, self._dtype), k=self._knn)
-            for m in itertools.chain(*s_match):
-                self_match.append([query_set[m.queryIdx], train_set[m.trainIdx], m.distance])
-        return self_match
 
     def _print_data(self, corr_nodes, et_matches, dt_matches):
         desc_list = []
@@ -208,3 +229,4 @@ class SelfGraphEstimation(BaseTemplateEstimation):
         logger.debug("######################################")
         logger.debug(dt_matches_copy)
         logger.debug("######################################")
+
