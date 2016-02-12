@@ -1,5 +1,5 @@
+from biomio.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
 from biomio.algorithms.features import matcherForDetector, dtypeForDetector
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray
 from biomio.algorithms.interfaces import AlgorithmEstimation
 from biomio.algorithms.features.matchers import Matcher
 import itertools
@@ -10,6 +10,28 @@ class BaseTemplateEstimation(AlgorithmEstimation):
         self._knn = knn
         self._matcher = Matcher(matcherForDetector(detector_type))
         self._dtype = dtypeForDetector(detector_type)
+
+    @staticmethod
+    def exportDatabase(data):
+        return {
+            str(index): {} if cluster is None else {
+                i: numpy_ndarrayToList(descriptor) for i, descriptor in enumerate(cluster)
+                } for index, cluster in enumerate(data)
+            }
+
+    @staticmethod
+    def importDatabase(data):
+
+        def _values(d, key=None):
+            l = sorted(d, key=key)
+            for e in l:
+                yield d[e]
+
+        return [listToNumpy_ndarray(
+            [
+                listToNumpy_ndarray(descriptor) for descriptor in _values(cluster)
+            ]) for cluster in _values(data, key=int)
+        ]
 
     def estimate_training(self, data, database):
         template = database

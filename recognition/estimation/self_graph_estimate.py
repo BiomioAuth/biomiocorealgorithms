@@ -1,5 +1,6 @@
 from biomio.algorithms.features.matchers import CrossMatching, CROSS_MATCHING_MATCHES, SelfGraph, SubsetsCalculation
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+from biomio.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList, \
+    classKeyPointToArray, arrayToKeyPointClass
 from base_template_estimate import BaseTemplateEstimation
 from biomio.algorithms.logger import logger
 import numpy as np
@@ -9,6 +10,30 @@ import copy
 class SelfGraphEstimation(BaseTemplateEstimation):
     def __init__(self, detector_type, knn):
         BaseTemplateEstimation.__init__(self, detector_type, knn)
+
+    @staticmethod
+    def exportDatabase(data):
+        ser = []
+        for cl in data['key_desc']:
+            pairs = [(classKeyPointToArray(pair[0], True), numpy_ndarrayToList(pair[1])) for pair in cl]
+            ser.append(pairs)
+
+        return {
+            'clusters': BaseTemplateEstimation.exportDatabase(data['clusters']),
+            'key_desc': ser
+        }
+
+    @staticmethod
+    def importDatabase(data):
+        ser = []
+        for cl in data['key_desc']:
+            pairs = [(arrayToKeyPointClass(pair[0], True), listToNumpy_ndarray(pair[1])) for pair in cl]
+            ser.append(pairs)
+
+        return {
+            'clusters': BaseTemplateEstimation.importDatabase(data['clusters']),
+            'key_desc': ser
+        }
 
     def estimate_training(self, data, database):
         template = database

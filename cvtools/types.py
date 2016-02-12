@@ -75,6 +75,25 @@ def classKeyPointToArray(keypoint, with_points=False):
     return numpy.array(darray)
 
 
+def arrayToKeyPointClass(array, with_points=False):
+    """
+    OpenCV Tools/Types Module
+        Convert numpy.ndarray object to KeyPoint Class.
+    If with_points is True, method include coordinates of keypoint
+    into output array, otherwise returns array without them.
+
+    :param array: numpy.ndarray object
+    :param with_points: bool flag
+    :return: KeyPoint OpenCV object
+    """
+    x = array[0]
+    y = array[1]
+    if not with_points:
+        x = 0
+        y = 0
+    return cv2.KeyPoint(x, y, array[2], array[3], array[4], array[5])
+
+
 def copyKeyPoint(keypoint):
     """
     OpenCV Tools/Types Module
