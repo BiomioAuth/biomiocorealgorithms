@@ -31,6 +31,7 @@ class MainTrainingProcess(AlgorithmProcessInterface):
                     'try_type': try type string,
                     'probe_id': probe identifier string
                 },
+                'providerID': provider identifier string, //identification plugin
                 'userID': user identifier string,
                 'data': image paths list
             }

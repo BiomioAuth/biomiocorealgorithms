@@ -14,3 +14,5 @@ REDIS_GENERAL_DATA = "algorithm_general:%s"
 JOB_STATUS_ACTIVE = "job::active"
 JOB_STATUS_FINISHED = "job:finish"
 JOB_STATUS_ERROR = "job::error"
+
+IDENTIFICATION_DATA_TRAINING_KEY = "identification_data:%s:%s"
