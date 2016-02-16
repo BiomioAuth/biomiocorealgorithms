@@ -111,6 +111,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                     'algoID': data['algoID'],
                                     'cluster_id': key
                                 }
+                                if 'providerID' in data:
+                                    job_data.update({'providerID': data['providerID']})
                                 self._cluster_match_process.run(self._worker, **job_data)
                             else:
                                 fault = 0
@@ -131,6 +133,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                     else:
                                         final_data['userID'] = data['userID']
                                         final_data['algoID'] = data['algoID']
+                                        if 'providerID' in data:
+                                            final_data['providerID'] = data['providerID']
                                         final_data['temp_data_path'] = data['temp_data_path']
                                         final_data['general_data'] = data['general_data']
                                     if final_data.get(str(key), None) is None:
@@ -157,6 +161,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             'general_data': res_data['general_data'],
                             'step': 1
                         }
+                        if 'providerID' in res_data:
+                            data.update({'providerID': res_data['providerID']})
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
     @staticmethod
