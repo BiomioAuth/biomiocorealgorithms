@@ -84,7 +84,8 @@ class RotationResultProcess(AlgorithmProcessInterface):
             result["name"] = data_list[0]["name"]
             result["path"] = data_list[0]["path"]
             result['algoID'] = data_list[0]['algoID']
-            result["userID"] = data_list[0]["userID"]
+            if 'userID' in data_list[0]:
+                result["userID"] = data_list[0]['userID']
             result['general_data'] = data_list[0]['general_data']
             result['temp_data_path'] = data_list[0]['temp_data_path']
             settings = get_settings(result['algoID'])
