@@ -13,12 +13,10 @@ class SelfGraphEstimation(BaseTemplateEstimation):
 
     @staticmethod
     def exportDatabase(data):
-        ser = []
-        for cl in data['key_desc']:
-            pairs = [(numpy_ndarrayToList(classKeyPointToArray(pair[0], True)),
-                      numpy_ndarrayToList(pair[1])) for pair in cl]
-            ser.append(pairs)
-
+        ser = {}
+        for index, cl in enumerate(data['key_desc']):
+            ser[str(index)] = [(numpy_ndarrayToList(classKeyPointToArray(pair[0], True)),
+                                numpy_ndarrayToList(pair[1])) for pair in cl]
         return {
             'clusters': BaseTemplateEstimation.exportDatabase(data['clusters']),
             'key_desc': ser
@@ -27,10 +25,11 @@ class SelfGraphEstimation(BaseTemplateEstimation):
     @staticmethod
     def importDatabase(data):
         ser = []
-        for cl in data['key_desc']:
+        for _ in data['key_desc'].iteritems():
+            ser.append([])
+        for idx, cl in data['key_desc'].iteritems():
             pairs = [(arrayToKeyPointClass(pair[0], True), listToNumpy_ndarray(pair[1])) for pair in cl]
-            ser.append(pairs)
-
+            ser[int(idx)] = pairs
         return {
             'clusters': BaseTemplateEstimation.importDatabase(data['clusters']),
             'key_desc': ser
