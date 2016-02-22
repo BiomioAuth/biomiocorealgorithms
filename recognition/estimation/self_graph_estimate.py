@@ -15,7 +15,8 @@ class SelfGraphEstimation(BaseTemplateEstimation):
     def exportDatabase(data):
         ser = []
         for cl in data['key_desc']:
-            pairs = [(classKeyPointToArray(pair[0], True), numpy_ndarrayToList(pair[1])) for pair in cl]
+            pairs = [(numpy_ndarrayToList(classKeyPointToArray(pair[0], True)),
+                      numpy_ndarrayToList(pair[1])) for pair in cl]
             ser.append(pairs)
 
         return {
