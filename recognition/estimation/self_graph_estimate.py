@@ -86,11 +86,11 @@ class SelfGraphEstimation(BaseTemplateEstimation):
         for index, et_cluster in enumerate(database['clusters']):
             dt_cluster = data['clusters'][index]
             if et_cluster is None or len(et_cluster) < self._knn:
-                logger.debug("Cluster #" + str(index + 1) + ": " + str(-1) + " Invalid. (Weight: 0)")
+                logger.debug("Cluster #" + str(index + 1) + ": " + str(-1) + " Invalid. ")#(Weight: 0)")
                 continue
             if dt_cluster is None or len(dt_cluster) < self._knn:
                 logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_cluster))
-                             + " Positive: 0 Probability: 0 (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
+                             + " Positive: 0 Probability: 0 ")#(Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")")
                 continue
             if len(et_cluster) > 0 and len(dt_cluster) > 0:
                 ml = CrossMatching(listToNumpy_ndarray(et_cluster, self._dtype),
@@ -175,7 +175,7 @@ class SelfGraphEstimation(BaseTemplateEstimation):
                 val = (c_prob / (1.0 * len(et_self_graph))) * 100 # * (len(ml) / (1.0 * len(et_cluster)))
                 logger.debug("Cluster #" + str(index + 1) + ": " + str(len(et_self_graph)) + " Positive: "
                              + str(c_prob) + " Probability: " + str(val)
-                             + " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")"
+                             # + " (Weight: " + str(len(et_cluster) / (1.0 * summ)) + ")"
                              )
                 # prob += (len(et_cluster) / (1.0 * summ)) * val
                 prob += c_prob
