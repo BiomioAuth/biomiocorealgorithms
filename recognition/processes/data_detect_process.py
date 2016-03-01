@@ -176,6 +176,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                 'data_file': data file path
             }
         """
+        kwargs.update({'callback_code': callback_code})
         DataDetectionProcess._job_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         record = DataDetectionProcess.process(**kwargs)
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
@@ -191,29 +192,34 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         logger.debug(loadSettings(settings['kodsettings']))
         kodsettings = KODSettings()
         kodsettings.importSettings(loadSettings(settings['kodsettings'])['KODSettings'])
+        logger.debug("DEBUG::DataDetectionProcess::%s::FeatureDetector::create" % str(kwargs['callback_code']))
         detector = FeatureDetector(constructDetector(kodsettings.detector_type, kodsettings.settings))
 
         try:
+            logger.debug("DEBUG::DataDetectionProcess::%s::FeatureDetector::detect" % str(kwargs['callback_code']))
             obj = detector.detectAndCompute(source['roi'])
+            logger.debug("DEBUG::DataDetectionProcess::%s::FeatureDetector::store" % str(kwargs['callback_code']))
             source['keypoints'] = obj['keypoints']
             source['descriptors'] = obj['descriptors']
             if source['descriptors'] is None:
                 source['descriptors'] = []
-            record = DataDetectionProcess._detect_process(source, detector, temp_data_path)
+            logger.debug("DEBUG::DataDetectionProcess::%s::Clustering" % str(kwargs['callback_code']))
+            record = DataDetectionProcess._detect_process(source, detector, temp_data_path, kwargs['callback_code'])
         except Exception as err:
             logger.debug(err.message)
             record = create_error_message(INTERNAL_TRAINING_ERROR, 'data', err.message)
         return record
 
     @staticmethod
-    def _detect_process(data, detector, path):
+    def _detect_process(data, detector, path, callback_code):
+        logger.debug("DEBUG::DataDetectionProcess::%s::EyesDetection" % str(callback_code))
         eyeROI = CascadesDetectionInterface(loadScript("main_haarcascade_eyes_union.json", True))
         rect = eyeROI.detect(data['roi'])[1]
         if len(rect) <= 0 or len(rect[0]) <= 0:
             logger.info("Eye ROI wasn't found.")
             return create_error_message(INTERNAL_TRAINING_ERROR, "data", "Eye ROI wasn't found.", data['userID'])
-        # ROI cutting
         rect = rect[0]
+        logger.debug("DEBUG::DataDetectionProcess::%s::ClusterInitCenters" % str(callback_code))
         lefteye = (rect[0] + rect[3], rect[1] + rect[3] / 2)
         righteye = (rect[0] + rect[2] - rect[3], rect[1] + rect[3] / 2)
         centereye = (lefteye[0] + (righteye[0] - lefteye[0]) / 2, lefteye[1] + (righteye[1] - lefteye[1]) / 2)
@@ -222,19 +228,18 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         leftmouth = (lefteye[0], centermouth[1])
         rightmouth = (righteye[0], centermouth[1])
         centers = [lefteye, righteye, centereye, centernose, leftmouth, rightmouth]
-        DataDetectionProcess._filter_keypoints(data)
+        # DataDetectionProcess._filter_keypoints(data)
 
+        logger.debug("DEBUG::DataDetectionProcess::%s::KMeans" % str(callback_code))
         clusters = KMeans(data['keypoints'], 0, centers)
+        logger.debug("DEBUG::DataDetectionProcess::%s::CheckClusters" % str(callback_code))
         data['true_clusters'] = clusters
         descriptors = dict()
         active_clusters = 0
         for index, cluster in enumerate(clusters):
             desc = detector.compute(data['roi'], cluster['items'])
             curr_cluster = desc['descriptors']
-            if curr_cluster is not None:
-                descriptors[str(index)] = numpy_ndarrayToList(curr_cluster)
-            else:
-                descriptors[str(index)] = []
+            descriptors[str(index)] = numpy_ndarrayToList(curr_cluster) if curr_cluster is not None else []
             if curr_cluster is not None and len(curr_cluster) > 0:
                 active_clusters += 1
         data['clusters'] = descriptors
@@ -242,10 +247,13 @@ class DataDetectionProcess(AlgorithmProcessInterface):
             logger.info("Number of clusters are insufficient for the recognition.")
             return create_error_message(INTERNAL_TRAINING_ERROR, "clusters",
                                         "Number of clusters are insufficient for the recognition.", data['userID'])
+        logger.debug("DEBUG::DataDetectionProcess::%s::RemoveUnused" % str(callback_code))
         data.pop("keypoints", None)
         data.pop("true_clusters", None)
+        logger.debug("DEBUG::DataDetectionProcess::%s::SaveResults" % str(callback_code))
         data["descriptors"] = numpy_ndarrayToList(data["descriptors"])
         matching_process_data = save_temp_data(data, path, ['data', 'roi'])
+        logger.debug("DEBUG::DataDetectionProcess::%s::ReturnResult" % str(callback_code))
         return create_result_message([{'data_file': matching_process_data}], 'matching')
 
     @staticmethod
