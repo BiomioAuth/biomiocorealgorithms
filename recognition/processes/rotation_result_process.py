@@ -153,4 +153,5 @@ class RotationResultProcess(AlgorithmProcessInterface):
         return record
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        kwargs.update({'timeout': 300})
         self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)
