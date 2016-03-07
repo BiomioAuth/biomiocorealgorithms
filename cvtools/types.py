@@ -73,3 +73,16 @@ def classKeyPointToArray(keypoint, with_points=False):
     darray.append(keypoint.response)
     darray.append(keypoint.octave)
     return numpy.array(darray)
+
+
+def isEqual(array1, array2):
+    """
+    OpenCV Tools/Types Module
+        Check equality of two arrays. Returns True if arrays
+    are equal, otherwise returns False.
+
+    :param array1: numpy.ndarray object
+    :param array2: numpy.ndarray object
+    :return: bool
+    """
+    return numpy.array_equal(array1, array2)
