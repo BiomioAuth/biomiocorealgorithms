@@ -42,7 +42,6 @@ class wNearPyHash:
         hashes = [lshash.hash_name for lshash in self.lshashes]
         return hashes
 
-
     def hash_vectors(self, vs, data=None):
         """
         [

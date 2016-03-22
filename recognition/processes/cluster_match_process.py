@@ -92,6 +92,8 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                 else:
                                     final_data['userID'] = data['userID']
                                     final_data['algoID'] = data['algoID']
+                                    if 'providerID' in data:
+                                        final_data['providerID'] = data['providerID']
                                     final_data['temp_data_path'] = data['temp_data_path']
                                     final_data['general_data'] = data['general_data']
                                 if final_data.get(str(cluster_id), None) is None:
@@ -118,6 +120,8 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                                 'algoID': data['algoID'],
                                 'cluster_id': cluster_id
                             }
+                            if 'providerID' in data:
+                                job_data.update({'providerID': data['providerID']})
                             AlgorithmsDataStore.instance().store_data(current_key, **data)
                             self._cluster_match_process.run(self._worker, **job_data)
                     else:

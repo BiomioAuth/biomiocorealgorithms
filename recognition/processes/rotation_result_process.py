@@ -1,9 +1,9 @@
-from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
 from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from biomio.algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
+from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
 from biomio.algorithms.cascades.tools import loadScript, getROIImage
 from messages import create_error_message, create_result_message
@@ -84,7 +84,10 @@ class RotationResultProcess(AlgorithmProcessInterface):
             result["name"] = data_list[0]["name"]
             result["path"] = data_list[0]["path"]
             result['algoID'] = data_list[0]['algoID']
-            result["userID"] = data_list[0]["userID"]
+            if 'userID' in data_list[0]:
+                result["userID"] = data_list[0]['userID']
+            if 'providerID' in data_list[0]:
+                result["providerID"] = data_list[0]['providerID']
             result['general_data'] = data_list[0]['general_data']
             result['temp_data_path'] = data_list[0]['temp_data_path']
             settings = get_settings(result['algoID'])
@@ -125,7 +128,6 @@ class RotationResultProcess(AlgorithmProcessInterface):
                 elif count[index] == max_count:
                     if gl[index][2] > gl[midx][2] and gl[index][3] > gl[midx][3]:
                         midx = index
-            logger.debug(midx)
             result['data'] = images[midx]
 
             detector = CascadesDetectionInterface(loadScript(os.path.join(SCRIPTS_PATH, settings['detect_script'])))
@@ -151,4 +153,5 @@ class RotationResultProcess(AlgorithmProcessInterface):
         return record
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        kwargs.update({'timeout': 300})
         self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

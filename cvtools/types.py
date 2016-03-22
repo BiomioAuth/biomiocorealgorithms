@@ -106,3 +106,17 @@ def copyKeyPoint(keypoint):
                         keypoint.size, keypoint.angle,
                         keypoint.response, keypoint.octave,
                         keypoint.class_id)
+
+
+def isEqual(array1, array2):
+    """
+    OpenCV Tools/Types Module
+        Check equality of two arrays. Returns True if arrays
+    are equal, otherwise returns False.
+
+    :param array1: numpy.ndarray object
+    :param array2: numpy.ndarray object
+    :return: bool
+    """
+    return numpy.array_equal(array1, array2)
+

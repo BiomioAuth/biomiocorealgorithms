@@ -111,6 +111,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                     'algoID': data['algoID'],
                                     'cluster_id': key
                                 }
+                                if 'providerID' in data:
+                                    job_data.update({'providerID': data['providerID']})
                                 self._cluster_match_process.run(self._worker, **job_data)
                             else:
                                 fault = 0
@@ -131,6 +133,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                                     else:
                                         final_data['userID'] = data['userID']
                                         final_data['algoID'] = data['algoID']
+                                        if 'providerID' in data:
+                                            final_data['providerID'] = data['providerID']
                                         final_data['temp_data_path'] = data['temp_data_path']
                                         final_data['general_data'] = data['general_data']
                                     if final_data.get(str(key), None) is None:
@@ -157,6 +161,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             'general_data': res_data['general_data'],
                             'step': 1
                         }
+                        if 'providerID' in res_data:
+                            data.update({'providerID': res_data['providerID']})
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
     @staticmethod
@@ -190,9 +196,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         try:
             obj = detector.detectAndCompute(source['roi'])
             source['keypoints'] = obj['keypoints']
-            source['descriptors'] = obj['descriptors']
-            if source['descriptors'] is None:
-                source['descriptors'] = []
+            source['descriptors'] = obj['descriptors'] if obj['descriptors'] is not None else []
             record = DataDetectionProcess._detect_process(source, detector, temp_data_path)
         except Exception as err:
             logger.debug(err.message)
@@ -206,7 +210,6 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         if len(rect) <= 0 or len(rect[0]) <= 0:
             logger.info("Eye ROI wasn't found.")
             return create_error_message(INTERNAL_TRAINING_ERROR, "data", "Eye ROI wasn't found.", data['userID'])
-        # ROI cutting
         rect = rect[0]
         lefteye = (rect[0] + rect[3], rect[1] + rect[3] / 2)
         righteye = (rect[0] + rect[2] - rect[3], rect[1] + rect[3] / 2)
@@ -216,7 +219,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         leftmouth = (lefteye[0], centermouth[1])
         rightmouth = (righteye[0], centermouth[1])
         centers = [lefteye, righteye, centereye, centernose, leftmouth, rightmouth]
-        DataDetectionProcess._filter_keypoints(data)
+        # DataDetectionProcess._filter_keypoints(data)
 
         clusters = KMeans(data['keypoints'], 0, centers)
         data['true_clusters'] = clusters
@@ -225,10 +228,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         for index, cluster in enumerate(clusters):
             desc = detector.compute(data['roi'], cluster['items'])
             curr_cluster = desc['descriptors']
-            if curr_cluster is not None:
-                descriptors[str(index)] = numpy_ndarrayToList(curr_cluster)
-            else:
-                descriptors[str(index)] = []
+            descriptors[str(index)] = numpy_ndarrayToList(curr_cluster) if curr_cluster is not None else []
             if curr_cluster is not None and len(curr_cluster) > 0:
                 active_clusters += 1
         data['clusters'] = descriptors
@@ -253,4 +253,5 @@ class DataDetectionProcess(AlgorithmProcessInterface):
         data['keypoints'] = keypoints
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
+        kwargs.update({'timeout': 300})
         self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

@@ -85,6 +85,7 @@ class TrainingProcess(AlgorithmProcessInterface):
                     'probe_id': probe identifier string,
                     'try_type': try type string
                 },
+                'providerID': provider identifier string,
                 'algoID': algorithm identifier string,
                 'temp_data_path': temporary data path
             }
