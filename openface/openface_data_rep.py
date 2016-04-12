@@ -1,3 +1,4 @@
+from biomio.algorithms.cascades.detectors import RotatedCascadesDetector, loadScript
 from biomio.algorithms.flows.ialgorithm import IAlgorithm
 from biomio.algorithms.logger import logger
 import openface
@@ -26,13 +27,21 @@ class OpenFaceDataRepresentation(IAlgorithm):
         self._settings = settings
         self._align = openface.AlignDlib(settings.get('dlibFacePredictor'))
         self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
+        self._detector = RotatedCascadesDetector(
+            loadScript("main_rotation_haarcascade_face_eyes.json", True), loadScript(""))
 
     def apply(self, data):
+        logger.debug("===================================")
+        logger.debug("OpenFaceDataRepresentation::apply")
+        logger.debug(data)
+        logger.debug("===================================")
         bgrImg = cv2.imread(data.get('path'))
         if bgrImg is None:
             # TODO: Write Error handler
             raise Exception("Unable to load image: {}".format(data.get('path')))
         rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
+        if self._detector is not None:
+            rgbImg = self._detector.detect(rgbImg)
 
         bb = self._align.getLargestFaceBoundingBox(rgbImg)
         if bb is None:

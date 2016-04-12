@@ -1,4 +1,5 @@
 from biomio.algorithms.flows.ialgorithm import IAlgorithm
+from biomio.algorithms.logger import logger
 import scipy.spatial.distance as distance
 
 
@@ -27,6 +28,10 @@ class OpenFaceSimpleDistanceEstimation(IAlgorithm):
         pass
 
     def apply(self, data):
+        logger.debug("===================================")
+        logger.debug("OpenFaceSimpleDistanceEstimation::apply")
+        logger.debug(data)
+        logger.debug("===================================")
         database = data.get('database')
         tdata = data.get('data')
         if database is None or tdata is None:
