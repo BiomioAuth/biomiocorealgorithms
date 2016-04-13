@@ -41,7 +41,7 @@ class OpenFaceDataRepresentation(IAlgorithm):
             raise Exception("Unable to load image: {}".format(data.get('path')))
         rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
         if self._detector is not None:
-            rgbImg = self._detector.detect(rgbImg)
+            rgbImg = self._detector.detect(rgbImg)[0]
 
         bb = self._align.getLargestFaceBoundingBox(rgbImg)
         if bb is None:
