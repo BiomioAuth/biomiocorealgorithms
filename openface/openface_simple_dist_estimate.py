@@ -36,7 +36,7 @@ class OpenFaceSimpleDistanceEstimation(IAlgorithm):
         tdata = data.get('data')
         if database is None or tdata is None:
             # TODO: Write Error handler
-            return 0
+            return {'result': 0}
         avg = 0
         for item in database.get('data', []):
             avg += distance.euclidean(tdata['rep'], item['rep'])
