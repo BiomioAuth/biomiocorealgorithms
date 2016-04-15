@@ -34,7 +34,7 @@ class OpenFaceSimpleDistanceEstimation(IAlgorithm):
         logger.debug("===================================")
         database = data.get('database')
         tdata = data.get('data')
-        if database is None or tdata is None:
+        if database is None or tdata is None or len(database.get('data', [])) <= 0:
             # TODO: Write Error handler
             return {'result': 0}
         avg = 0
