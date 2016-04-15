@@ -16,10 +16,12 @@ class DataFormatStream:
 
     def write(self):
         with open(self._filename, "a") as f:
-            mm = mmap.mmap(f.fileno(), 0)
+            # mm = mmap.mmap(f.fileno(), 0)
             for data_format in self._formats:
-                mm.write(data_format.printData())
-            mm.close()
+                f.write(data_format.printData())
+                # mm.write(data_format.printData())
+            # mm.close()
+            f.close()
             self._formats = []
 
     def clear(self):
