@@ -29,6 +29,7 @@ class OpenFaceDataRepresentation(IAlgorithm):
         self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
         self._detector = RotatedCascadesDetector(
             loadScript("main_rotation_haarcascade_face_eyes.json", True), loadScript(""))
+        self._error_handler = settings.get('error_handler', None)
 
     def apply(self, data):
         logger.debug("===================================")
@@ -37,23 +38,20 @@ class OpenFaceDataRepresentation(IAlgorithm):
         logger.debug("===================================")
         bgrImg = cv2.imread(data.get('path'))
         if bgrImg is None:
-            # TODO: Write Error handler
-            raise Exception("Unable to load image: {}".format(data.get('path')))
+            return self._process_error(data, "Unable to load image: {}".format(data.get('path')))
         rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
         if self._detector is not None:
             rgbImg = self._detector.detect(rgbImg)[0]
 
         bb = self._align.getLargestFaceBoundingBox(rgbImg)
         if bb is None:
-            # TODO: Write Error handler
-            raise Exception("Unable to find a face: {}".format(data.get('path')))
+            return self._process_error(data, "Unable to find a face: {}".format(data.get('path')))
 
         start = time.time()
         alignedFace = self._align.align(self._settings.get('imgDim'), rgbImg, bb,
                                         landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
         if alignedFace is None:
-            # TODO: Write Error handler
-            raise Exception("Unable to align image: {}".format(data.get('path')))
+            return self._process_error(data, "Unable to align image: {}".format(data.get('path')))
         logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
 
         start = time.time()
@@ -61,3 +59,14 @@ class OpenFaceDataRepresentation(IAlgorithm):
         logger.debug("OpenFace forward pass for {} took {} seconds.".format(data.get('path'), time.time() - start))
         data.update({'rep': rep})
         return data
+
+    def _process_error(self, data, message):
+        if self._error_handler is not None:
+            self._error_handler({
+                'path': data['path'],
+                'message': message
+            })
+            data.update({'rep': []})
+            return data
+        else:
+            raise Exception(message)
