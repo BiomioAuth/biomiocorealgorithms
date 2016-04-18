@@ -5,6 +5,7 @@ class VerificationResultFormat(BaseDataFormat):
         BaseDataFormat.__init__(self, data)
 
     def printData(self):
-        return """[{}] Verification Result: [userID: {}, probeID: {}, data folder: {}, threshold: {}, status: {},
-result: {}]""".format(self._datatime, self._data['userID'], self._data['probeID'], self._data['backup_image_path'],
-                      self._data['threshold'], self._data['status'], self._data['result'])
+        params = """userID: {}, probeID: {}, data folder: {}, threshold: {}, status: {}, result: {}""".format(
+            self._data['userID'], self._data['probeID'], self._data['data_path'], self._data['threshold'],
+            self._data['status'], self._data['result'])
+        return """[{}] Verification Result: [{}]""".format(self._datatime, params)
