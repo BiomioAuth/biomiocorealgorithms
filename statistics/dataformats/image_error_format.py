@@ -5,4 +5,5 @@ class ImageErrorFormat(BaseDataFormat):
         BaseDataFormat.__init__(self, data)
 
     def printData(self):
-        return """[{}] Image File: [{}]. Error::{}""".format(self._datatime, self._data['path'], self._data['message'])
+        return """[{}] Image File: [{}]. Error::{}\n""".format(self._datatime, self._data['path'],
+                                                               self._data['message'])
