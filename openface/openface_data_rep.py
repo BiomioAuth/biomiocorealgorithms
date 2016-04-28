@@ -5,6 +5,7 @@ import openface
 import time
 import cv2
 
+
 class OpenFaceDataRepresentation(IAlgorithm):
     """
     Settings:
@@ -59,6 +60,9 @@ class OpenFaceDataRepresentation(IAlgorithm):
         logger.debug("OpenFace forward pass for {} took {} seconds.".format(data.get('path'), time.time() - start))
         data.update({'rep': rep})
         return data
+
+    def clean(self):
+        self._net.exit()
 
     def _process_error(self, data, message):
         if self._error_handler is not None:
