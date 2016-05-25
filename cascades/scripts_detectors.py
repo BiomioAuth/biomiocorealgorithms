@@ -27,6 +27,7 @@ class CascadesDetectionInterface:
     def init_stage(detect_script):
         stage = DetectorStage()
         stage.type = detect_script["type"]
+        stage.name = detect_script["name"]
         stage.strategy = StrategyFactory.get(detect_script["strategy"])
         if detect_script["type"] == "main":
             stages = detect_script["action"]
