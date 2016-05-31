@@ -1,5 +1,5 @@
 from biomio.algorithms.cascades.detectors import RotatedCascadesDetector, loadScript
-from biomio.algorithms.flows.ialgorithm import IAlgorithm
+from biomio.algorithms.flows.base import IAlgorithm
 from biomio.algorithms.logger import logger
 import openface
 import time

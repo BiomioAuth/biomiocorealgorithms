@@ -1,4 +1,12 @@
-class AlgorithmFlow:
+class IAlgorithm:
+    def apply(self, data):
+        raise NotImplementedError
+
+    def clean(self):
+        pass
+
+
+class AlgorithmFlow(IAlgorithm):
     def __init__(self):
         self._stages = self.defaultSettings()
         self._flow = []
@@ -13,9 +21,6 @@ class AlgorithmFlow:
 
     def removeStage(self, key):
         self._flow.remove(key)
-
-    def apply(self, data):
-        raise NotImplementedError
 
     @staticmethod
     def defaultSettings():
