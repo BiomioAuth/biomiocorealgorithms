@@ -42,19 +42,34 @@ def get_algo_db(probe_id):
     return cPickle.loads(base64.b64decode(database.data)) if database is not None else {}
 
 
+def store_training_db(database, probe_id):
+    training_data = base64.b64encode(cPickle.dumps(database, cPickle.HIGHEST_PROTOCOL))
+    try:
+        MySQLDataStoreInterface.create_data(table_name=TRAINING_DATA_TABLE_CLASS_NAME, probe_id=probe_id,
+                                            data=training_data)
+    except Exception as e:
+        if '1062 Duplicate entry' in str(e):
+            logger.info('Training data already exists, updating the record.')
+            MySQLDataStoreInterface.update_data(table_name=TRAINING_DATA_TABLE_CLASS_NAME,
+                                                object_id=probe_id, data=training_data)
+        else:
+            logger.exception(e)
+
+
+def save_image(image, temp_image_path):
+    fd, temp_image = tempfile.mkstemp(dir=temp_image_path)
+    os.close(fd)
+    photo_data = binascii.a2b_base64(str(image))
+    with open(temp_image, 'wb') as f:
+        f.write(photo_data)
+    return temp_image
+
+
 def save_images(images, temp_image_path):
-    image_paths = []
-    for image in images:
-        fd, temp_image = tempfile.mkstemp(dir=temp_image_path)
-        os.close(fd)
-        photo_data = binascii.a2b_base64(str(image))
-        with open(temp_image, 'wb') as f:
-            f.write(photo_data)
-        image_paths.append(temp_image)
-    return image_paths
+    return [save_image(image, temp_image_path) for image in images]
 
 
-def store_test_photo_helper(root_dir, image_paths):
+def store_test_photo_helper(root_dir, image_paths, data_id=None):
     import tempfile
     import shutil
     import os
@@ -62,6 +77,11 @@ def store_test_photo_helper(root_dir, image_paths):
     TEST_PHOTO_PATH = os.path.join(root_dir, 'test_photo')
     if not os.path.exists(TEST_PHOTO_PATH):
         os.makedirs(TEST_PHOTO_PATH)
+
+    if data_id is not None:
+        TEST_PHOTO_PATH = os.path.join(TEST_PHOTO_PATH, str(data_id))
+        if not os.path.exists(TEST_PHOTO_PATH):
+            os.makedirs(TEST_PHOTO_PATH)
 
     TEST_IMAGE_FOLDER = tempfile.mkdtemp(dir=TEST_PHOTO_PATH)
     if not os.path.exists(TEST_IMAGE_FOLDER):
