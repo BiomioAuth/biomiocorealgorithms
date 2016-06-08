@@ -49,8 +49,8 @@ class OpenFaceDataRepresentation(IAlgorithm):
             return self._process_error(data, "Unable to find a face: {}".format(data.get('path')))
 
         start = time.time()
-        alignedFace = self._align.align(self._settings.get('imgDim'), rgbImg, bb,
-                                        landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+        alignedFace = self._align.align_v1(self._settings.get('imgDim'), rgbImg, bb,
+                                           landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
         if alignedFace is None:
             return self._process_error(data, "Unable to align image: {}".format(data.get('path')))
         logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
