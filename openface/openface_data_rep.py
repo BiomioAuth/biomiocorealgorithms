@@ -6,11 +6,20 @@ import time
 import cv2
 
 
+OUTER_EYES_AND_NOSE = openface.AlignDlib.OUTER_EYES_AND_NOSE
+INNER_EYES_AND_BOTTOM_LIP = openface.AlignDlib.INNER_EYES_AND_BOTTOM_LIP
+
+DLIB_PREDICTOR_V1 = 1
+DLIB_PREDICTOR_V2 = 2
+
+
 class OpenFaceDataRepresentation(IAlgorithm):
     """
     Settings:
     {
         'dlibFacePredictor': dlib Face Predictor object
+        'landmarkIndices': Type of landmark indices
+        'predictorVersion': version of DLib Face Predictor
         'networkModel': Torch neural network model
         'imgDim': image dimension
     }
@@ -27,6 +36,8 @@ class OpenFaceDataRepresentation(IAlgorithm):
     def __init__(self, settings):
         self._settings = settings
         self._align = openface.AlignDlib(settings.get('dlibFacePredictor'))
+        self._landmarkIndices = settings.get('landmarkIndices', INNER_EYES_AND_BOTTOM_LIP)
+        self._predictor_version = settings.get('predictorVersion', DLIB_PREDICTOR_V2)
         self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
         self._detector = RotatedCascadesDetector(
             loadScript("main_rotation_haarcascade_face_eyes.json", True), loadScript(""))
@@ -49,8 +60,8 @@ class OpenFaceDataRepresentation(IAlgorithm):
             return self._process_error(data, "Unable to find a face: {}".format(data.get('path')))
 
         start = time.time()
-        alignedFace = self._align.align_v1(self._settings.get('imgDim'), rgbImg, bb,
-                                           landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+        alignedFace = self._align.align(self._settings.get('imgDim'), rgbImg, bb,
+                                        landmarkIndices=self._landmarkIndices, version=self._predictor_version)
         if alignedFace is None:
             return self._process_error(data, "Unable to align image: {}".format(data.get('path')))
         logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
