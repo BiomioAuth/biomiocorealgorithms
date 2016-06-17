@@ -39,7 +39,7 @@ class OpenFaceSimpleDistanceEstimation(IAlgorithm):
             return {'result': 0}
         avg = 0
         for item in database.get('data', []):
-            if len(item) <= 0:
+            if len(item['rep']) <= 0:
                 continue
             avg += distance.euclidean(tdata['rep'], item['rep'])
         avg /= len(database.get('data', []))
