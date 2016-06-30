@@ -1,6 +1,7 @@
 from biomio.algorithms.cascades.detectors import RotatedCascadesDetector, loadScript
 from biomio.algorithms.flows.base import IAlgorithm
 from biomio.algorithms.logger import logger
+import xopenface
 import openface
 import time
 import cv2
@@ -38,7 +39,8 @@ class OpenFaceDataRepresentation(IAlgorithm):
         self._align = openface.AlignDlib(settings.get('dlibFacePredictor'))
         self._landmarkIndices = settings.get('landmarkIndices', INNER_EYES_AND_BOTTOM_LIP)
         self._predictor_version = settings.get('predictorVersion', DLIB_PREDICTOR_V2)
-        self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
+        # self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
+        self._net = xopenface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
         self._detector = RotatedCascadesDetector(
             loadScript("main_rotation_haarcascade_face_eyes.json", True), loadScript(""))
         self._error_handler = settings.get('error_handler', None)
