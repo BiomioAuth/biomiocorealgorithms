@@ -17,7 +17,6 @@
 import lutorpy as lua
 import numpy as np
 import binascii
-import sys
 import cv2
 import os
 
@@ -64,6 +63,9 @@ class TorchNeuralNet:
             self._cuda_tensor = torch.CudaTensor(1, 3, imgDim, imgDim)
         self._cuda = cuda
         self._imgDim = imgDim
+
+    def exit(self):
+        pass
 
     def forwardPath(self, imgPath):
         """
