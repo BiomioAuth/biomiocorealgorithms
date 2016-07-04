@@ -20,10 +20,10 @@ import binascii
 import cv2
 import os
 
-require('torch')
-require('nn')
-require('dpnn')
-require('image')
+lua.require('torch')
+lua.require('nn')
+lua.require('dpnn')
+lua.require('image')
 
 
 myDir = os.path.dirname(os.path.realpath(__file__))
@@ -57,8 +57,8 @@ class TorchNeuralNet:
         self._tensor = torch.Tensor(1, 3, imgDim, imgDim)
         self._cuda_tensor = None
         if cuda:
-            require('cutorch')
-            require('cunn')
+            lua.require('cutorch')
+            lua.require('cunn')
             self._net = self._net._cuda()
             self._cuda_tensor = torch.CudaTensor(1, 3, imgDim, imgDim)
         self._cuda = cuda
