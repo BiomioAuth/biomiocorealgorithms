@@ -83,7 +83,6 @@ class AlgorithmEstimation:
     def importDatabase(data):
         raise NotImplementedError
 
-
     def estimate_training(self, data, database):
         raise NotImplementedError
 
