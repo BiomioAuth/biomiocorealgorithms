@@ -18,3 +18,6 @@ class BaseDataFormat:
 
     def printData(self):
         raise NotImplementedError
+
+    def parseData(self, dataline):
+        raise NotImplementedError
