@@ -1,5 +1,6 @@
 from biomio.algorithms.flows import AlgorithmFlow
 from biomio.algorithms.logger import logger
+import xopenface
 import openface
 import time
 import cv2
@@ -35,7 +36,8 @@ class OpenFaceDataRepresentation(AlgorithmFlow):
     def __init__(self, settings):
         AlgorithmFlow.__init__(self)
         self._settings = settings
-        self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
+        # self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
+        self._net = xopenface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
         self._error_handler = settings.get('error_handler', None)
 
     def faceRotationStage(self):
