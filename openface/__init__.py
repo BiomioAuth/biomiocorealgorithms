@@ -1,0 +1,1 @@
+from dlib_face_detect_algorithm import DLibFaceDetectionAlgorithm

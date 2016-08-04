@@ -1,5 +1,4 @@
-from biomio.algorithms.cascades.detectors import RotatedCascadesDetector, loadScript
-from biomio.algorithms.flows.base import IAlgorithm
+from biomio.algorithms.flows import AlgorithmFlow
 from biomio.algorithms.logger import logger
 import openface
 import time
@@ -12,14 +11,14 @@ INNER_EYES_AND_BOTTOM_LIP = openface.AlignDlib.INNER_EYES_AND_BOTTOM_LIP
 DLIB_PREDICTOR_V1 = 1
 DLIB_PREDICTOR_V2 = 2
 
+FACE_ROTATION_STAGE = "flows::face_rotation_stage"
+FACE_ALIGNMENT_STAGE = "flows::face_alignment_stage"
 
-class OpenFaceDataRepresentation(IAlgorithm):
+
+class OpenFaceDataRepresentation(AlgorithmFlow):
     """
     Settings:
     {
-        'dlibFacePredictor': dlib Face Predictor object
-        'landmarkIndices': Type of landmark indices
-        'predictorVersion': version of DLib Face Predictor
         'networkModel': Torch neural network model
         'imgDim': image dimension
     }
@@ -34,14 +33,24 @@ class OpenFaceDataRepresentation(IAlgorithm):
     }
     """
     def __init__(self, settings):
+        AlgorithmFlow.__init__(self)
         self._settings = settings
-        self._align = openface.AlignDlib(settings.get('dlibFacePredictor'))
-        self._landmarkIndices = settings.get('landmarkIndices', INNER_EYES_AND_BOTTOM_LIP)
-        self._predictor_version = settings.get('predictorVersion', DLIB_PREDICTOR_V2)
         self._net = openface.TorchNeuralNet(settings.get('networkModel'), settings.get('imgDim'))
-        self._detector = RotatedCascadesDetector(
-            loadScript("main_rotation_haarcascade_face_eyes.json", True), loadScript(""))
         self._error_handler = settings.get('error_handler', None)
+
+    def faceRotationStage(self):
+        return self._stages.get(FACE_ROTATION_STAGE, None)
+
+    def setFaceRotationStage(self, stage):
+        if stage is not None:
+            self._stages[FACE_ROTATION_STAGE] = stage
+
+    def faceAlignmentStage(self):
+        return self._stages.get(FACE_ALIGNMENT_STAGE, None)
+
+    def setFaceAlignmentStage(self, stage):
+        if stage is not None:
+            self._stages[FACE_ALIGNMENT_STAGE] = stage
 
     def apply(self, data):
         logger.debug("===================================")
@@ -51,20 +60,16 @@ class OpenFaceDataRepresentation(IAlgorithm):
         bgrImg = cv2.imread(data.get('path'))
         if bgrImg is None:
             return self._process_error(data, "Unable to load image: {}".format(data.get('path')))
-        rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
-        if self._detector is not None:
-            rgbImg = self._detector.detect(rgbImg)[0]
-
-        bb = self._align.getLargestFaceBoundingBox(rgbImg)
-        if bb is None:
-            return self._process_error(data, "Unable to find a face: {}".format(data.get('path')))
+        if self.faceRotationStage() is not None:
+            bgrImg = self.faceRotationStage().apply({'img': bgrImg})['img']
 
         start = time.time()
-        alignedFace = self._align.align(self._settings.get('imgDim'), rgbImg, bb,
-                                        landmarkIndices=self._landmarkIndices, version=self._predictor_version)
+        alignData = data.copy()
+        alignData.update({'img': bgrImg})
+        alignedFace = self.faceAlignmentStage().apply(alignData)['img']
+        logger.debug("General Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
         if alignedFace is None:
-            return self._process_error(data, "Unable to align image: {}".format(data.get('path')))
-        logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
+            return self._process_error(data, "General::Unable to align image: {}".format(data.get('path')))
 
         start = time.time()
         rep = self._net.forward(alignedFace)
