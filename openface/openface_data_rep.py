@@ -14,7 +14,7 @@ class OpenFaceDataRepresentation(AlgorithmFlow):
     """
     Settings:
     {
-        'networkModel': Torch neural network model
+        'networkModel': Torch neural network model,
         'imgDim': image dimension
     }
     Input:

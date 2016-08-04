@@ -16,9 +16,10 @@ class DLibFaceDetectionAlgorithm(IAlgorithm):
     """
     Settings:
     {
-        'dlibFacePredictor': dlib Face Predictor object
-        'landmarkIndices': Type of landmark indices
-        'predictorVersion': version of DLib Face Predictor
+        'dlibFacePredictor': dlib Face Predictor object,
+        'landmarkIndices': Type of landmark indices,
+        'predictorVersion': version of DLib Face Predictor,
+        'imgDim': image dimension
     }
     Input:
     {
