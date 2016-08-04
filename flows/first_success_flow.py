@@ -1,5 +1,6 @@
 from base import AlgorithmFlow
 
+
 class FirstSuccessFlow(AlgorithmFlow):
     def __init__(self, functor=None):
         AlgorithmFlow.__init__(self)

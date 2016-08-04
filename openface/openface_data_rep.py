@@ -6,12 +6,6 @@ import time
 import cv2
 
 
-OUTER_EYES_AND_NOSE = openface.AlignDlib.OUTER_EYES_AND_NOSE
-INNER_EYES_AND_BOTTOM_LIP = openface.AlignDlib.INNER_EYES_AND_BOTTOM_LIP
-
-DLIB_PREDICTOR_V1 = 1
-DLIB_PREDICTOR_V2 = 2
-
 FACE_ROTATION_STAGE = "flows::face_rotation_stage"
 FACE_ALIGNMENT_STAGE = "flows::face_alignment_stage"
 
