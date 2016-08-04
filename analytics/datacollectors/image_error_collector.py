@@ -13,7 +13,7 @@ class ImageErrorCollector(IAlgorithm):
         data_map = None
         logpath = os.path.split(data['logfile'])[0]
         if not os.path.exists(data['collection_dir']):
-            os.mkdir(data['collection_dir'])
+            os.makedirs(data['collection_dir'])
         copyfile(data['logfile'], os.path.join(data['collection_dir'], os.path.split(data['logfile'])[1]))
         for log_item in data['data']:
             path = log_item['path'] if os.path.exists(log_item['path']) else None
