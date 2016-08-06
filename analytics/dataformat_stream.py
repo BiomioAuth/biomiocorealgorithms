@@ -1,5 +1,6 @@
 import mmap
 
+
 class DataFormatStream:
     def __init__(self, filename):
         self._filename = filename
@@ -8,10 +9,10 @@ class DataFormatStream:
     def addFormat(self, dataformat):
         if isinstance(dataformat, list):
             for df in dataformat:
-                df.updateDataTime()
+                df.updateDateTime()
                 self._formats.append(df)
         else:
-            dataformat.updateDataTime()
+            dataformat.updateDateTime()
             self._formats.append(dataformat)
 
     def write(self):

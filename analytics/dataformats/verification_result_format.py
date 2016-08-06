@@ -1,5 +1,5 @@
 from base_dataformat import BaseDataFormat
-import json
+
 
 class VerificationResultFormat(BaseDataFormat):
     def __init__(self, data=None):
