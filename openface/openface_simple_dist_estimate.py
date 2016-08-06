@@ -1,6 +1,7 @@
 from biomio.algorithms.flows.base import IAlgorithm
 from biomio.algorithms.logger import logger
 import scipy.spatial.distance as distance
+import sys
 
 
 class OpenFaceSimpleDistanceEstimation(IAlgorithm):
@@ -36,7 +37,7 @@ class OpenFaceSimpleDistanceEstimation(IAlgorithm):
         tdata = data.get('data')
         if database is None or tdata is None or len(database.get('data', [])) <= 0:
             # TODO: Write Error handler
-            return {'result': 0}
+            return {'result': sys.float_info.max}
         avg = 0
         for item in database.get('data', []):
             if len(item['rep']) <= 0:
