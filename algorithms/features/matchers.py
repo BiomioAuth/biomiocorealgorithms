@@ -1,11 +1,11 @@
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray
-from biomio.algorithms.clustering.tools import distance
-from biomio.algorithms.logger import logger
+from ..cvtools.types import listToNumpy_ndarray
+from ..clustering.tools import distance
 import itertools
 import defines
 import numpy
 import cv2
 import sys
+
 
 BruteForceMatcherType = 0
 FlannBasedMatcherType = 1

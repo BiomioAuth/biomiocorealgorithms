@@ -10,10 +10,9 @@ Usage
 -----
 gabor_threads.py [image filename]
 """
-
+from multiprocessing.pool import ThreadPool
 import numpy as np
 import cv2
-from multiprocessing.pool import ThreadPool
 
 
 def build_filters():

@@ -1,5 +1,5 @@
-from biomio.algorithms.cvtools import listToNumpy_ndarray
-from biomio.algorithms.logger import logger
+from ..cvtools import listToNumpy_ndarray
+# from ...logger import logger
 from mahotas.features import surf
 import numpy
 import cv2
