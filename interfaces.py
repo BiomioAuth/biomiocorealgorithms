@@ -1,4 +1,4 @@
-from biomio.algorithms.logger import logger
+from logger import logger
 
 
 class AlgorithmProcessInterface:

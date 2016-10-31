@@ -9,7 +9,7 @@ Description of structure for saving image and different image data
     imgobj['keypoints']   - list of keypoints object = list<KeyPoint>;
     imgobj['descriptors'] - list of descriptors vectors;
 """
-from cvtools.system import loadNumpyImage
+from algorithms.cvtools.system import loadNumpyImage
 import os
 
 
