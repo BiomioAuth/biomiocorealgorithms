@@ -4,11 +4,14 @@ Core Packages Tree:
 - algorithms - various algorithms for image and data processing.
 	- images - various image processing algorithms (SQI, HSV-RGB and RGB-HSV conversation, GaborFilter etc.).
 	- clustering - data clustering algorithms (FOREL, kmeans).
-	- hashing - modules for data hashing and ANN search (xnearpy - Extended NearPy. Note: Can be implemented as independent Python Package as we rewrite most classes of original NearPy).
+	- hashing - modules for data hashing and ANN search based on external/xnearpy.
 	- cascades - implementation of detection algorithms for face detection and rotation detection based on Haar Cascades. 
 	- cvtools - simple useful algorithms based on OpenCV.
 	- features - implementation of features detector and extractors (BRISK, ORB, SURF, Mahotas SURF).
 - analytics - classes for data and statistics collecting.
+- external - modules and frameworks, which extend possibilities of external modules and frameworks.
+	- xopenface - extended OpenFace (Link: https://cmusatyalab.github.io/openface/ ).
+	- xnearpy - extended NearPy. Note: Can be implemented as independent Python Package as we rewrite most classes of original NearPy (Link: http://pixelogik.github.io/NearPy/ ).
 - flows - complex image and data processing algorithms based on Flows Architecture.
 	- openface - OpenFace Verification algorithms based on Flows Architecture.
 - processes - complex image and data processing algorithms based on Process Architecture (architecture of Keypoints Face Verification Plugin).
