@@ -1,9 +1,8 @@
 from nearpy.distances import EuclideanDistance, ManhattanDistance
+from ...external.xnearpy.xmemorystorage import xMemoryStorage
 from nearpy.hashes import RandomBinaryProjections
-from xnearpy.xmemorystorage import xMemoryStorage
-
+from ...external.xnearpy.xengine import xEngine
 from interface import DataStructure
-from xnearpy.xengine import xEngine
 
 
 class NearPyHashSettings:
