@@ -1,4 +1,4 @@
-from biomio.algorithms.clustering import distance
+from ..clustering import distance
 from tools import inside
 import numpy
 

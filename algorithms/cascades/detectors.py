@@ -1,9 +1,8 @@
-from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsUnion, RectsFiltering,
-                                                    CascadeClassifierSettings)
-from biomio.algorithms.cascades import mergeRectangles, SCRIPTS_PATH, CASCADES_PATH
-from biomio.algorithms.cascades.scripts_detectors import RotatedCascadesDetector
-from biomio.algorithms.cascades.tools import getROIImage, loadScript
-from biomio.algorithms.logger import logger
+from classifiers import (CascadeROIDetector, RectsUnion, RectsFiltering, CascadeClassifierSettings)
+from . import mergeRectangles, SCRIPTS_PATH, CASCADES_PATH
+from scripts_detectors import RotatedCascadesDetector
+from tools import getROIImage, loadScript
+from ...logger import logger
 import cv2
 import os
 

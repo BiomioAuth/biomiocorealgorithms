@@ -1,6 +1,6 @@
-from biomio.algorithms.cascades import intersectRectangles, filterRectangles, mergeRectangles, APP_ROOT
-from biomio.algorithms.cvtools import grayscale, rotate90
-from biomio.algorithms.logger import logger
+from . import intersectRectangles, filterRectangles, mergeRectangles, APP_ROOT
+from ..cvtools import grayscale, rotate90
+from ...logger import logger
 import cv2
 import os
 

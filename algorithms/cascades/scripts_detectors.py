@@ -1,7 +1,8 @@
-from biomio.algorithms.cvtools.effects import rotate90
 from tools import skipEmptyRectangles, isRectangle
 from classifiers import CascadeROIDetector
 from strategies import StrategyFactory
+from ..cvtools.effects import rotate90
+
 
 class DetectorStage:
     def __init__(self):

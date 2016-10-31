@@ -1,5 +1,5 @@
-from biomio.algorithms.cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
-from biomio.algorithms.cascades import SCRIPTS_PATH
+from ..cvtools.types import numpy_darrayToIplImage, iplImageToNumpy_darray
+from . import SCRIPTS_PATH
 import json
 import cv2
 import os
