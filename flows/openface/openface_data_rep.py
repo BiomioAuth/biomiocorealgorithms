@@ -1,6 +1,6 @@
-from biomio.algorithms.flows import AlgorithmFlow
-from biomio.algorithms.logger import logger
-import xopenface
+from .. import AlgorithmFlow
+from ...logger import logger
+from ...external import xopenface
 import openface
 import time
 import cv2

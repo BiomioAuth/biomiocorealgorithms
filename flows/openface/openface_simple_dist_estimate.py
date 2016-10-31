@@ -1,6 +1,6 @@
-from biomio.algorithms.flows.base import IAlgorithm
-from biomio.algorithms.logger import logger
 import scipy.spatial.distance as distance
+from ..base import IAlgorithm
+from ...logger import logger
 import sys
 
 

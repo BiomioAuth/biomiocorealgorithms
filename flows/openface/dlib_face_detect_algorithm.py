@@ -1,5 +1,5 @@
-from biomio.algorithms.flows import IAlgorithm
-from biomio.algorithms.logger import logger
+from ...flows import IAlgorithm
+from ...logger import logger
 import openface
 import time
 import cv2

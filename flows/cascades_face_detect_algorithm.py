@@ -1,7 +1,7 @@
-from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from biomio.algorithms.cascades.detectors import loadScript
-from biomio.algorithms.flows.base import IAlgorithm
-from biomio.algorithms.logger import logger
+from ..algorithms.cascades.scripts_detectors import CascadesDetectionInterface
+from ..algorithms.cascades.detectors import loadScript
+from base import IAlgorithm
+from ..logger import logger
 import time
 import cv2
 
