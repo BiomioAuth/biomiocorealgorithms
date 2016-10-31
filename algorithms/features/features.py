@@ -1,4 +1,4 @@
-from gabor_threads import process, build_filters
+from ..images.gabor_threads import process, build_filters
 from ..images import self_quotient_image as sqi
 from ..images import colour_tools as hsv
 from detectors import BaseDetector
