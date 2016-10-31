@@ -1,6 +1,6 @@
 from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
 from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from biomio.algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
+from ....algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
 from biomio.algorithms.recognition.processes.settings.settings import get_settings
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger

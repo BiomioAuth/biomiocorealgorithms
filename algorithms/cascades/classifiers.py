@@ -48,7 +48,7 @@ class CascadeROIDetector:
 
     def add_cascade(self, path):
         self._relative_cl.append(path)
-        abs_path = os.path.join(APP_ROOT, "../../", path)
+        abs_path = os.path.join(APP_ROOT, path)
         logger.debug("####### %s" % abs_path)
         if os.path.exists(abs_path):
             self.__cascades.append(cv2.CascadeClassifier(abs_path))
