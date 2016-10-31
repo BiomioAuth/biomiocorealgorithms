@@ -1,7 +1,8 @@
-from biomio.algorithms.flows.base import IAlgorithm
+from ...flows.base import IAlgorithm
 from shutil import copyfile, copytree
 from tools import dir_map
 import os
+
 
 class VerificationCollector(IAlgorithm):
     def __init__(self):

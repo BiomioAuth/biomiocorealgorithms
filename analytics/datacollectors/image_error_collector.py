@@ -1,7 +1,8 @@
-from biomio.algorithms.flows.base import IAlgorithm
+from ...flows.base import IAlgorithm
 from shutil import copyfile
 from tools import file_map
 import os
+
 
 class ImageErrorCollector(IAlgorithm):
     def __init__(self):
