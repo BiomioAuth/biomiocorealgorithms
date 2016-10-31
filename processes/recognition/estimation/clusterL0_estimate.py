@@ -1,9 +1,10 @@
-from biomio.algorithms.features.matchers import LowesMatchingScheme
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+from ....algorithms.features.matchers import LowesMatchingScheme
+from ....algorithms.cvtools.types import listToNumpy_ndarray
 from base_template_estimate import BaseTemplateEstimation
-from biomio.algorithms.logger import logger
+from ....logger import logger
 import itertools
 import math
+
 
 DEFAULT_MODE = 0
 CROSS_DISTANCE_MODE = 1

@@ -1,4 +1,4 @@
-from biomio.algorithms.interfaces import AlgorithmProcessInterface
+from ....interfaces import AlgorithmProcessInterface
 import os
 
 

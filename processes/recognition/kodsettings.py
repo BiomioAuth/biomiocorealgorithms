@@ -1,5 +1,6 @@
-from biomio.algorithms.features import (constructSettings, BRISKDetectorType)
-from biomio.algorithms.logger import logger
+from ...algorithms.features import constructSettings, BRISKDetectorType
+from ...logger import logger
+
 
 class KODSettings:
     """

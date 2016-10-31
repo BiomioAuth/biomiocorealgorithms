@@ -1,7 +1,7 @@
-from biomio.algorithms.features.features import (FeatureDetector)
-from biomio.algorithms.recognition.kodsettings import KODSettings
-from biomio.algorithms.features import (constructDetector)
-from biomio.algorithms.logger import logger
+from ...algorithms.features.features import FeatureDetector
+from ...algorithms.features import constructDetector
+from kodsettings import KODSettings
+from ...logger import logger
 
 
 def identifying(fn):

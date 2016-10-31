@@ -1,15 +1,15 @@
-from biomio.algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
-from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from ....algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
-from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from ....algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
+from ....algorithms.cascades.scripts_detectors import CascadesDetectionInterface
+from ....algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
 from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
-from biomio.algorithms.cascades.tools import loadScript, getROIImage
+from ....algorithms.cascades.tools import loadScript, getROIImage
 from messages import create_error_message, create_result_message
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray
+from ....algorithms.cvtools.types import listToNumpy_ndarray
+from ....interfaces import AlgorithmProcessInterface, logger
 from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from handling import load_temp_data, save_temp_data
+from settings.settings import get_settings
 import ast
 import os
 

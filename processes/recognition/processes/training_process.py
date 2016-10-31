@@ -1,12 +1,11 @@
-from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore, REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.algorithms.recognition.processes.defs import (STATUS_ERROR, STATUS_RESULT,
-                                                          ERROR_FORMAT, UNKNOWN_ERROR,
-                                                          INTERNAL_TRAINING_ERROR, INVALID_ALGORITHM_SETTINGS)
-from biomio.algorithms.recognition.processes.messages import create_error_message, create_result_message
-from biomio.algorithms.recognition.processes.settings.settings import get_settings
-from biomio.algorithms.recognition.processes.handling import save_temp_data
-from biomio.algorithms.imgobj import loadImageObject
+from defs import (STATUS_ERROR, STATUS_RESULT, ERROR_FORMAT, UNKNOWN_ERROR, INTERNAL_TRAINING_ERROR,
+                  INVALID_ALGORITHM_SETTINGS)
+from messages import create_error_message, create_result_message
+from ....interfaces import AlgorithmProcessInterface, logger
+from settings.settings import get_settings
+from ....imgobj import loadImageObject
+from handling import save_temp_data
 
 
 def job(callback_code, **kwargs):

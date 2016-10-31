@@ -1,15 +1,14 @@
-from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
 from biomio.constants import REDIS_PARTIAL_RESULTS_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
-from biomio.algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
-from biomio.algorithms.recognition.processes.settings.settings import get_settings
+from ....algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
+from ....algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
 from messages import create_error_message, create_result_message
-from biomio.algorithms.cvtools import numpy_ndarrayToList
-from biomio.algorithms.cvtools.effects import rotate90
-from biomio.algorithms.cascades import SCRIPTS_PATH
+from ....algorithms.cvtools import numpy_ndarrayToList, rotate90
+from ....interfaces import AlgorithmProcessInterface, logger
 from handling import load_temp_data, save_temp_data
+from ....algorithms.cascades import SCRIPTS_PATH
+from settings.settings import get_settings
 import os
 
 

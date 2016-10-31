@@ -1,6 +1,6 @@
-from biomio.algorithms.clustering.tools import distance
+from ....algorithms.clustering.tools import distance
 from self_graph_estimate import SelfGraphEstimation
-from biomio.algorithms.logger import logger
+from ....logger import logger
 
 
 class SelfGraphDistanceEstimation(SelfGraphEstimation):

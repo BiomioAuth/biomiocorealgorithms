@@ -1,7 +1,7 @@
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
-from biomio.algorithms.features import matcherForDetector, dtypeForDetector
-from biomio.algorithms.interfaces import AlgorithmEstimation
-from biomio.algorithms.features.matchers import Matcher
+from ....algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
+from ....algorithms.features import matcherForDetector, dtypeForDetector
+from ....algorithms.features.matchers import Matcher
+from ....interfaces import AlgorithmEstimation
 import itertools
 
 

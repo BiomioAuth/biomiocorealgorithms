@@ -1,14 +1,14 @@
-from biomio.algorithms.interfaces import AlgorithmProcessInterface, logger
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore, REDIS_DO_NOT_STORE_RESULT_KEY
 from defs import (JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, STATUS_ERROR, STATUS_RESULT,
                   REDIS_CLUSTER_JOB_ACTION, REDIS_GENERAL_DATA, REDIS_TEMPLATE_RESULT,
                   ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR)
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore, REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.algorithms.recognition.processes.settings.settings import get_settings
-from biomio.algorithms.features import matcherForDetector, dtypeForDetector
-from biomio.algorithms.recognition.kodsettings import KODSettings
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray
-from biomio.algorithms.features.matchers import Matcher
+from ....algorithms.features import matcherForDetector, dtypeForDetector
+from ....algorithms.cvtools.types import listToNumpy_ndarray
+from ....interfaces import AlgorithmProcessInterface, logger
+from ....algorithms.features.matchers import Matcher
+from settings.settings import get_settings
 from messages import create_result_message
+from ..kodsettings import KODSettings
 from settings import loadSettings
 import itertools
 import ast

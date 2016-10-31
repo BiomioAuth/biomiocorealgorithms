@@ -1,8 +1,8 @@
-from biomio.algorithms.features.matchers import CrossMatching, CROSS_MATCHING_MATCHES, SelfGraph, SubsetsCalculation
-from biomio.algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList, \
-    classKeyPointToArray, arrayToKeyPointClass
+from ....algorithms.features.matchers import CrossMatching, CROSS_MATCHING_MATCHES, SelfGraph, SubsetsCalculation
+from ....algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList, classKeyPointToArray, \
+    arrayToKeyPointClass
 from base_template_estimate import BaseTemplateEstimation
-from biomio.algorithms.logger import logger
+from ....logger import logger
 import numpy as np
 import copy
 
