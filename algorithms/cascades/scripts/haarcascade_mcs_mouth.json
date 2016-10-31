@@ -7,7 +7,7 @@
 	},
 	"action": 
 	{
-		"cascades": ["algorithms/data/haarcascades/haarcascade_mcs_mouth.xml"],
+		"cascades": ["data/haarcascades/haarcascade_mcs_mouth.xml"],
 		"settings": 
 		[
 			{

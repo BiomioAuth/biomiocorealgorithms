@@ -7,10 +7,10 @@
 	},
 	"action": 
 	{
-		"cascades": ["algorithms/data/haarcascades/haarcascade_frontalface_alt.xml",
-					 "algorithms/data/haarcascades/haarcascade_frontalface_alt_tree.xml",
-					 "algorithms/data/haarcascades/haarcascade_frontalface_alt2.xml",
-					 "algorithms/data/haarcascades/haarcascade_frontalface_default.xml"],
+		"cascades": ["data/haarcascades/haarcascade_frontalface_alt.xml",
+					 "data/haarcascades/haarcascade_frontalface_alt_tree.xml",
+					 "data/haarcascades/haarcascade_frontalface_alt2.xml",
+					 "data/haarcascades/haarcascade_frontalface_default.xml"],
 		"settings": 
 		{
 			"Minimum Size": [30, 30], 

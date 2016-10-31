@@ -9,8 +9,8 @@
 	{
 		"cascades": 
 		[
-			"algorithms/data/haarcascades/haarcascade_mcs_eyepair_big.xml",
-			"algorithms/data/haarcascades/haarcascade_mcs_eyepair_small.xml"
+			"data/haarcascades/haarcascade_mcs_eyepair_big.xml",
+			"data/haarcascades/haarcascade_mcs_eyepair_small.xml"
 		],
 		"settings": 
 		{

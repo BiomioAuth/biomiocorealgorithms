@@ -7,7 +7,7 @@
 	},
 	"action": 
 	{
-		"cascades": ["algorithms/data/haarcascades/haarcascade_eye_tree_eyeglasses.xml"],
+		"cascades": ["data/haarcascades/haarcascade_eye_tree_eyeglasses.xml"],
 		"settings": 
 		{
 			"Minimum Size": [50, 50],
