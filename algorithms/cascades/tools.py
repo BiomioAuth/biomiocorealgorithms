@@ -60,7 +60,7 @@ def loadScript(file_name, relative=False):
                 stages = source["action"]
                 loaded_stages = []
                 for sub in stages:
-                    if type(sub) == type(dict()):
+                    if isinstance(sub, dict):
                         loaded_stages.append(sub)
                     else:
                         if os.path.exists(sub):
