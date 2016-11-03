@@ -1,4 +1,4 @@
-from cascades_face_detect_algorithm import CascadesFaceDetectionAlgorithm
-from rotation_detect_algorithm import RotationDetectionAlgorithm
-from first_success_flow import FirstSuccessFlow
-from base import IAlgorithm, AlgorithmFlow
+from flows.cascades.cascades_face_detect_algorithm import CascadesFaceDetectionAlgorithm
+from flows.cascades.rotation_detect_algorithm import RotationDetectionAlgorithm
+from general.first_success_flow import FirstSuccessFlow
+from general.base import IAlgorithm, AlgorithmFlow

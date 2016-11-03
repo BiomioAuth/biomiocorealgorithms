@@ -1,5 +1,5 @@
 import scipy.spatial.distance as distance
-from ..base import IAlgorithm
+from ..general.base import IAlgorithm
 from ...logger import logger
 import sys
 

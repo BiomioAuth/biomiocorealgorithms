@@ -1,6 +1,6 @@
-from ..algorithms.cascades.detectors import RotatedCascadesDetector, loadScript
-from base import IAlgorithm
-from ..logger import logger
+from ...algorithms.cascades.detectors import RotatedCascadesDetector, loadScript
+from ..general.base import IAlgorithm
+from logger import logger
 
 
 class RotationDetectionAlgorithm(IAlgorithm):
