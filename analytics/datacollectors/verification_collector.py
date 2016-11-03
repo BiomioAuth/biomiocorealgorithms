@@ -1,4 +1,4 @@
-from ...flows.base import IAlgorithm
+from ...flows.general.base import IAlgorithm
 from shutil import copyfile, copytree
 from tools import dir_map
 import os
