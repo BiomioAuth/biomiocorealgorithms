@@ -1,7 +1,7 @@
-from ....algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
-from ....algorithms.features import matcherForDetector, dtypeForDetector
-from ....algorithms.features.matchers import Matcher
-from ....interfaces import AlgorithmEstimation
+from ...algorithms.cvtools.types import listToNumpy_ndarray, numpy_ndarrayToList
+from ...algorithms.features import matcherForDetector, dtypeForDetector
+from estimation_interface import AlgorithmEstimation
+from ...algorithms.features.matchers import Matcher
 import itertools
 
 

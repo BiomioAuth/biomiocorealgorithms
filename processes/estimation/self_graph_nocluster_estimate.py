@@ -1,6 +1,6 @@
-from ....algorithms.cvtools.types import listToNumpy_ndarray
+from ...algorithms.cvtools.types import listToNumpy_ndarray
 from base_template_estimate import BaseTemplateEstimation
-from ....logger import logger
+from ...logger import logger
 import numpy as np
 import itertools
 import copy
@@ -193,4 +193,3 @@ class SelfGraphNoClusterEstimation(BaseTemplateEstimation):
         logger.debug("######################################")
         logger.debug(dt_matches_copy)
         logger.debug("######################################")
-

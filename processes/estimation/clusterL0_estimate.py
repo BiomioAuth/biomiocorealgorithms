@@ -1,7 +1,7 @@
-from ....algorithms.features.matchers import LowesMatchingScheme
-from ....algorithms.cvtools.types import listToNumpy_ndarray
+from ...algorithms.features.matchers import LowesMatchingScheme
+from ...algorithms.cvtools.types import listToNumpy_ndarray
 from base_template_estimate import BaseTemplateEstimation
-from ....logger import logger
+from ...logger import logger
 import itertools
 import math
 

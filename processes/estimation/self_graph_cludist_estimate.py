@@ -1,6 +1,6 @@
-from ....algorithms.clustering.tools import distance
+from ...algorithms.clustering.tools import distance
 from self_graph_estimate import SelfGraphEstimation
-from ....logger import logger
+from ...logger import logger
 
 
 class SelfGraphDistanceEstimation(SelfGraphEstimation):

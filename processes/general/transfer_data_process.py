@@ -1,8 +1,9 @@
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from biomio.algorithms.interfaces import AlgorithmProcessInterface
 from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
+from process_interface import AlgorithmProcessInterface
 
 TRANSFER_DATA_PROCESS_CLASS_NAME = "TransferDataProcess"
+
 
 def job(callback_code, **kwargs):
     """
