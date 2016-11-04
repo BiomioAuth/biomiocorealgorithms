@@ -60,7 +60,7 @@ def toTorchShape(img):
     Convert shape of the input img from OpenCV Image shape (width, height, channel)
     to Torch shape (channel, width, height).
 
-    :param img: Torch Tensor or numpy.ndarray
+    :param img: numpy.ndarray
     :return: numpy.ndarray
     """
     sh = img.shape
