@@ -1,7 +1,8 @@
-from datacollectors import ImageErrorCollector, VerificationCollector
-from dataformats import ImageErrorFormat, VerificationResultFormat
-from statistics_analyser import StatisticsAnalyser
 import os
+
+from analytics.analyzers.statistics_analyser import StatisticsAnalyser
+from analytics.datacollectors import ImageErrorCollector, VerificationCollector
+from analytics.dataformats import ImageErrorFormat, VerificationResultFormat
 
 MAIN_OUT_ERR_LOG_PATH = "D:/Projects/Biomio/Test1/AnalyticsDB/ErrorDB"
 MAIN_OUT_STAT_LOG_PATH = "D:/Projects/Biomio/Test1/AnalyticsDB/StatDB"
