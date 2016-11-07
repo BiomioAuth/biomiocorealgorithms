@@ -1,4 +1,8 @@
-from flows.cascades.cascades_face_detect_algorithm import CascadesFaceDetectionAlgorithm
-from flows.cascades.rotation_detect_algorithm import RotationDetectionAlgorithm
+from xopenface.dlib_face_detect_algorithm import DLibFaceDetectionAlgorithm, INNER_EYES_AND_BOTTOM_LIP, \
+    OUTER_EYES_AND_NOSE, DLIB_PREDICTOR_V1, DLIB_PREDICTOR_V2
+from xopenface.openface_simple_dist_estimate import OpenFaceSimpleDistanceEstimation
+from cascades.cascades_face_detect_algorithm import CascadesFaceDetectionAlgorithm
+from cascades.rotation_detect_algorithm import RotationDetectionAlgorithm
+from xopenface.openface_data_rep import OpenFaceDataRepresentation
 from general.first_success_flow import FirstSuccessFlow
 from general.base import IAlgorithm, AlgorithmFlow

@@ -21,6 +21,7 @@ class AlgorithmFlow(IAlgorithm):
 
     def removeStage(self, key):
         self._flow.remove(key)
+        del self._stages[key]
 
     @staticmethod
     def defaultSettings():

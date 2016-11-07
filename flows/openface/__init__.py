@@ -1,4 +1,0 @@
-from dlib_face_detect_algorithm import DLibFaceDetectionAlgorithm, INNER_EYES_AND_BOTTOM_LIP, OUTER_EYES_AND_NOSE, \
-    DLIB_PREDICTOR_V1, DLIB_PREDICTOR_V2
-from openface_data_rep import OpenFaceDataRepresentation
-from openface_simple_dist_estimate import OpenFaceSimpleDistanceEstimation
