@@ -57,10 +57,7 @@ class CascadeROIDetector:
             logger.debug("Such file does not exist.")
 
     def cascades(self):
-        cascades = []
-        for cascade in self._cascades_list:
-            cascades.append(cascade)
-        return cascades
+        return self._cascades_list
 
     def exportSettings(self):
         face_cascade = dict()
@@ -97,10 +94,10 @@ class CascadeROIDetector:
             return []
         return rects
 
-    def detectAndJoinWithRotation(self, image, as_list=False, algorithm=RectsUnion):
+    def detectAndJoinWithRotation(self, image, algorithm=RectsUnion):
         rect = [0, 0, 0, 0]
         img = image
-        c_rect = self.detectAndJoin(image, as_list, algorithm)
+        c_rect = self.detectAndJoin(image, algorithm)
         if len(c_rect) > 0:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
@@ -111,7 +108,7 @@ class CascadeROIDetector:
         img3 = rotate90(img2)
         # 270
         img4 = rotate90(img3)
-        c_rect = self.detectAndJoin(img4, as_list, algorithm)
+        c_rect = self.detectAndJoin(img4, algorithm)
         if len(c_rect) > 0:
             if rect[2] < c_rect[2] and rect[3] < c_rect[3]:
                 rect = c_rect
@@ -120,8 +117,8 @@ class CascadeROIDetector:
             rect = []
         return img, rect
 
-    def detectAndJoin(self, image, as_list=False, algorithm=RectsUnion):
-        rects = self.detect(image, as_list)
+    def detectAndJoin(self, image, algorithm=RectsUnion):
+        rects = self.detect(image)
         if len(rects) == 0:
             logger.debug("ROI is not found for image")
         return self.joinRectangles(rects, algorithm)

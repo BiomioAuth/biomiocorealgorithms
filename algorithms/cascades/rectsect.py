@@ -28,11 +28,3 @@ def _interRect(left, right):
     if p_bottom > right[1] + right[3]:
         p_bottom = right[1] + right[3]
     return [p_left, p_top, p_right - p_left, p_bottom - p_top]
-
-
-def main():
-    rects = [[0, 0, 4, 2], [1, 1, 2, 2], [0, 1, 4, 2], [7, 1, 2, 2]]
-    print intersectRectangles(rects)
-
-if __name__ == '__main__':
-    main()

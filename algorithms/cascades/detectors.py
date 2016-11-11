@@ -8,9 +8,6 @@ import os
 
 
 class ROIDetectorInterface:
-    def __init__(self):
-        raise NotImplementedError
-
     def detect(self, data):
         raise NotImplementedError
 
@@ -55,7 +52,7 @@ class OptimalROIDetector(ROIDetectorInterface):
     def detect(self, data):
         new_images = []
         for obj in data:
-            img, rects = self._face_classifier.detectAndJoinWithRotation(obj['data'], False, RectsFiltering)
+            img, rects = self._face_classifier.detectAndJoinWithRotation(obj['data'], RectsFiltering)
             if len(rects) <= 0:
                 logger.debug("optimalROIDetection: Face doesn't found on image %s" % obj['name'])
                 continue
@@ -65,11 +62,11 @@ class OptimalROIDetector(ROIDetectorInterface):
         for obj in images:
             logger.debug(obj['path'])
             image = obj['data']
-            lrects = self._eyes_classifier.detectAndJoin(image, False, RectsUnion)
+            lrects = self._eyes_classifier.detectAndJoin(image, RectsUnion)
             obj['eyes'] = lrects
-            lrects = self._nose_classifier.detectAndJoin(image, False, RectsUnion)
+            lrects = self._nose_classifier.detectAndJoin(image, RectsUnion)
             obj['nose'] = lrects
-            lrects = self._mouth_classifier.detectAndJoin(image, False, RectsFiltering)
+            lrects = self._mouth_classifier.detectAndJoin(image, RectsFiltering)
             obj['mouth'] = lrects
             temp = image[self._d:image.shape[0] - self._d, self._d:image.shape[1] - self._d]
             res = cv2.minMaxLoc(cv2.matchTemplate(images[0]['data'], temp, cv2.cv.CV_TM_CCORR_NORMED))
@@ -98,7 +95,7 @@ class OptimalROIDetector(ROIDetectorInterface):
         else:
             new_images = []
             for image in images:
-                rects = self._face_classifier.detectAndJoin(image['data'], False, RectsFiltering)
+                rects = self._face_classifier.detectAndJoin(image['data'], RectsFiltering)
                 if len(rects) <= 0:
                     continue
                 image['data'] = getROIImage(image['data'], rects)
@@ -162,7 +159,7 @@ class OptimalROIDetectorSAoS(ROIDetectorInterface):
         else:
             new_images = []
             for image in images:
-                rects = self._face_classifier.detectAndJoin(image['data'], False, RectsFiltering)
+                rects = self._face_classifier.detectAndJoin(image['data'], RectsFiltering)
                 if len(rects) <= 0:
                     continue
                 image['data'] = getROIImage(image['data'], rects)
