@@ -1,13 +1,13 @@
 from ..cvtools import listToNumpy_ndarray
-# from ...logger import logger
 from mahotas.features import surf
+from ...logger import logger
 import numpy
 import cv2
 
 
 class BaseDetector:
     def __init__(self):
-        print self.__class__
+        logger.debug(self.__class__)
         self._detector = None
         self._extractor = None
 

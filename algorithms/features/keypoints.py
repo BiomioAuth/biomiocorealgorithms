@@ -8,7 +8,7 @@ def identifying(fn):
     def wrapped(self, data):
         logger.info("Identifying...")
         res = None
-        if self.data_detect(self, data):
+        if self.data_detect(data):
             if data is not None:
                 res = fn(self, data)
         logger.info("Identifying finished.")

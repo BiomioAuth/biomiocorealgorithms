@@ -1,6 +1,7 @@
 import itertools
 import numpy
 
+
 def minDistance(matches):
     return min(itertools.chain(*matches), key=lambda p: p.distance).distance
 

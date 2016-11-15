@@ -8,7 +8,7 @@ class KODSettings:
     """
     neighbours_distance = 1.0
     detector_type = BRISKDetectorType
-    settings = None
+    settings = constructSettings(detector_type)
     probability = 25.0
 
     def exportSettings(self):

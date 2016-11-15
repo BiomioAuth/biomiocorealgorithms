@@ -92,8 +92,10 @@ def LowesMatchingScheme(match1, match2, threshold=0.5):
     else:
         return False
 
+
 CROSS_MATCHING_MATCHES = 'cm_matches'
 CROSS_MATCHING_DESCRIPTORS = 'cm_descriptors'
+
 
 def CrossMatching(descriptors1, descriptors2, matcher, knn, result_type=CROSS_MATCHING_MATCHES):
     if len(descriptors1) < knn or len(descriptors2) < knn:
