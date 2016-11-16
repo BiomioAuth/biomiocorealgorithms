@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def histtruncate(img, low, high):
     h = len(img)
     w = 0

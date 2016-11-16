@@ -1,5 +1,3 @@
-
-
 def rgb_to_hsv(color):
     Rl = color[0] / 255.0
     Gl = color[1] / 255.0
@@ -20,6 +18,7 @@ def rgb_to_hsv(color):
     if Cmax != 0:
         S = delta / Cmax
     return [H, S, Cmax]
+
 
 def hsv_to_rgb(color):
     H = color[0]
