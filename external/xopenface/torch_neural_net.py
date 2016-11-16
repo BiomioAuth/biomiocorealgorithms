@@ -28,6 +28,7 @@ lua.require('image')
 
 myDir = os.path.dirname(os.path.realpath(__file__))
 
+
 class TorchNeuralNet:
     """Use a `Torch <http://torch.ch>`_ subprocess for feature extraction."""
 
