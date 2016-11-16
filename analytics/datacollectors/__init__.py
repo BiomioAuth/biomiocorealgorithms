@@ -1,2 +1,0 @@
-from verification_collector import VerificationCollector
-from image_error_collector import ImageErrorCollector
