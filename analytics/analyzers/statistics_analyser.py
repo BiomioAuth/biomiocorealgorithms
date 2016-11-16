@@ -13,7 +13,6 @@ class StatisticsAnalyser:
                 for line in f:
                     parsed_log.append(self._dataformat.parseData(line))
                 f.close()
-        print parsed_log
         stat_data = {
             'data': parsed_log,
             'logfile': logfile,
