@@ -51,7 +51,7 @@ class DLibFaceDetectionAlgorithm(IAlgorithm):
                                        .format(data.get('path')))
         start = time.time()
         alignedFace = self._align.align(self._settings.get('imgDim'), rgbImg, bb,
-                                        landmarkIndices=self._landmarkIndices, version=self._predictor_version)
+                                        landmarkIndices=self._landmarkIndices)
         if alignedFace is None:
             return self._process_error(data, "DLibFaceDetectionAlgorithm::Unable to align image: {}"
                                        .format(data.get('path')))
