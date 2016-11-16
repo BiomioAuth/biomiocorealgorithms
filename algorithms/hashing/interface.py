@@ -1,11 +1,9 @@
-
-
 class DataStructure:
     def __init__(self, settings):
         self.init_structure(settings)
 
     def init_structure(self, settings):
-        raise NotImplementedError
+        pass
 
     def store_vector(self, v, data=[]):
         raise NotImplementedError
