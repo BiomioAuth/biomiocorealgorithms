@@ -1,4 +1,4 @@
-from .. import AlgorithmFlow
+from ..general.base import AlgorithmFlow
 from ...logger import logger
 from ...external import xopenface
 import openface

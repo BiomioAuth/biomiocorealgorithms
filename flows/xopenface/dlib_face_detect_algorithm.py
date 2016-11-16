@@ -1,5 +1,5 @@
+from ..general.base import IAlgorithm
 from ...logger import logger
-from .. import IAlgorithm
 import openface
 import time
 import cv2
