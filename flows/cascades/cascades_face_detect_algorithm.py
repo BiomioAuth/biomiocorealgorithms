@@ -32,12 +32,13 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
         logger.debug("CascadesFaceDetectionAlgorithm::apply")
         logger.debug(data)
         logger.debug("===================================")
-        alignedFace = None
         start = time.time()
         roiImage = self._roi_detector.detect(data.get('img'))[0]
+        alignedFace = roiImage
         if roiImage is not None:
-            alignedFace = cv2.resize(roiImage, (self._imgDim, self._imgDim), interpolation=cv2.INTER_LANCZOS4)
-            alignedFace = cv2.cvtColor(alignedFace, cv2.COLOR_BGR2RGB)
+            if self._imgDim is not None and self._imgDim > 0:
+                alignedFace = cv2.resize(roiImage, (self._imgDim, self._imgDim), interpolation=cv2.INTER_LANCZOS4)
+                alignedFace = cv2.cvtColor(alignedFace, cv2.COLOR_BGR2RGB)
         else:
             return self._process_error(data, "Unable to find a face: {}".format(data.get('path')))
         logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
