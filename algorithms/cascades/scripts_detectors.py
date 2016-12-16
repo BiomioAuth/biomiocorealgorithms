@@ -58,7 +58,7 @@ class CascadesDetectionInterface:
             return image, self.apply_stage(image, self._stage, temp)
         return image, []
 
-    def apply_stage(self, image, stage, template=[]):
+    def apply_stage(self, image, stage, template=list()):
         if self._backup.get(stage.name, None) is not None:
             return self._backup[stage.name]
         rects = []

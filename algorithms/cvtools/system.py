@@ -56,4 +56,3 @@ def saveKeypoints(filename, imgobj):
     """
     out = cv2.drawKeypoints(imgobj['data'], imgobj['keypoints'])
     return cv2.imwrite(filename, out)
-

@@ -3,6 +3,7 @@ from nearpy.distances import ManhattanDistance
 from xmemorystorage import xMemoryStorage
 from emptyfilter import EmptyFilter
 
+
 class xEngine(Engine):
     def __init__(self, dim, lshashes=None,
                  distance=None,
@@ -30,6 +31,9 @@ class xEngine(Engine):
                 self.storage.store_vector(lshash.hash_name, bucket_key,
                                           nv, data)
         return bucket_keys
+
+    def store_vectors(self, vs, data=None):
+        return [self.store_vector(v, data) for v in vs]
 
     def clean_vectors_by_data(self, hash_name, data, bucket_keys=[]):
         self.storage.clean_vectors_by_data(hash_name, data, bucket_keys)

@@ -1,6 +1,14 @@
 import itertools
 
 
+def get_cluster(id, center, items):
+    return {
+        'center': center,
+        'items': items,
+        'id': id,
+    }
+
+
 def distance(p1, p2):
     return pow(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2), 0.5)
 

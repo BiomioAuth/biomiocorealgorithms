@@ -107,7 +107,7 @@ def applyWeightedFilter(img, kernel):
                     lj = lj if lj < shape[1] else shape[1] - 1
                     suma += img[li][lj]
                     count += 1
-            suma /= 1.0 * count
+            suma = suma / (1.0 * count)
             countM1 = [0, 0, 0]
             countM2 = [0, 0, 0]
             for k in range(-h/2 + 1, h/2 + 1, 1):

@@ -1,19 +1,12 @@
-from tools import distance, mass_center, sort_clusters
+from tools import distance, mass_center, sort_clusters, get_cluster
 import random
 
 
-def get_cluster(id, center, items):
-    return {
-        'center': center,
-        'items': items,
-        'id': id,
-    }
-
-def KMeans(items, cluster_count, init_centers=[], radius=0, max_distance=0):
+def KMeans(items, cluster_count, init_centers=list(), radius=0, max_distance=0):
     cents = []
     if not len(init_centers) > 0:
         currs = random.sample(items, cluster_count)
-        clusters = [get_cluster(i, item.pt, []) for i, item in currs]
+        clusters = [get_cluster(i, item.pt, []) for i, item in enumerate(currs)]
     else:
         currs = [c for c in init_centers]
         clusters = [get_cluster(i, c, []) for i, c in enumerate(init_centers)]
