@@ -89,6 +89,10 @@ def ROISizingStrategy_test():
     assert res is not None
     assert res[0] == rects[0]
 
+	
+def ROIScaleStrategy_test():
+    return False
+
 
 def StrategyFactory_test():
     factory = StrategyFactory()
