@@ -6,6 +6,8 @@ from cascades.rotation_detect_algorithm import RotationDetectionAlgorithm
 from general.base import IAlgorithm, AlgorithmFlow, LinearAlgorithmFlow
 from general.separate_processing_flow import SeparateProcessingFlow
 from general.first_success_flow import FirstSuccessFlow
+from general.simple_separation_algorithm import SimpleSeparationAlgorithm
+from general.simple_joining_algorithm import SimpleJoiningAlgorithm
 
 # xopenface module
 from xopenface.dlib_face_detect_algorithm import DLibFaceDetectionAlgorithm, INNER_EYES_AND_BOTTOM_LIP, \
