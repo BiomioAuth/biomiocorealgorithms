@@ -4,6 +4,7 @@ from cascades.rotation_detect_algorithm import RotationDetectionAlgorithm
 
 # general module
 from general.base import IAlgorithm, AlgorithmFlow, LinearAlgorithmFlow
+from general.separate_processing_flow import SeparateProcessingFlow
 from general.first_success_flow import FirstSuccessFlow
 
 # xopenface module
