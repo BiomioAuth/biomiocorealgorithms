@@ -22,10 +22,11 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
         'img': numpy.ndarray of the image file
     }
     """
-    def __init__(self, settings):
+    def __init__(self, settings, key=None):
         self._imgDim = settings.get('imgDim', 96)
         self._error_handler = settings.get('error_handler', None)
         self._roi_detector = CascadesDetectionInterface(loadScript("main_haarcascade_face_size.json", True))
+        self._key = 'img' if key is None else key
 
     def apply(self, data):
         logger.debug("===================================")
@@ -33,7 +34,7 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
         logger.debug(data)
         logger.debug("===================================")
         start = time.time()
-        roiImage = self._roi_detector.detect(data.get('img'))[0]
+        roiImage = self._roi_detector.detect(data.get(self._key))[0]
         alignedFace = roiImage
         if roiImage is not None:
             if self._imgDim is not None and self._imgDim > 0:
@@ -42,7 +43,7 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
         else:
             return self._process_error(data, "Unable to find a face: {}".format(data.get('path')))
         logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
-        data.update({'img': alignedFace})
+        data.update({self._key: alignedFace})
         return data
 
     def _process_error(self, data, message):
@@ -51,5 +52,5 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
                 'path': data['path'],
                 'message': message
             })
-        data.update({'img': None})
+        data.update({self._key: None})
         return data

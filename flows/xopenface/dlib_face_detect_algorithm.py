@@ -31,19 +31,20 @@ class DLibFaceDetectionAlgorithm(IAlgorithm):
         'img': numpy.ndarray of the image file
     }
     """
-    def __init__(self, settings):
+    def __init__(self, settings, key=None):
         self._settings = settings
         self._align = openface.AlignDlib(settings.get('dlibFacePredictor'))
         self._landmarkIndices = settings.get('landmarkIndices', INNER_EYES_AND_BOTTOM_LIP)
         self._predictor_version = settings.get('predictorVersion', DLIB_PREDICTOR_V2)
         self._error_handler = settings.get('error_handler', None)
+        self._key = 'img' if key is None else key
 
     def apply(self, data):
         logger.debug("===================================")
         logger.debug("DLibFaceDetectionAlgorithm::apply")
         logger.debug(data)
         logger.debug("===================================")
-        rgbImg = cv2.cvtColor(data.get('img'), cv2.COLOR_BGR2RGB)
+        rgbImg = cv2.cvtColor(data.get(self._key), cv2.COLOR_BGR2RGB)
 
         bb = self._align.getLargestFaceBoundingBox(rgbImg)
         if bb is None:
@@ -56,7 +57,7 @@ class DLibFaceDetectionAlgorithm(IAlgorithm):
             return self._process_error(data, "DLibFaceDetectionAlgorithm::Unable to align image: {}"
                                        .format(data.get('path')))
         logger.debug("Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
-        data.update({'img': alignedFace})
+        data.update({self._key: alignedFace})
         return data
 
     def _process_error(self, data, message):
@@ -65,5 +66,5 @@ class DLibFaceDetectionAlgorithm(IAlgorithm):
                 'path': data['path'],
                 'message': message
             })
-        data.update({'img': None})
+        data.update({self._key: None})
         return data
