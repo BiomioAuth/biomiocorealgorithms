@@ -1,7 +1,7 @@
 from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from ...algorithms.cascades.detectors import loadScript
 from ..general.base import IAlgorithm
-from logger import logger
+from ...logger import logger
 import time
 import cv2
 
