@@ -12,11 +12,19 @@
 					 "data/haarcascades/haarcascade_frontalface_alt2.xml",
 					 "data/haarcascades/haarcascade_frontalface_default.xml"],
 		"settings": 
-		{
-			"Minimum Size": [30, 30], 
-			"Maximum Size": [1000, 1000],
-			"Minimum Neighbors": 2, 
-			"Scale Factor": 1.10
-		}
+		[
+			{
+				"Minimum Size": [30, 30], 
+				"Maximum Size": [1000, 1000],
+				"Minimum Neighbors": 2, 
+				"Scale Factor": 1.10
+			},
+			{
+				"Minimum Size": [50, 50], 
+				"Maximum Size": [1000, 1000],
+				"Minimum Neighbors": 1, 
+				"Scale Factor": 1.01
+			}
+		]
 	}
 }
