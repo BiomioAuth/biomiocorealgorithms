@@ -327,7 +327,6 @@ class ROIScaleStrategy(ROIManagementStrategy):
         return self._scale(rects)
 
     def _scale(self, rects):
-        print rects
         res = []
         if len(rects) == 0:
             return [res]
