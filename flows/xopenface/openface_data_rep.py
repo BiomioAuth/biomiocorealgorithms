@@ -59,13 +59,15 @@ class OpenFaceDataRepresentation(AlgorithmFlow):
         if self.faceRotationStage() is not None:
             bgrImg = self.faceRotationStage().apply({'img': bgrImg})['img']
 
-        start = time.time()
-        alignData = data.copy()
-        alignData.update({'img': bgrImg})
-        alignedFace = self.faceAlignmentStage().apply(alignData)['img']
-        logger.debug("General Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
-        if alignedFace is None:
-            return self._process_error(data, "General::Unable to align image: {}".format(data.get('path')))
+        alignedFace = bgrImg
+        if self.faceAlignmentStage() is not None:
+            start = time.time()
+            alignData = data.copy()
+            alignData.update({'img': bgrImg})
+            alignedFace = self.faceAlignmentStage().apply(alignData)['img']
+            logger.debug("General Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
+            if alignedFace is None:
+                return self._process_error(data, "General::Unable to align image: {}".format(data.get('path')))
 
         start = time.time()
         rep = self._net.forward(alignedFace)
