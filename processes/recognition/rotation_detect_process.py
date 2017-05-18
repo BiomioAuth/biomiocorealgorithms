@@ -1,28 +1,20 @@
-from biomio.constants import REDIS_PARTIAL_RESULTS_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_DO_NOT_STORE_RESULT_KEY
 from ....algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
 from ....algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
-from messages import create_error_message, create_result_message
 from ....algorithms.cvtools import numpy_ndarrayToList, rotate90
 from ....interfaces import AlgorithmProcessInterface, logger
 from handling import load_temp_data, save_temp_data
 from ....algorithms.cascades import SCRIPTS_PATH
+from ..helpers import partial_results_handler
+from defs import STATUS_ERROR, STATUS_RESULT
 from settings.settings import get_settings
 import os
 
 
 ROTATION_DETECTION_PROCESS_CLASS_NAME = "RotationDetectionProcess"
 
+
 def job(callback_code, **kwargs):
     RotationDetectionProcess.job(callback_code, **kwargs)
-
-
-def store_verification_results(result, callback_code):
-    AlgorithmsDataStore.instance().delete_data(key=REDIS_RESULTS_COUNTER_KEY % callback_code)
-    AlgorithmsDataStore.instance().delete_data(key=REDIS_PARTIAL_RESULTS_KEY % callback_code)
-    AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                    record_dict=result, callback_code=callback_code)
 
 
 class RotationDetectionProcess(AlgorithmProcessInterface):
@@ -75,18 +67,7 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         """
         RotationDetectionProcess._job_logger_info(ROTATION_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         record = {'data_file': RotationDetectionProcess.process(**kwargs)}
-        AlgorithmsDataStore.instance().append_value_to_list(key=REDIS_PARTIAL_RESULTS_KEY % callback_code,
-                                                            value=record)
-        results_counter = AlgorithmsDataStore.instance().decrement_int_value(REDIS_RESULTS_COUNTER_KEY %
-                                                                             callback_code)
-        if results_counter <= 0:
-            gathered_results = AlgorithmsDataStore.instance().get_stored_list(REDIS_PARTIAL_RESULTS_KEY %
-                                                                              callback_code)
-            if results_counter < 0:
-                result = create_error_message(INTERNAL_TRAINING_ERROR, "jobs_counter", "Number of jobs is incorrect.")
-            else:
-                result = create_result_message({'data_list': gathered_results}, 'detection')
-            store_verification_results(result=result, callback_code=callback_code)
+        partial_results_handler(callback_code, record)
 
     @staticmethod
     def process(**kwargs):
@@ -126,5 +107,5 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         return training_process_data
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
-        kwargs.update({'timeout': 300})
+        # kwargs.update({'timeout': 300})
         self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)

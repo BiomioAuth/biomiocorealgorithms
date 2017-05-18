@@ -61,7 +61,7 @@ class TrainingProcess(AlgorithmProcessInterface):
                 else:
                     logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, "Invalid Data Format."))
                     if self._error_process:
-                        self._error_process.run(self._worker, kwargs_list_for_results_gatherer=res[0], **res[1])
+                        self._error_process.run(self._worker, **res[1])
             else:
                 logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Unknown Message"))
         else:

@@ -1,12 +1,10 @@
-from biomio.constants import REST_REGISTER_BIOMETRICS, TRAINING_DATA_TABLE_CLASS_NAME, get_ai_training_response
-from biomio.mysql_storage.mysql_data_store_interface import MySQLDataStoreInterface
+from biomio.constants import REST_REGISTER_BIOMETRICS, get_ai_training_response
 from biomio.protocol.settings import settings as biomio_settings
 from biomio.algorithms.logger import logger
 from requests.exceptions import HTTPError
 import requests
 import tempfile
 import binascii
-import cPickle
 import base64
 import json
 import os
@@ -35,25 +33,6 @@ def tell_ai_training_results(result, ai_response_type, try_type, ai_code):
     except Exception as e:
         logger.error('Failed to build rest request to AI - %s' % str(e))
         logger.exception(e)
-
-
-def get_algo_db(probe_id):
-    database = MySQLDataStoreInterface.get_object(table_name=TRAINING_DATA_TABLE_CLASS_NAME, object_id=probe_id)
-    return cPickle.loads(base64.b64decode(database.data)) if database is not None else {}
-
-
-def store_training_db(database, probe_id):
-    training_data = base64.b64encode(cPickle.dumps(database, cPickle.HIGHEST_PROTOCOL))
-    try:
-        MySQLDataStoreInterface.create_data(table_name=TRAINING_DATA_TABLE_CLASS_NAME, probe_id=probe_id,
-                                            data=training_data)
-    except Exception as e:
-        if '1062 Duplicate entry' in str(e):
-            logger.info('Training data already exists, updating the record.')
-            MySQLDataStoreInterface.update_data(table_name=TRAINING_DATA_TABLE_CLASS_NAME,
-                                                object_id=probe_id, data=training_data)
-        else:
-            logger.exception(e)
 
 
 def save_image(image, temp_image_path):
