@@ -1,9 +1,9 @@
-from ....algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
-from ....algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
-from ....algorithms.cvtools import numpy_ndarrayToList, rotate90
-from ....interfaces import AlgorithmProcessInterface, logger
+from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
+from ...algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
+from ..general.process_interface import AlgorithmProcessInterface
+from ...algorithms.cvtools import numpy_ndarrayToList, rotate90
 from handling import load_temp_data, save_temp_data
-from ....algorithms.cascades import SCRIPTS_PATH
+from ...algorithms.cascades import SCRIPTS_PATH
 from ..helpers import partial_results_handler
 from defs import STATUS_ERROR, STATUS_RESULT
 from settings.settings import get_settings

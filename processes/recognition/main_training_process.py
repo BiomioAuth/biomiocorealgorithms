@@ -1,4 +1,4 @@
-from ....interfaces import AlgorithmProcessInterface
+from ..general.process_interface import AlgorithmProcessInterface
 import os
 
 

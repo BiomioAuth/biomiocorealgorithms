@@ -1,10 +1,11 @@
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore, REDIS_DO_NOT_STORE_RESULT_KEY
 from defs import (STATUS_ERROR, STATUS_RESULT, ERROR_FORMAT, UNKNOWN_ERROR, INTERNAL_TRAINING_ERROR,
                   INVALID_ALGORITHM_SETTINGS)
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
+from ..general.process_interface import AlgorithmProcessInterface, logger
 from messages import create_error_message, create_result_message
-from ....interfaces import AlgorithmProcessInterface, logger
+from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from settings.settings import get_settings
-from ....imgobj import loadImageObject
+from ...imgobj import loadImageObject
 from handling import save_temp_data
 
 

@@ -1,4 +1,4 @@
-from ....algorithms.cvtools.system import saveNumpyImage, loadNumpyImage
+from ...algorithms.cvtools.system import saveNumpyImage, loadNumpyImage
 import tempfile
 import json
 import os
