@@ -105,7 +105,7 @@ class RotationResultProcess(AlgorithmProcessInterface):
             rotation_script = CascadesDetectionInterface.init_stage(rotation_script_dict)
             logger.debug(rotation_script.strategy.type())
             rect = rotation_script.strategy.apply(rects)
-            count = {1: 0, 2: 0, 3: 0, 4: 2}
+            count = {1: 0, 2: 0, 3: 0, 4: 0}
             gl = {1: [0, 0, 0, 0], 2: [0, 0, 0, 0], 3: [0, 0, 0, 0], 4: [0, 0, 0, 0]}
             logger.debug(datagram)
             logger.debug(rect)
