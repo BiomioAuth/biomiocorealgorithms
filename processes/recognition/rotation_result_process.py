@@ -143,7 +143,7 @@ class RotationResultProcess(AlgorithmProcessInterface):
                 face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_alt_tree.xml"))
                 face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_alt2.xml"))
                 face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_default.xml"))
-                optimal_rect = face_classifier.detectAndJoin(result['data'], False, RectsFiltering)
+                optimal_rect = face_classifier.detectAndJoin(result['data'], RectsFiltering)
             result['roi'] = getROIImage(result['data'], optimal_rect)
             temp_data_path = result['temp_data_path']
             detection_process_data = save_temp_data(result, temp_data_path, ['data', 'roi'])

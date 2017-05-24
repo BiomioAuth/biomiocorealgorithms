@@ -92,9 +92,6 @@ class TrainingProcess(AlgorithmProcessInterface):
         """
         TrainingProcess._job_logger_info("TrainingProcess", **kwargs)
         record = TrainingProcess.process(**kwargs)
-        logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-        logger.debug(record)
-        logger.debug("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
