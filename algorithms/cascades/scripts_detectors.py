@@ -67,7 +67,6 @@ class CascadesDetectionInterface:
                 rects += self.apply_stage(image, s)
         else:
             for classifier in stage.classifiers:
-                classifier.classifierSettings.dump()
                 rects += classifier.detect(image, True)
         new_rects = skipEmptyRectangles(rects)
         result = stage.strategy.apply(new_rects, template)

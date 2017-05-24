@@ -49,7 +49,6 @@ class CascadeROIDetector:
     def add_cascade(self, path):
         self._relative_cl.append(path)
         abs_path = os.path.join(APP_ROOT, path)
-        logger.debug("####### %s" % abs_path)
         if os.path.exists(abs_path):
             self.__cascades.append(cv2.CascadeClassifier(abs_path))
             self._cascades_list.append(abs_path)
@@ -84,12 +83,10 @@ class CascadeROIDetector:
                 minSize=self.classifierSettings.minSize,
                 maxSize=self.classifierSettings.maxSize,
                 flags=self.classifierSettings.flags)
-            logger.debug(lrects)
             if as_list:
                 rects += [r for r in lrects]
             else:
                 rects.append(lrects)
-        logger.debug(rects)
         if len(rects) == 0:
             return []
         return rects
