@@ -24,3 +24,5 @@ def partial_results_handler(callback_code, record):
         else:
             result = create_result_message({'data_list': gathered_results}, 'detection')
         store_verification_results(result=result, callback_code=callback_code)
+        return True
+    return False

@@ -2,7 +2,7 @@ from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface,
 from ...algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cvtools import numpy_ndarrayToList, rotate90
-from handling import load_temp_data, save_temp_data
+from handling import load_temp_data, save_temp_data, remove_temp_data
 from ...algorithms.cascades import SCRIPTS_PATH
 from ..helpers import partial_results_handler
 from defs import STATUS_ERROR, STATUS_RESULT
@@ -67,7 +67,8 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         """
         RotationDetectionProcess._job_logger_info(ROTATION_DETECTION_PROCESS_CLASS_NAME, **kwargs)
         record = {'data_file': RotationDetectionProcess.process(**kwargs)}
-        partial_results_handler(callback_code, record)
+        if partial_results_handler(callback_code, record):
+            remove_temp_data(kwargs['data_file'])
 
     @staticmethod
     def process(**kwargs):

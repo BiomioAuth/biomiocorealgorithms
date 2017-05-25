@@ -19,6 +19,7 @@ import ast
 
 DATA_DETECTION_PROCESS_CLASS_NAME = "DataDetectionProcess"
 
+
 def job(callback_code, **kwargs):
     DataDetectionProcess.job(callback_code, **kwargs)
 

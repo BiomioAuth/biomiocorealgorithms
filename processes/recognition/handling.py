@@ -42,4 +42,16 @@ def load_temp_data(path, remove=True, load_saved=True):
 
 def remove_temp_data(path):
     if os.path.exists(path):
+        with open(path, "r") as data_file:
+            source = json.load(data_file)
+        data_file.close()
+        os.remove(path)
+        saved = source.get('save', None)
+        if saved is not None:
+            for im in saved:
+                os.remove(source[im])
+
+
+def remove_temp_data(path):
+    if os.path.exists(path):
         os.remove(path)
