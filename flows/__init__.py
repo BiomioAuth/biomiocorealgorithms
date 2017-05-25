@@ -11,3 +11,6 @@ from xopenface.dlib_face_detect_algorithm import DLibFaceDetectionAlgorithm, INN
     OUTER_EYES_AND_NOSE, DLIB_PREDICTOR_V1, DLIB_PREDICTOR_V2
 from xopenface.openface_simple_dist_estimate import OpenFaceSimpleDistanceEstimation
 from xopenface.openface_data_rep import OpenFaceDataRepresentation
+
+# transforms module
+from transforms.resize_image_algorithm import ResizeImageAlgorithm
