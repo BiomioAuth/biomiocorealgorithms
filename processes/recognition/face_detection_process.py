@@ -46,9 +46,9 @@ class FaceDetectionProcess(AlgorithmProcessInterface):
             elif result['status'] == STATUS_RESULT:
                 self._next_process.run(self._worker, **result['data'])
 
-    @staticmethod
+    @classmethod
     @job_header
-    def job(callback_code, **kwargs):
+    def job(cls, callback_code, **kwargs):
         """
         Job function for handling rotation results.
 
@@ -62,9 +62,9 @@ class FaceDetectionProcess(AlgorithmProcessInterface):
         AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
                                                         record_dict=record, callback_code=callback_code)
 
-    @staticmethod
+    @classmethod
     @process_header
-    def process(**kwargs):
+    def process(cls, **kwargs):
         data_dict = load_temp_data(kwargs['data_file'], remove=True)
         if data_dict is not None:
             settings = get_settings(data_dict['algoID'])
