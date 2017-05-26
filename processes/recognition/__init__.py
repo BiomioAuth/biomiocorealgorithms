@@ -3,6 +3,7 @@ from rotation_detect_process import RotationDetectionProcess
 # from iden_rest_est_process import IdentificationREProcess
 from rotation_result_process import RotationResultProcess
 from cluster_match_process import ClusterMatchingProcess
+from face_detection_process import FaceDetectionProcess
 from main_training_process import MainTrainingProcess
 from data_detect_process import DataDetectionProcess
 # from iden_process import IdentificationProcess

@@ -16,6 +16,7 @@ import os
 
 ROTATION_RESULT_PROCESS_CLASS_NAME = "RotationResultProcess"
 
+
 def job(callback_code, **kwargs):
     RotationResultProcess.job(callback_code, **kwargs)
 
@@ -103,22 +104,16 @@ class RotationResultProcess(AlgorithmProcessInterface):
             datagram[str([])] = 1
             rotation_script_dict = loadScript(os.path.join(SCRIPTS_PATH, settings['rotation_script']))
             rotation_script = CascadesDetectionInterface.init_stage(rotation_script_dict)
-            logger.debug(rotation_script.strategy.type())
             rect = rotation_script.strategy.apply(rects)
             count = {1: 0, 2: 0, 3: 0, 4: 0}
             gl = {1: [0, 0, 0, 0], 2: [0, 0, 0, 0], 3: [0, 0, 0, 0], 4: [0, 0, 0, 0]}
-            logger.debug(datagram)
-            logger.debug(rect)
             for rs in rect:
-                logger.debug(rs)
                 if len(rs) < 1:
                     continue
                 count[datagram[str(listToNumpy_ndarray(rs[1]))]] += 1
                 if ((gl[datagram[str(listToNumpy_ndarray(rs[1]))]][2] < rs[0][2]) and
                         (gl[datagram[str(listToNumpy_ndarray(rs[1]))]][3] < rs[0][3])):
                     gl[datagram[str(listToNumpy_ndarray(rs[1]))]] = rs[0]
-            logger.debug(count)
-            logger.debug(gl)
             max_count = -1
             midx = 0
             for index in range(1, 5, 1):

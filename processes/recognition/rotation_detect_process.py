@@ -1,8 +1,8 @@
-from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface, RotatedCascadesDetector
 from ...algorithms.cascades.tools import (skipEmptyRectangles, isRectangle, loadScript)
+from ...algorithms.cascades.scripts_detectors import RotatedCascadesDetector
+from handling import load_temp_data, save_temp_data, remove_temp_data
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cvtools import numpy_ndarrayToList, rotate90
-from handling import load_temp_data, save_temp_data, remove_temp_data
 from ...algorithms.cascades import SCRIPTS_PATH
 from ..helpers import partial_results_handler
 from defs import STATUS_ERROR, STATUS_RESULT
@@ -81,7 +81,7 @@ class RotationDetectionProcess(AlgorithmProcessInterface):
         rects = []
         d = dict()
         rotation_script_dict = loadScript(os.path.join(SCRIPTS_PATH, settings['rotation_script']))
-        rotation_script = CascadesDetectionInterface.init_stage(rotation_script_dict)
+        rotation_script = RotatedCascadesDetector.init_stage(rotation_script_dict)
         detector = RotatedCascadesDetector(rotation_script_dict, dict())
         if len(rotation_script.stages) > 1:
             r = []
