@@ -124,24 +124,8 @@ class RotationResultProcess(AlgorithmProcessInterface):
                     if gl[index][2] > gl[midx][2] and gl[index][3] > gl[midx][3]:
                         midx = index
             result['data'] = images[midx]
-
-            detector = CascadesDetectionInterface(loadScript(os.path.join(SCRIPTS_PATH, settings['detect_script'])))
-            img, rects = detector.detect(result['data'])
-            optimal_rect = mergeRectangles(rects)
-            if len(optimal_rect) != 4:
-                face_classifier = CascadeROIDetector()
-                settings = CascadeClassifierSettings()
-                settings.minNeighbors = 1
-                settings.minSize = (100, 100)
-                face_classifier.classifierSettings = settings
-                face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_alt.xml"))
-                face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_alt_tree.xml"))
-                face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_alt2.xml"))
-                face_classifier.add_cascade(os.path.join(CASCADES_PATH, "haarcascade_frontalface_default.xml"))
-                optimal_rect = face_classifier.detectAndJoin(result['data'], RectsFiltering)
-            result['roi'] = getROIImage(result['data'], optimal_rect)
             temp_data_path = result['temp_data_path']
-            detection_process_data = save_temp_data(result, temp_data_path, ['data', 'roi'])
+            detection_process_data = save_temp_data(result, temp_data_path, ['data'])
             record = create_result_message({'data_file': detection_process_data}, 'detection')
         else:
             record = create_error_message(INTERNAL_TRAINING_ERROR, "data_list", "Empty list of data.")
