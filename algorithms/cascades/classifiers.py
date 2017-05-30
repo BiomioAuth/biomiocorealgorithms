@@ -1,6 +1,7 @@
 from . import intersectRectangles, filterRectangles, mergeRectangles, APP_ROOT
 from ..cvtools import grayscale, rotate90
 from ...logger import logger
+import multiprocessing as mp
 import cv2
 import os
 
@@ -75,20 +76,21 @@ class CascadeROIDetector:
         if len(self.__cascades) == 0:
             logger.debug("Detection impossible. Any cascade not found.")
             return rects
-        for cascade in self.__cascades:
-            lrects = cascade.detectMultiScale(
-                gray,
-                scaleFactor=self.classifierSettings.scaleFactor,
-                minNeighbors=self.classifierSettings.minNeighbors,
-                minSize=self.classifierSettings.minSize,
-                maxSize=self.classifierSettings.maxSize,
-                flags=self.classifierSettings.flags)
-            if as_list:
-                rects += [r for r in lrects]
-            else:
-                rects.append(lrects)
-        if len(rects) == 0:
-            return []
+
+        def detect_cascade(cascade):
+            return cascade.detectMultiScale(gray,
+                                            scaleFactor=self.classifierSettings.scaleFactor,
+                                            minNeighbors=self.classifierSettings.minNeighbors,
+                                            minSize=self.classifierSettings.minSize,
+                                            maxSize=self.classifierSettings.maxSize,
+                                            flags=self.classifierSettings.flags)
+
+        pool = mp.Pool(processes=len(self.__cascades))
+        lrects = pool.map(detect_cascade, self.__cascades)
+        if as_list:
+            rects += [r for r in lrects]
+        else:
+            rects = lrects
         return rects
 
     def detectAndJoinWithRotation(self, image, algorithm=RectsUnion):
