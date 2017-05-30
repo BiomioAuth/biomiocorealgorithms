@@ -20,31 +20,31 @@ def job(callback_code, **kwargs):
 class FaceDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._next_process = AlgorithmProcessInterface()
-
-    def set_next_process(self, process):
-        self._next_process = process
-
-    @handler_header
-    def handler(self, result):
-        """
-        Callback function for corresponding job function.
-
-        :param result: data result dictionary:
-            {
-                'status': 'result',
-                'data':
-                {
-                    'data_file': data file path
-                },
-                'type': 'detection'
-            }
-        """
-        if result is not None:
-            if result['status'] == STATUS_ERROR:
-                pass
-            elif result['status'] == STATUS_RESULT:
-                self._next_process.run(self._worker, **result['data'])
+    #     self._next_process = AlgorithmProcessInterface()
+    #
+    # def set_next_process(self, process):
+    #     self._next_process = process
+    #
+    # @handler_header
+    # def handler(self, result):
+    #     """
+    #     Callback function for corresponding job function.
+    #
+    #     :param result: data result dictionary:
+    #         {
+    #             'status': 'result',
+    #             'data':
+    #             {
+    #                 'data_file': data file path
+    #             },
+    #             'type': 'detection'
+    #         }
+    #     """
+    #     if result is not None:
+    #         if result['status'] == STATUS_ERROR and self._error_process is not None:
+    #             self._error_process.run(self._worker, **result)
+    #         elif result['status'] == STATUS_RESULT:
+    #             self._next_process.run(self._worker, **result['data'])
 
     @classmethod
     @job_header
