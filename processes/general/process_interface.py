@@ -1,4 +1,4 @@
-from ..recognition.defs import STATUS_ERROR, STATUS_RESULT
+from defs import STATUS_ERROR, STATUS_RESULT
 from decorators import handler_header
 from ...logger import logger
 

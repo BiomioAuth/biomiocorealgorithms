@@ -1,7 +1,7 @@
 from ...constants import REDIS_PARTIAL_RESULTS_KEY, REDIS_RESULTS_COUNTER_KEY, REDIS_DO_NOT_STORE_RESULT_KEY
-from ...protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from recognition.messages import create_error_message, create_result_message
-from recognition.defs import INTERNAL_TRAINING_ERROR
+from ...protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
+from general.defs import INTERNAL_TRAINING_ERROR
 
 
 def store_verification_results(result, callback_code):
