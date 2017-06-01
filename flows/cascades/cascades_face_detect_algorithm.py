@@ -1,5 +1,6 @@
 from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from ...algorithms.cascades.detectors import loadScript
+from ..general.decorators import algorithm_header
 from ..general.base import IAlgorithm
 from ...logger import logger
 import time
@@ -27,11 +28,8 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
         self._error_handler = settings.get('error_handler', None)
         self._roi_detector = CascadesDetectionInterface(loadScript("main_haarcascade_face_size.json", True))
 
+    @algorithm_header
     def apply(self, data):
-        logger.debug("===================================")
-        logger.debug("CascadesFaceDetectionAlgorithm::apply")
-        logger.debug(data)
-        logger.debug("===================================")
         start = time.time()
         roiImage = self._roi_detector.detect(data.get('img'))[0]
         alignedFace = roiImage

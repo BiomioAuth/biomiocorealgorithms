@@ -1,3 +1,4 @@
+from ..general.decorators import algorithm_header
 from ..general.base import IAlgorithm
 from ...logger import logger
 import time
@@ -24,11 +25,8 @@ class ResizeImageAlgorithm(IAlgorithm):
         self._imgDim = settings.get('imgDim', 96)
         self._error_handler = settings.get('error_handler', None)
 
+    @algorithm_header
     def apply(self, data):
-        logger.debug("===================================")
-        logger.debug("ResizeImageAlgorithm::apply")
-        logger.debug(data)
-        logger.debug("===================================")
         start = time.time()
         img = data.get('img')
         if img is not None:
