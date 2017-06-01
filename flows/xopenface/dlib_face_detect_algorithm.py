@@ -1,3 +1,4 @@
+from ..general.decorators import algorithm_header
 from ..general.base import IAlgorithm
 from ...logger import logger
 import openface
@@ -38,11 +39,8 @@ class DLibFaceDetectionAlgorithm(IAlgorithm):
         self._predictor_version = settings.get('predictorVersion', DLIB_PREDICTOR_V2)
         self._error_handler = settings.get('error_handler', None)
 
+    @algorithm_header
     def apply(self, data):
-        logger.debug("===================================")
-        logger.debug("DLibFaceDetectionAlgorithm::apply")
-        logger.debug(data)
-        logger.debug("===================================")
         rgbImg = cv2.cvtColor(data.get('img'), cv2.COLOR_BGR2RGB)
 
         bb = self._align.getLargestFaceBoundingBox(rgbImg)

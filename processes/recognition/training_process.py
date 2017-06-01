@@ -1,5 +1,5 @@
-from defs import (STATUS_ERROR, STATUS_RESULT, ERROR_FORMAT, UNKNOWN_ERROR, INTERNAL_TRAINING_ERROR,
-                  INVALID_ALGORITHM_SETTINGS)
+from ..general.defs import (STATUS_ERROR, STATUS_RESULT, ERROR_FORMAT, UNKNOWN_ERROR, INTERNAL_TRAINING_ERROR,
+                            INVALID_ALGORITHM_SETTINGS)
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from ..general.process_interface import AlgorithmProcessInterface, logger
 from messages import create_error_message, create_result_message

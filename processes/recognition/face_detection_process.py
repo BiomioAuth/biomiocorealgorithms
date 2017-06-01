@@ -1,14 +1,14 @@
 from ...algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from ...algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
-from ..general.decorators import process_header, handler_header, job_header
-from ..general.process_interface import AlgorithmProcessInterface, logger
-from defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
-from ...algorithms.cascades.tools import loadScript, getROIImage
+from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
+from ..general.process_interface import AlgorithmProcessInterface
 from messages import create_error_message, create_result_message
+from ...algorithms.cascades.tools import loadScript, getROIImage
+from ..general.decorators import process_header, job_header
 from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from handling import load_temp_data, save_temp_data
+from ..general.defs import INTERNAL_TRAINING_ERROR
 from settings.settings import get_settings
 import os
 
@@ -20,31 +20,6 @@ def job(callback_code, **kwargs):
 class FaceDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._next_process = AlgorithmProcessInterface()
-
-    def set_next_process(self, process):
-        self._next_process = process
-
-    @handler_header
-    def handler(self, result):
-        """
-        Callback function for corresponding job function.
-
-        :param result: data result dictionary:
-            {
-                'status': 'result',
-                'data':
-                {
-                    'data_file': data file path
-                },
-                'type': 'detection'
-            }
-        """
-        if result is not None:
-            if result['status'] == STATUS_ERROR:
-                pass
-            elif result['status'] == STATUS_RESULT:
-                self._next_process.run(self._worker, **result['data'])
 
     @classmethod
     @job_header

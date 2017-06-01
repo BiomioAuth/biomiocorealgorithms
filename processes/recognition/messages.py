@@ -1,4 +1,5 @@
-from defs import STATUS_ERROR, STATUS_RESULT
+from ..general.defs import STATUS_ERROR, STATUS_RESULT
+
 
 def create_error_message(message_type, param, message, userID=None):
     return create_message(STATUS_ERROR, message_type, param=param, message=message, userID=userID)

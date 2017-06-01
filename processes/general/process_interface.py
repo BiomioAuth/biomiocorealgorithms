@@ -1,3 +1,5 @@
+from defs import STATUS_ERROR, STATUS_RESULT
+from decorators import handler_header
 from ...logger import logger
 
 
@@ -7,7 +9,11 @@ class AlgorithmProcessInterface:
         self._worker = worker
         self._classname = "AlgorithmProcessInterface"
         self._error_process = None
+        self._next_process = None
         self._callback = None
+
+    def set_next_process(self, process):
+        self._next_process = process
 
     def set_error_handler_process(self, process):
         self._error_process = process
@@ -15,8 +21,24 @@ class AlgorithmProcessInterface:
     def external_callback(self, callback):
         self._callback = callback
 
+    @handler_header
     def handler(self, result):
-        raise NotImplementedError
+        """
+        Callback function for corresponding job function.
+
+        :param result: data result dictionary:
+            {
+                'status': ['result', 'error'],
+                'data': [optional] result data dictionary,
+                'type': [optional] type of result/error data,
+                'details': [optional] error data dictionary
+            }
+        """
+        if result is not None:
+            if result['status'] == STATUS_ERROR and self._error_process is not None:
+                self._error_process.run(self._worker, **result)
+            elif result['status'] == STATUS_RESULT:
+                self._next_process.run(self._worker, **result['data'])
 
     @staticmethod
     def job(callback_code, **kwargs):
