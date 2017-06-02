@@ -1,6 +1,6 @@
+from ..general.decorators import algorithm_header
 import scipy.spatial.distance as distance
 from ..general.base import IAlgorithm
-from ...logger import logger
 import sys
 
 
@@ -28,20 +28,20 @@ class OpenFaceSimpleDistanceEstimation(IAlgorithm):
     def __init__(self):
         pass
 
+    @algorithm_header
     def apply(self, data):
-        logger.debug("===================================")
-        logger.debug("OpenFaceSimpleDistanceEstimation::apply")
-        logger.debug(data)
-        logger.debug("===================================")
         database = data.get('database')
         tdata = data.get('data')
+        result = data.copy()
         if database is None or tdata is None or len(database.get('data', [])) <= 0:
             # TODO: Write Error handler
-            return {'result': sys.float_info.max}
+            result.update({'result': sys.float_info.max})
+            return result
         avg = 0
         for item in database.get('data', []):
             if len(item['rep']) <= 0:
                 continue
             avg += distance.euclidean(tdata['rep'], item['rep'])
         avg /= len(database.get('data', []))
-        return {'result': avg}
+        result.update({'result': avg})
+        return result

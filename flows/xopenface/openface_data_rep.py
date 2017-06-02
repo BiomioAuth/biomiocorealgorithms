@@ -1,3 +1,4 @@
+from ..general.decorators import algorithm_header
 from ..general.base import AlgorithmFlow
 from ...logger import logger
 from ...external import xopenface
@@ -48,11 +49,8 @@ class OpenFaceDataRepresentation(AlgorithmFlow):
         if stage is not None:
             self._stages[FACE_ALIGNMENT_STAGE] = stage
 
+    @algorithm_header
     def apply(self, data):
-        logger.debug("===================================")
-        logger.debug("OpenFaceDataRepresentation::apply")
-        logger.debug(data)
-        logger.debug("===================================")
         bgrImg = cv2.imread(data.get('path'))
         if bgrImg is None:
             return self._process_error(data, "Unable to load image: {}".format(data.get('path')))

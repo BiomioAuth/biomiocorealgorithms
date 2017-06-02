@@ -5,6 +5,7 @@ from cascades.rotation_detect_algorithm import RotationDetectionAlgorithm
 # general module
 from general.base import IAlgorithm, AlgorithmFlow, LinearAlgorithmFlow
 from general.first_success_flow import FirstSuccessFlow
+from general.decorators import algorithm_header
 
 # xopenface module
 from xopenface.dlib_face_detect_algorithm import DLibFaceDetectionAlgorithm, INNER_EYES_AND_BOTTOM_LIP, \
