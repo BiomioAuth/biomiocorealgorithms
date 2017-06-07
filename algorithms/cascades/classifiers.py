@@ -51,7 +51,7 @@ class CascadeROIDetector:
         self._relative_cl.append(path)
         abs_path = os.path.join(APP_ROOT, path)
         if os.path.exists(abs_path):
-            self.__cascades.append(cv2.CascadeClassifier(abs_path))
+            # self.__cascades.append(cv2.CascadeClassifier(abs_path))
             self._cascades_list.append(abs_path)
         else:
             logger.debug("Such file does not exist.")
@@ -73,20 +73,34 @@ class CascadeROIDetector:
     def detect(self, img, as_list=False):
         rects = list()
         gray = grayscale(img)
-        if len(self.__cascades) == 0:
+        if len(self._cascades_list) == 0:
             logger.debug("Detection impossible. Any cascade not found.")
             return rects
+        data_dict = {'image': gray,
+                     'scaleFactor': self.classifierSettings.scaleFactor,
+                     'minNeighbors': self.classifierSettings.minNeighbors,
+                     'minSize': self.classifierSettings.minSize,
+                     'maxSize': self.classifierSettings.maxSize,
+                     'flags': self.classifierSettings.flags
+                     }
 
-        def detect_cascade(cascade):
-            return cascade.detectMultiScale(gray,
-                                            scaleFactor=self.classifierSettings.scaleFactor,
-                                            minNeighbors=self.classifierSettings.minNeighbors,
-                                            minSize=self.classifierSettings.minSize,
-                                            maxSize=self.classifierSettings.maxSize,
-                                            flags=self.classifierSettings.flags)
+        def detect_cascade(data_dict):
+            cascade = cv2.CascadeClassifier(data_dict['cascade_path'])
+            return cascade.detectMultiScale(data_dict['image'],
+                                            scaleFactor=data_dict['scaleFactor'],
+                                            minNeighbors=data_dict['minNeighbors'],
+                                            minSize=data_dict['minSize'],
+                                            maxSize=data_dict['maxSize'],
+                                            flags=data_dict['flags'])
 
-        pool = mp.Pool(processes=len(self.__cascades))
-        lrects = pool.map(detect_cascade, self.__cascades)
+        data_list = []
+        for cascade_path in self._cascades_list:
+            curr_dict = data_dict.copy()
+            curr_dict.update({'cascade_path': cascade_path})
+            data_list.append(curr_dict)
+
+        pool = mp.Pool(processes=len(data_list))
+        lrects = pool.map(detect_cascade, data_list)
         if as_list:
             rects += [r for r in lrects]
         else:
