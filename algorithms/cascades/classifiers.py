@@ -11,6 +11,16 @@ RectsIntersect = 1
 RectsFiltering = 2
 
 
+def detect_cascade(data_dict):
+    cascade = cv2.CascadeClassifier(data_dict['cascade_path'])
+    return cascade.detectMultiScale(data_dict['image'],
+                                    scaleFactor=data_dict['scaleFactor'],
+                                    minNeighbors=data_dict['minNeighbors'],
+                                    minSize=data_dict['minSize'],
+                                    maxSize=data_dict['maxSize'],
+                                    flags=data_dict['flags'])
+
+
 class CascadeClassifierSettings:
     scaleFactor = 1.1
     minNeighbors = 3
@@ -83,15 +93,6 @@ class CascadeROIDetector:
                      'maxSize': self.classifierSettings.maxSize,
                      'flags': self.classifierSettings.flags
                      }
-
-        def detect_cascade(data_dict):
-            cascade = cv2.CascadeClassifier(data_dict['cascade_path'])
-            return cascade.detectMultiScale(data_dict['image'],
-                                            scaleFactor=data_dict['scaleFactor'],
-                                            minNeighbors=data_dict['minNeighbors'],
-                                            minSize=data_dict['minSize'],
-                                            maxSize=data_dict['maxSize'],
-                                            flags=data_dict['flags'])
 
         data_list = []
         for cascade_path in self._cascades_list:
