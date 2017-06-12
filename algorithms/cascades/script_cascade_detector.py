@@ -37,15 +37,15 @@ class ScriptTask:
 
 
 class ScriptCascadeDetector:
-    def __init__(self, detect_script):
+    def __init__(self, detect_script, preload_cascades=False):
         self._stage = None
         self._tasks = {}
         if len(detect_script.keys()) > 0:
-            self._stage, self._tasks = self.init_stage(detect_script)
+            self._stage, self._tasks = self.init_stage(detect_script, preload_cascades)
         self._backup = {}
 
     @staticmethod
-    def init_stage(detect_script):
+    def init_stage(detect_script, init_cascade=False):
         tasks = {}
         stage = ScriptStage()
         stage.type = detect_script["type"]
@@ -54,7 +54,7 @@ class ScriptCascadeDetector:
         if detect_script["type"] == "main":
             stages = detect_script["action"]
             for sub in stages:
-                substage, add_tasks = ScriptCascadeDetector.init_stage(sub)
+                substage, add_tasks = ScriptCascadeDetector.init_stage(sub, init_cascade)
                 stage.stages.append(substage)
                 tasks.update(add_tasks)
         else:
@@ -70,7 +70,13 @@ class ScriptCascadeDetector:
                 for settings in settings_list:
                     task = ScriptTask()
                     task.name = "{}/{}/{}".format(stage.name, subname, inx)
-                    task.cascade = cascade
+                    if init_cascade:
+                        classifier = CascadeROIDetector()
+                        classifier.classifierSettings.importSettings(settings)
+                        classifier.add_cascade(cascade)
+                        task.cascade = classifier
+                    else:
+                        task.cascade = cascade
                     task.settings = settings
                     stage.stages.append(task)
                     tasks[task.name] = task
@@ -102,9 +108,12 @@ class ScriptCascadeDetector:
 
     @staticmethod
     def apply_task(image, task):
-        classifier = CascadeROIDetector()
-        classifier.classifierSettings.importSettings(task.settings)
-        classifier.add_cascade(task.cascade)
+        if isinstance(task.cascade, CascadeROIDetector):
+            classifier = task.cascade
+        else:
+            classifier = CascadeROIDetector()
+            classifier.classifierSettings.importSettings(task.settings)
+            classifier.add_cascade(task.cascade)
         return classifier.detect(image, True)
 
     def apply_stage(self, image, stage):
