@@ -1,8 +1,10 @@
 from classifiers import CascadeROIDetector
 from strategies import StrategyFactory
 from tools import skipEmptyRectangles
-import multiprocessing as mp
 import os
+
+
+MULTIPROCESSING_ENABLED = False
 
 
 def task_process(data):
@@ -77,18 +79,22 @@ class ScriptCascadeDetector:
 
     def detect(self, image):
         self._backup = {}
-        tasks_list = []
-        for key, task in self._tasks.iteritems():
-            # self._backup[key] = self.apply_task(image, task)
-            data = task.serialize()
-            data.update({'image': image})
-            tasks_list.append(data)
-        pool = mp.Pool(processes=len(tasks_list))
-        lrects = pool.map(task_process, tasks_list)
-        for rect in lrects:
-            for key, task_result in rect.iteritems():
-                self._backup[key] = task_result
-        pool.close()
+        if MULTIPROCESSING_ENABLED:
+            import multiprocessing as mp
+            tasks_list = []
+            for key, task in self._tasks.iteritems():
+                data = task.serialize()
+                data.update({'image': image})
+                tasks_list.append(data)
+            pool = mp.Pool(processes=len(tasks_list))
+            lrects = pool.map(task_process, tasks_list)
+            for rect in lrects:
+                for key, task_result in rect.iteritems():
+                    self._backup[key] = task_result
+            pool.close()
+        else:
+            for key, task in self._tasks.iteritems():
+                self._backup[key] = self.apply_task(image, task)
 
         if self._stage:
             return image, self.apply_stage(image, self._stage)
