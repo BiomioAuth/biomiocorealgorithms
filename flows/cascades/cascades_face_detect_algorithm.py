@@ -1,3 +1,4 @@
+from ...algorithms.cascades.script_cascade_detector import ScriptCascadeDetector
 from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from ...algorithms.cascades.detectors import loadScript
 from ..general.decorators import algorithm_header
@@ -26,7 +27,7 @@ class CascadesFaceDetectionAlgorithm(IAlgorithm):
     def __init__(self, settings):
         self._imgDim = settings.get('imgDim', 96)
         self._error_handler = settings.get('error_handler', None)
-        self._roi_detector = CascadesDetectionInterface(loadScript("main_haarcascade_face_size.json", True))
+        self._roi_detector = ScriptCascadeDetector(loadScript("main_haarcascade_face_size.json", True))
 
     @algorithm_header
     def apply(self, data):
