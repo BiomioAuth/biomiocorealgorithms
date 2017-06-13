@@ -44,6 +44,9 @@ class ScriptCascadeDetector:
             self._stage, self._tasks = self.init_stage(detect_script, preload_cascades)
         self._backup = {}
 
+    def get_tasks(self):
+        return self._tasks
+
     @staticmethod
     def init_stage(detect_script, init_cascade=False):
         tasks = {}
@@ -83,24 +86,27 @@ class ScriptCascadeDetector:
                     inx += 1
         return stage, tasks
 
-    def detect(self, image):
+    def detect(self, image, tasks=None):
         self._backup = {}
-        if MULTIPROCESSING_ENABLED:
-            import multiprocessing as mp
-            tasks_list = []
-            for key, task in self._tasks.iteritems():
-                data = task.serialize()
-                data.update({'image': image})
-                tasks_list.append(data)
-            pool = mp.Pool(processes=len(tasks_list))
-            lrects = pool.map(task_process, tasks_list)
-            for rect in lrects:
-                for key, task_result in rect.iteritems():
-                    self._backup[key] = task_result
-            pool.close()
+        if tasks is None:
+            if MULTIPROCESSING_ENABLED:
+                import multiprocessing as mp
+                tasks_list = []
+                for key, task in self._tasks.iteritems():
+                    data = task.serialize()
+                    data.update({'image': image})
+                    tasks_list.append(data)
+                pool = mp.Pool(processes=len(tasks_list))
+                lrects = pool.map(task_process, tasks_list)
+                for rect in lrects:
+                    for key, task_result in rect.iteritems():
+                        self._backup[key] = task_result
+                pool.close()
+            else:
+                for key, task in self._tasks.iteritems():
+                    self._backup[key] = self.apply_task(image, task)
         else:
-            for key, task in self._tasks.iteritems():
-                self._backup[key] = self.apply_task(image, task)
+            self._backup.update(tasks)
 
         if self._stage:
             return image, self.apply_stage(image, self._stage)
