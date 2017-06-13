@@ -1,4 +1,4 @@
-from defs import STATUS_ERROR, STATUS_RESULT
+from defs import STATUS_ERROR, STATUS_RESULT, RTYPE_JOB_LIST
 from decorators import handler_header
 from ...logger import logger
 
@@ -35,10 +35,17 @@ class AlgorithmProcessInterface:
             }
         """
         if result is not None:
-            if result['status'] == STATUS_ERROR and self._error_process is not None:
-                self._error_process.run(self._worker, **result)
-            elif result['status'] == STATUS_RESULT:
-                self._next_process.run(self._worker, **result['data'])
+            if 'status' in result:
+                if result['status'] == STATUS_ERROR and self._error_process is not None:
+                    self._error_process.run(self._worker, **result)
+                elif result['status'] == STATUS_RESULT:
+                    if result.get('type', None) == RTYPE_JOB_LIST:
+                        data = result['data']
+                        self._next_process.run(self._worker, kwargs_list_for_results_gatherer=data[0], **data[1])
+                    else:
+                        self._next_process.run(self._worker, **result['data'])
+            else:
+                self._next_process.run(self._worker, **result)
 
     @staticmethod
     def job(callback_code, **kwargs):
@@ -84,3 +91,14 @@ class AlgorithmProcessInterface:
         logger.debug("%s::Process", class_name)
         logger.debug(kwargs)
         logger.debug("===================================")
+
+    @staticmethod
+    def create_result_message(result, result_type=None):
+        res = {'status': STATUS_RESULT, 'data': result}
+        if result_type is not None:
+            res.update({'type': result_type})
+        return res
+
+    @staticmethod
+    def create_error_message(details):
+        return {'status': STATUS_ERROR, 'details': details}

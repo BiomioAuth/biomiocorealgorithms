@@ -5,6 +5,8 @@ UNKNOWN_ERROR = "Unknown Error"
 STATUS_ERROR = "error"
 STATUS_RESULT = "result"
 
+RTYPE_JOB_LIST = "result_type::job_list"
+
 ERROR_FORMAT = 'Error::%s::%s'
 
 REDIS_CLUSTER_JOB_ACTION = 'cluster_matching:%s'
