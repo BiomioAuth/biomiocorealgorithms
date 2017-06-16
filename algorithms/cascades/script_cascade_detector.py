@@ -35,6 +35,15 @@ class ScriptTask:
                 'cascade': self.cascade,
                 'settings': self.settings}
 
+    @staticmethod
+    def parse(data):
+        task = ScriptTask()
+        task.name = data.get('name')
+        task.type = data.get('type')
+        task.cascade = data.get('cascade')
+        task.settings = data.get('settings')
+        return task
+
 
 class ScriptCascadeDetector:
     def __init__(self, detect_script, preload_cascades=False):
