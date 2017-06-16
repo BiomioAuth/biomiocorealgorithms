@@ -5,11 +5,20 @@ from ..helpers import partial_results_handler
 from ...logger import logger
 
 
+def _get_options(data):
+    options = {}
+    if data is not None:
+        options = data.get('options', {})
+    return options
+
+
 def handler_header(fn):
     def wrapped(self, result):
+        options = _get_options(result)
         logger.debug("+++++++++++++++++++++++++++++++++++")
         logger.debug("%s::%s", self.__class__.__name__, fn.__name__.capitalize())
-        logger.debug(result)
+        if options.get('print_data', False):
+            logger.debug(result)
         logger.debug("+++++++++++++++++++++++++++++++++++")
         return fn(self, result)
     return wrapped
@@ -17,9 +26,11 @@ def handler_header(fn):
 
 def job_header(fn):
     def wrapped(cls, callback_code, **kwargs):
+        options = _get_options(kwargs)
         logger.debug("-----------------------------------")
         logger.debug("%s::%s", cls.__name__, fn.__name__.capitalize())
-        logger.debug(kwargs)
+        if options.get('print_data', False):
+            logger.debug(kwargs)
         logger.debug("-----------------------------------")
         return fn(cls, callback_code, **kwargs)
     return wrapped
@@ -27,9 +38,11 @@ def job_header(fn):
 
 def process_header(fn):
     def wrapped(cls, **kwargs):
+        options = _get_options(kwargs)
         logger.debug("===================================")
         logger.debug("%s::%s", cls.__name__, fn.__name__.capitalize())
-        logger.debug(kwargs)
+        if options.get('print_data', False):
+            logger.debug(kwargs)
         logger.debug("===================================")
         return fn(cls, **kwargs)
     return wrapped
