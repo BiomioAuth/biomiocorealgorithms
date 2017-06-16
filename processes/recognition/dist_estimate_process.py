@@ -12,8 +12,8 @@ class DistanceEstimationProcess(AlgorithmProcessInterface):
         AlgorithmProcessInterface.__init__(self, worker=worker)
 
     @classmethod
-    @job_header
     @store_job_result
+    @job_header
     def job(cls, callback_code, **kwargs):
         """
         Job function for preparing data to training.

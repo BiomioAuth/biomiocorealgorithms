@@ -5,6 +5,7 @@ from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cascades.tools import getROIImage
 from ...algorithm_storage import AlgorithmStorage
 from ..general.handling import parse_database
+from ...flows import ResizeImageAlgorithm
 import ast
 import cv2
 import os
@@ -52,7 +53,9 @@ class CascadeDetectionApplyProcess(AlgorithmProcessInterface):
         detector = AlgorithmStorage.instance().get(SCRIPT_CASCADE_FACE_DETECTOR)
         res = detector.detect(img, tasks)
         roi_path = os.path.join(record['temp_image_path'], "face_det_roi.png")
-        cv2.imwrite(roi_path, getROIImage(img, res[1][0]))
+        roi_img = getROIImage(img, res[1][0])
+        resizer = ResizeImageAlgorithm({})
+        cv2.imwrite(roi_path, resizer.apply({'img': roi_img})['img'])
         record['roi'] = roi_path
         return record
 
