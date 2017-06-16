@@ -15,8 +15,8 @@ class CascadeDetectionInitialProcess(AlgorithmProcessInterface):
             AlgorithmStorage.instance().register(SCRIPT_CASCADE_FACE_DETECTOR, create_cascade_detector())
 
     @classmethod
-    @job_header
     @store_job_result
+    @job_header
     def job(cls, callback_code, **kwargs):
         """
         Job function for preparing data to training.
