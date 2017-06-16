@@ -3,6 +3,7 @@ from defs import SCRIPT_CASCADE_FACE_DETECTOR_LOADED, create_cascade_detector
 from ...algorithms.cascades.script_cascade_detector import ScriptTask
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithm_storage import AlgorithmStorage
+import cv2
 
 
 def job(callback_code, **kwargs):
@@ -38,7 +39,7 @@ class CascadeDetectionPrepareProcess(AlgorithmProcessInterface):
         if preload_task is not None:
             task = preload_task
         if detector is not None and task is not None:
-            kwargs['task_result'] = detector.apply_task(kwargs['data'], task)
+            kwargs['task_result'] = detector.apply_task(cv2.imread(kwargs['data']), task)
         return kwargs
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):

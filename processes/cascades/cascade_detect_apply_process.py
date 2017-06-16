@@ -4,6 +4,7 @@ from ...algorithms.cascades.script_cascade_detector import ScriptTask
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cascades.tools import getROIImage
 from ...algorithm_storage import AlgorithmStorage
+import cv2
 
 
 def job(callback_code, **kwargs):
@@ -44,10 +45,10 @@ class CascadeDetectionApplyProcess(AlgorithmProcessInterface):
             del data_copy['task']
             del data_copy['task_result']
             record.update(data_copy)
-
+        img = cv2.imread(record['data'])
         detector = AlgorithmStorage.instance().get(SCRIPT_CASCADE_FACE_DETECTOR)
-        res = detector.detect(record['data'], tasks)
-        record['roi'] = getROIImage(record['data'], res[1][0])
+        res = detector.detect(img, tasks)
+        record['roi'] = getROIImage(img, res[1][0])
         return record
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
