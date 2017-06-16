@@ -5,6 +5,7 @@ from ...algorithm_storage import AlgorithmStorage
 
 
 def job(callback_code, **kwargs):
+    process = CascadeDetectionPrepareProcess(None)
     CascadeDetectionPrepareProcess.job(callback_code, **kwargs)
 
 
