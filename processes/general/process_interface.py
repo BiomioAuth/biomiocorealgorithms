@@ -49,7 +49,7 @@ class AlgorithmProcessInterface:
 
     @staticmethod
     def job(callback_code, **kwargs):
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def process(**kwargs):
@@ -57,7 +57,7 @@ class AlgorithmProcessInterface:
           Method for handle worker-independent process functionality.
         :param kwargs: settings dictionary
         """
-        raise NotImplementedError
+        pass
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
         raise NotImplementedError
