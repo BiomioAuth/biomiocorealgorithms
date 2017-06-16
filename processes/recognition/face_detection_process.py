@@ -1,12 +1,12 @@
 import os
 
-from ..general.handling import load_temp_data, save_temp_data
+from ..messages import create_error_message, create_result_message
 from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from messages import create_error_message, create_result_message
 from settings.settings import get_settings
 from ..general.decorators import process_header, job_header
 from ..general.defs import INTERNAL_TRAINING_ERROR
+from ..general.handling import load_temp_data, save_temp_data
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
 from ...algorithms.cascades.classifiers import (CascadeROIDetector, RectsFiltering, CascadeClassifierSettings)
