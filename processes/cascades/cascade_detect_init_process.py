@@ -31,9 +31,9 @@ class CascadeDetectionInitialProcess(AlgorithmProcessInterface):
     @classmethod
     @process_header
     def process(cls, **kwargs):
-        task_list = AlgorithmStorage.instance().get(SCRIPT_CASCADE_FACE_DETECTOR).get_tasks()
+        task_dict = AlgorithmStorage.instance().get(SCRIPT_CASCADE_FACE_DETECTOR).get_tasks()
         job_list = []
-        for task in task_list:
+        for key, task in task_dict.iteritems():
             job_list.append({'task': task.serialize()})
         return [job_list, kwargs]
 
