@@ -32,6 +32,8 @@ class DistanceEstimationProcess(AlgorithmProcessInterface):
             return {'result': False}
         distance_estimation = OpenFaceSimpleDistanceEstimation()
         database = kwargs.get('database')
+        if kwargs.get('database_loader') is not None:
+            database = kwargs.get('database_loader')(database)
         threshold = database.get('threshold', None)
         if threshold is None:
             threshold = kwargs.get('threshold', 0.0)
