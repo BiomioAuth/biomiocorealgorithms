@@ -1,7 +1,7 @@
 from ....protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from ....constants import REDIS_DO_NOT_STORE_RESULT_KEY
-from ..recognition.handling import remove_temp_data
 from ..helpers import partial_results_handler
+from handling import remove_temp_data
 from ...logger import logger
 
 
