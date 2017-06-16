@@ -1,5 +1,6 @@
 from ..general.decorators import job_header, process_header, store_partial_result
 from defs import SCRIPT_CASCADE_FACE_DETECTOR, create_cascade_detector
+from ...algorithms.cascades.script_cascade_detector import ScriptTask
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cascades.tools import getROIImage
 from ...algorithm_storage import AlgorithmStorage
@@ -36,7 +37,7 @@ class CascadeDetectionApplyProcess(AlgorithmProcessInterface):
         tasks = {}
         record = {}
         for data_obj in data_list:
-            task_obj = data_obj['task']
+            task_obj = ScriptTask.parse(data_obj['task'])
             task_result = data_obj['task_result']
             tasks[task_obj.name] = task_result
             data_copy = data_obj.copy()
