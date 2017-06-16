@@ -1,12 +1,7 @@
 from ..general.process_interface import AlgorithmProcessInterface, RTYPE_JOB_LIST
-from ...algorithms.cascades.script_cascade_detector import ScriptCascadeDetector
 from ..general.decorators import job_header, process_header, store_job_result
-from ...algorithms.cascades.tools import loadScript
+from defs import SCRIPT_CASCADE_FACE_DETECTOR, create_cascade_detector
 from ...algorithm_storage import AlgorithmStorage
-from . import SCRIPT_CASCADE_FACE_DETECTOR
-
-
-DETECTION_SCRIPT = "main_haarcascade_face_size.json"
 
 
 def job(callback_code, **kwargs):
@@ -17,9 +12,7 @@ class CascadeDetectionInitialProcess(AlgorithmProcessInterface):
     def __init__(self, worker):
         AlgorithmProcessInterface.__init__(self, worker=worker)
         if not AlgorithmStorage.instance().exists(SCRIPT_CASCADE_FACE_DETECTOR):
-            AlgorithmStorage.instance().register(SCRIPT_CASCADE_FACE_DETECTOR,
-                                                 ScriptCascadeDetector(loadScript("main_haarcascade_face_size.json",
-                                                                                  True)))
+            AlgorithmStorage.instance().register(SCRIPT_CASCADE_FACE_DETECTOR, create_cascade_detector())
 
     @classmethod
     @job_header
