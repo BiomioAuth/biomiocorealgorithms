@@ -1,7 +1,16 @@
 from biomio.algorithms.algorithms.cvtools.system import saveNumpyImage, loadNumpyImage
 import tempfile
+import cPickle
 import json
 import os
+
+
+def parse_database(database):
+    return cPickle.loads(database)
+
+
+def serialize_database(database):
+    return cPickle.dumps(database, cPickle.HIGHEST_PROTOCOL)
 
 
 def save_temp_data(data, path, images=[]):
