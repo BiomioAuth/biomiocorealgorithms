@@ -5,6 +5,7 @@ from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cascades.tools import getROIImage
 from ..general.handling import serialize_database
 from ...algorithm_storage import AlgorithmStorage
+from ..general.handling import parse_database
 import ast
 import cv2
 
@@ -42,8 +43,7 @@ class CascadeDetectionApplyProcess(AlgorithmProcessInterface):
         for data_str in data_list:
             data_obj = ast.literal_eval(data_str)
             task_obj = ScriptTask.parse(data_obj['task'])
-            task_result = data_obj['task_result']
-            tasks[task_obj.name] = task_result
+            tasks[task_obj.name] = parse_database(data_obj['task_result'])
             data_copy = data_obj.copy()
             del data_copy['task']
             del data_copy['task_result']

@@ -3,6 +3,7 @@ from defs import SCRIPT_CASCADE_FACE_DETECTOR_LOADED, create_cascade_detector
 from ...algorithms.cascades.script_cascade_detector import ScriptTask
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithm_storage import AlgorithmStorage
+from ..general.handling import serialize_database
 import cv2
 
 
@@ -27,8 +28,7 @@ class CascadeDetectionPrepareProcess(AlgorithmProcessInterface):
         :param callback_code: callback function identifier
         :param kwargs: settings dictionary
         """
-        record = CascadeDetectionPrepareProcess.process(**kwargs)
-        return CascadeDetectionPrepareProcess.create_result_message(record)
+        return CascadeDetectionPrepareProcess.process(**kwargs)
 
     @classmethod
     @process_header
@@ -39,7 +39,7 @@ class CascadeDetectionPrepareProcess(AlgorithmProcessInterface):
         if preload_task is not None:
             task = preload_task
         if detector is not None and task is not None:
-            kwargs['task_result'] = detector.apply_task(cv2.imread(kwargs['data']), task)
+            kwargs['task_result'] = serialize_database(detector.apply_task(cv2.imread(kwargs['data']), task))
         return kwargs
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
