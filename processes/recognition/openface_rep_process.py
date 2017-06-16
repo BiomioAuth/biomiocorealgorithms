@@ -40,8 +40,11 @@ class OpenFaceRepresentationProcess(AlgorithmProcessInterface):
         })
 
         path = kwargs.get('data')
-        if kwargs.get('backup_image_path', None) is not None:
-            path = os.path.join(kwargs.get('backup_image_path'), os.path.basename(path))
+        if kwargs.get('roi') is None:
+            if kwargs.get('backup_image_path', None) is not None:
+                path = os.path.join(kwargs.get('backup_image_path'), os.path.basename(path))
+        else:
+            path = kwargs.get('roi')
         tdata = openface_representation.apply({'path': path, 'options': kwargs.get('options', {})})
         result.update({'rep': tdata})
         openface_representation.clean()
