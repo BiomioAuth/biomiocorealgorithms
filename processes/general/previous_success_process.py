@@ -22,7 +22,7 @@ class PreviousSuccessProcess(AlgorithmProcessInterface):
             if data[self._active_key] is None and self._alternative_process is not None:
                 self._alternative_process.run(self._worker, **data)
             else:
-                self.set_next_process(self._worker, **data)
+                self._next_process.run(self._worker, **data)
 
     @classmethod
     @store_job_result
