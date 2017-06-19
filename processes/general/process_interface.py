@@ -98,7 +98,7 @@ class AlgorithmProcessInterface:
         if result_type is not None:
             res.update({'type': result_type})
         if result.__contains__('options'):
-            res.update({'options': result})
+            res.update({'options': result['options']})
         return res
 
     @staticmethod
