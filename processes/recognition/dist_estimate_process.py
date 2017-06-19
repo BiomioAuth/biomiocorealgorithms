@@ -36,7 +36,7 @@ class DistanceEstimationProcess(AlgorithmProcessInterface):
         threshold = database.get('threshold', None)
         if threshold is None:
             threshold = kwargs.get('threshold', 0.0)
-        dist = distance_estimation.apply({'data': parse_database(kwargs['rep']), 'database': database,
+        dist = distance_estimation.apply({'data': {'rep': parse_database(kwargs['rep'])}, 'database': database,
                                           'options': kwargs.get('options', {})})
         result = kwargs.copy()
         result.update({'result': dist['result'] < threshold})

@@ -47,7 +47,7 @@ class OpenFaceRepresentationProcess(AlgorithmProcessInterface):
         else:
             path = kwargs.get('roi')
         tdata = openface_representation.apply({'path': path, 'options': kwargs.get('options', {})})
-        result.update({'rep': serialize_database(tdata)})
+        result.update({'rep': serialize_database(tdata['rep'])})
         openface_representation.clean()
         return result
 
