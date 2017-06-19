@@ -1,6 +1,7 @@
 from ..general.decorators import job_header, process_header, store_job_result
 from ..general.process_interface import AlgorithmProcessInterface
 from ... import OPENFACE_IMAGE_DIMENSION, OPENFACE_NN4_MODEL_PATH
+from ..general.handling import serialize_database
 from ...flows import OpenFaceDataRepresentation
 import os
 
@@ -46,7 +47,7 @@ class OpenFaceRepresentationProcess(AlgorithmProcessInterface):
         else:
             path = kwargs.get('roi')
         tdata = openface_representation.apply({'path': path, 'options': kwargs.get('options', {})})
-        result.update({'rep': tdata})
+        result.update({'rep': serialize_database(tdata)})
         openface_representation.clean()
         return result
 

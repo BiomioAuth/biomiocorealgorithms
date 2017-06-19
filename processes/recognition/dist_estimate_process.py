@@ -1,6 +1,7 @@
 from ..general.decorators import job_header, process_header, store_job_result
 from ..general.process_interface import AlgorithmProcessInterface
 from ...flows import OpenFaceSimpleDistanceEstimation
+from ..general.handling import parse_database
 
 
 def job(callback_code, **kwargs):
@@ -31,13 +32,11 @@ class DistanceEstimationProcess(AlgorithmProcessInterface):
             # TODO: Write Error handler
             return {'result': False}
         distance_estimation = OpenFaceSimpleDistanceEstimation()
-        database = kwargs.get('database')
-        if kwargs.get('database_loader') is not None:
-            database = kwargs.get('database_loader')(database)
+        database = parse_database(kwargs.get('database'))
         threshold = database.get('threshold', None)
         if threshold is None:
             threshold = kwargs.get('threshold', 0.0)
-        dist = distance_estimation.apply({'data': kwargs['rep'], 'database': database,
+        dist = distance_estimation.apply({'data': parse_database(kwargs['rep']), 'database': database,
                                           'options': kwargs.get('options', {})})
         result = kwargs.copy()
         result.update({'result': dist['result'] < threshold})
