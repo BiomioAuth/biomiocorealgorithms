@@ -97,8 +97,13 @@ class AlgorithmProcessInterface:
         res = {'status': STATUS_RESULT, 'data': result}
         if result_type is not None:
             res.update({'type': result_type})
+        if result.__contains__('options'):
+            res.update({'options': result})
         return res
 
     @staticmethod
-    def create_error_message(details):
-        return {'status': STATUS_ERROR, 'details': details}
+    def create_error_message(details, options=None):
+        message = {'status': STATUS_ERROR, 'details': details}
+        if options is not None:
+            message.update({'options': options})
+        return message
