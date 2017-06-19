@@ -47,7 +47,8 @@ class DLibFaceDetectionProcess(AlgorithmProcessInterface):
             roi_path = os.path.join(kwargs['temp_image_path'], "face_det_roi.png")
             cv2.imwrite(roi_path, res['img'])
             record.update({'roi': roi_path})
-        record.update({'roi': None})
+        else:
+            record.update({'roi': None})
         return DLibFaceDetectionProcess.create_result_message(record)
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
