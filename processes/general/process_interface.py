@@ -21,6 +21,9 @@ class AlgorithmProcessInterface:
     def external_callback(self, callback):
         self._callback = callback
 
+    def result_type_handler(self, result):
+        return True
+
     @handler_header
     def handler(self, result):
         """
@@ -43,7 +46,11 @@ class AlgorithmProcessInterface:
                         data = result['data']
                         self._next_process.run(self._worker, kwargs_list_for_results_gatherer=data[0], **data[1])
                     else:
-                        self._next_process.run(self._worker, **result['data'])
+                        if result.get('type', None) is not None:
+                            if self.result_type_handler(result):
+                                self._next_process.run(self._worker, **result['data'])
+                        else:
+                            self._next_process.run(self._worker, **result['data'])
             else:
                 self._next_process.run(self._worker, **result)
 
