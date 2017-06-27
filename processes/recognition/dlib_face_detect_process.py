@@ -34,7 +34,7 @@ class DLibFaceDetectionProcess(AlgorithmProcessInterface):
         :param callback_code: callback function identifier
         :param kwargs: settings dictionary
         """
-        return DLibFaceDetectionProcess.process(**kwargs)
+        return DLibFaceDetectionProcess.create_result_message(DLibFaceDetectionProcess.process(**kwargs))
 
     @classmethod
     @process_header
@@ -49,7 +49,7 @@ class DLibFaceDetectionProcess(AlgorithmProcessInterface):
             record.update({'roi': roi_path})
         else:
             record.update({'roi': None})
-        return DLibFaceDetectionProcess.create_result_message(record)
+        return record
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
         self._run(worker, job, kwargs_list_for_results_gatherer, **kwargs)
