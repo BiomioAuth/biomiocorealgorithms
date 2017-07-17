@@ -1,6 +1,6 @@
 
 settings001002 = {
-    'use_roi': True,
+    'use_roi': False,
     'rotation_script': "main_rotation_haarcascade_face_eyes.json",
     'detect_script': "main_haarcascade_face_size.json",
     'kodsettings': "ORB/info001022.json",
