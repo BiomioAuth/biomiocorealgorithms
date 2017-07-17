@@ -1,18 +1,18 @@
+import itertools
+
+from ..messages import create_result_message
+from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
+from settings import loadSettings
+from settings.settings import get_settings
 from ..general.defs import (JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, STATUS_ERROR, STATUS_RESULT,
                             REDIS_CLUSTER_JOB_ACTION, REDIS_GENERAL_DATA, REDIS_TEMPLATE_RESULT,
                             ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR)
-from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from messages import create_result_message
-from settings import loadSettings
-from settings.settings import get_settings
 from ..general.process_interface import AlgorithmProcessInterface, logger
 from ...algorithms.cvtools.types import listToNumpy_ndarray
 from ...algorithms.features import matcherForDetector, dtypeForDetector
 from ...algorithms.features.kodsettings import KODSettings
 from ...algorithms.features.matchers import Matcher
-import itertools
-
 
 CLUSTER_MATCHING_PROCESS_CLASS_NAME = "ClusterMatchingProcess"
 

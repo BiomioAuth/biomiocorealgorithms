@@ -1,4 +1,4 @@
-from defs import STATUS_ERROR, STATUS_RESULT
+from defs import STATUS_ERROR, STATUS_RESULT, RTYPE_JOB_LIST
 from decorators import handler_header
 from ...logger import logger
 
@@ -21,6 +21,9 @@ class AlgorithmProcessInterface:
     def external_callback(self, callback):
         self._callback = callback
 
+    def result_type_handler(self, result):
+        return True
+
     @handler_header
     def handler(self, result):
         """
@@ -35,14 +38,25 @@ class AlgorithmProcessInterface:
             }
         """
         if result is not None:
-            if result['status'] == STATUS_ERROR and self._error_process is not None:
-                self._error_process.run(self._worker, **result)
-            elif result['status'] == STATUS_RESULT:
-                self._next_process.run(self._worker, **result['data'])
+            if 'status' in result:
+                if result['status'] == STATUS_ERROR and self._error_process is not None:
+                    self._error_process.run(self._worker, **result)
+                elif result['status'] == STATUS_RESULT:
+                    if result.get('type', None) == RTYPE_JOB_LIST:
+                        data = result['data']
+                        self._next_process.run(self._worker, kwargs_list_for_results_gatherer=data[0], **data[1])
+                    else:
+                        if result.get('type', None) is not None:
+                            if self.result_type_handler(result):
+                                self._next_process.run(self._worker, **result['data'])
+                        else:
+                            self._next_process.run(self._worker, **result['data'])
+            else:
+                self._next_process.run(self._worker, **result)
 
     @staticmethod
     def job(callback_code, **kwargs):
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def process(**kwargs):
@@ -50,7 +64,7 @@ class AlgorithmProcessInterface:
           Method for handle worker-independent process functionality.
         :param kwargs: settings dictionary
         """
-        raise NotImplementedError
+        pass
 
     def run(self, worker, kwargs_list_for_results_gatherer=None, **kwargs):
         raise NotImplementedError
@@ -84,3 +98,19 @@ class AlgorithmProcessInterface:
         logger.debug("%s::Process", class_name)
         logger.debug(kwargs)
         logger.debug("===================================")
+
+    @staticmethod
+    def create_result_message(result, result_type=None):
+        res = {'status': STATUS_RESULT, 'data': result}
+        if result_type is not None:
+            res.update({'type': result_type})
+        if result.__contains__('options'):
+            res.update({'options': result['options']})
+        return res
+
+    @staticmethod
+    def create_error_message(details, options=None):
+        message = {'status': STATUS_ERROR, 'details': details}
+        if options is not None:
+            message.update({'options': options})
+        return message

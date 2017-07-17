@@ -66,6 +66,8 @@ class OpenFaceDataRepresentation(AlgorithmFlow):
             logger.debug("General Face alignment for {} took {} seconds.".format(data.get('path'), time.time() - start))
             if alignedFace is None:
                 return self._process_error(data, "General::Unable to align image: {}".format(data.get('path')))
+        else:
+            alignedFace = cv2.cvtColor(alignedFace, cv2.COLOR_BGR2RGB)
 
         start = time.time()
         rep = self._net.forward(alignedFace)
