@@ -1,19 +1,15 @@
+from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
+from ..general.decorators import job_header, process_header, store_job_result
+from ..messages import create_error_message, create_result_message
+from ..general.process_interface import AlgorithmProcessInterface
+from ..general.handling import load_temp_data, save_temp_data
+from ...algorithms.cvtools.types import listToNumpy_ndarray
+from ...algorithms.cascades.tools import loadScript
+from ..general.defs import INTERNAL_TRAINING_ERROR
+from ...algorithms.cascades import SCRIPTS_PATH
+from settings.settings import get_settings
 import ast
 import os
-
-from biomio.algorithms.processes.general.defs import STATUS_ERROR, STATUS_RESULT, INTERNAL_TRAINING_ERROR
-from ..messages import create_error_message, create_result_message
-from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from settings.settings import get_settings
-from ..general.handling import load_temp_data, save_temp_data
-from ..general.process_interface import AlgorithmProcessInterface
-from ...algorithms.cascades import SCRIPTS_PATH
-from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from ...algorithms.cascades.tools import loadScript
-from ...algorithms.cvtools.types import listToNumpy_ndarray
-
-ROTATION_RESULT_PROCESS_CLASS_NAME = "RotationResultProcess"
 
 
 def job(callback_code, **kwargs):
@@ -23,35 +19,11 @@ def job(callback_code, **kwargs):
 class RotationResultProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._classname = ROTATION_RESULT_PROCESS_CLASS_NAME
-        self._data_detect_process = AlgorithmProcessInterface()
 
-    def set_data_detection_process(self, process):
-        self._data_detect_process = process
-
-    def handler(self, result):
-        """
-        Callback function for corresponding job function.
-
-        :param result: data result dictionary:
-            {
-                'status': 'result',
-                'data':
-                {
-                    'data_file': data file path
-                },
-                'type': 'detection'
-            }
-        """
-        self._handler_logger_info(result)
-        if result is not None:
-            if result['status'] == STATUS_ERROR:
-                pass
-            elif result['status'] == STATUS_RESULT:
-                self._data_detect_process.run(self._worker, **result['data'])
-
-    @staticmethod
-    def job(callback_code, **kwargs):
+    @classmethod
+    @store_job_result
+    @job_header
+    def job(cls, callback_code, **kwargs):
         """
         Job function for handling rotation results.
 
@@ -67,29 +39,21 @@ class RotationResultProcess(AlgorithmProcessInterface):
                     ]
             }
         """
-        RotationResultProcess._job_logger_info(ROTATION_RESULT_PROCESS_CLASS_NAME, **kwargs)
-        images_res_list = [ast.literal_eval(dict_str) for dict_str in kwargs['data_list']]
-        kwargs['data_list'] = images_res_list
-        record = RotationResultProcess.process(**kwargs)
-        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                        record_dict=record, callback_code=callback_code)
+        kwargs['data_list'] = [ast.literal_eval(dict_str) for dict_str in kwargs['data_list']]
+        return RotationResultProcess.process(**kwargs)
 
-    @staticmethod
-    def process(**kwargs):
-        RotationResultProcess._process_logger_info(ROTATION_RESULT_PROCESS_CLASS_NAME, **kwargs)
+    @classmethod
+    @process_header
+    def process(cls, **kwargs):
         images_res_list = kwargs['data_list']
         if len(images_res_list) > 0:
             data_list = [load_temp_data(im_res['data_file'], remove=True) for im_res in images_res_list]
-            result = dict()
-            result["name"] = data_list[0]["name"]
-            result["path"] = data_list[0]["path"]
-            result['algoID'] = data_list[0]['algoID']
+            result = {"name": data_list[0]["name"], "path": data_list[0]["path"], 'algoID': data_list[0]['algoID'],
+                      'general_data': data_list[0]['general_data'], 'temp_data_path': data_list[0]['temp_data_path']}
             if 'userID' in data_list[0]:
                 result["userID"] = data_list[0]['userID']
             if 'providerID' in data_list[0]:
                 result["providerID"] = data_list[0]['providerID']
-            result['general_data'] = data_list[0]['general_data']
-            result['temp_data_path'] = data_list[0]['temp_data_path']
             settings = get_settings(result['algoID'])
             images = dict()
             datagram = dict()

@@ -1,11 +1,10 @@
-from ..messages import create_error_message, create_result_message
-from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from settings.settings import get_settings
 from ..general.defs import (STATUS_ERROR, STATUS_RESULT, ERROR_FORMAT, UNKNOWN_ERROR, INTERNAL_TRAINING_ERROR,
                             INVALID_ALGORITHM_SETTINGS)
-from ..general.handling import save_temp_data
+from ..general.decorators import job_header, process_header, store_job_result, handler_header
 from ..general.process_interface import AlgorithmProcessInterface, logger
+from ..general.handling import save_temp_data
+from ..messages import create_result_message
+from settings.settings import get_settings
 from ...imgobj import loadImageObject
 
 
@@ -16,7 +15,6 @@ def job(callback_code, **kwargs):
 class TrainingProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._classname = "TrainingProcess"
         self._detect_process = AlgorithmProcessInterface()
         self._rotate_process = AlgorithmProcessInterface()
 
@@ -26,6 +24,7 @@ class TrainingProcess(AlgorithmProcessInterface):
     def set_data_rotation_process(self, process):
         self._rotate_process = process
 
+    @handler_header
     def handler(self, result):
         """
         Callback function for corresponding job function.
@@ -49,7 +48,6 @@ class TrainingProcess(AlgorithmProcessInterface):
                 'type': result type
             }
         """
-        self._handler_logger_info(result)
         if result is not None:
             if result['status'] == STATUS_ERROR:
                 pass
@@ -68,8 +66,10 @@ class TrainingProcess(AlgorithmProcessInterface):
         else:
             logger.info(ERROR_FORMAT % (UNKNOWN_ERROR, "Message is empty."))
 
-    @staticmethod
-    def job(callback_code, **kwargs):
+    @classmethod
+    @store_job_result
+    @job_header
+    def job(cls, callback_code, **kwargs):
         """
         Job function for training starting.
 
@@ -90,28 +90,24 @@ class TrainingProcess(AlgorithmProcessInterface):
                 'temp_data_path': temporary data path
             }
         """
-        TrainingProcess._job_logger_info("TrainingProcess", **kwargs)
-        record = TrainingProcess.process(**kwargs)
-        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                        record_dict=record, callback_code=callback_code)
+        return TrainingProcess.process(**kwargs)
 
-    @staticmethod
-    def process(**kwargs):
-        TrainingProcess._process_logger_info("TrainingProcess", **kwargs)
+    @classmethod
+    @process_header
+    def process(cls, **kwargs):
         temp_data_path = kwargs['temp_data_path']
         imgobj = loadImageObject(kwargs['path'])
         imgobj.update(**kwargs)
         if not imgobj:
-            record = create_error_message(INVALID_ALGORITHM_SETTINGS, 'path',
-                                          "Such data %s doesn't exists." % kwargs['path'])
+            record = TrainingProcess.create_error_message({'type': INVALID_ALGORITHM_SETTINGS, 'param': 'path',
+                                                           'message': "Such data %s doesn't exists." % kwargs['path']},
+                                                          kwargs.get('options', {}))
             logger.info(ERROR_FORMAT % (record['type'], record['details']['message']))
         else:
             settings = get_settings(imgobj['algoID'])
             if settings['use_roi'] and settings['rotation_script']:
                 logger.debug("TEST ROTATION")
-                job_list = []
-                for i in range(0, 4, 1):
-                    job_list.append({'angle': i})
+                job_list = [{'angle': i} for i in range(0, 4, 1)]
                 training_process_data = save_temp_data(imgobj, temp_data_path, ['data'])
                 record = create_result_message([job_list, {'data_file': training_process_data}], 'rotation')
             else:
