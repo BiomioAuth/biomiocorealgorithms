@@ -164,8 +164,8 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
     @classmethod
-    @job_header
     @store_job_result
+    @job_header
     def job(cls, callback_code, **kwargs):
         """
         Job function for data detection (Feature Detection, Feature Clustering and Feature Extraction).

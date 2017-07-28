@@ -127,8 +127,8 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                     logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
 
     @classmethod
-    @job_header
     @store_job_result
+    @job_header
     def job(cls, callback_code, **kwargs):
         """
         Job function for cluster matching of template cluster and data cluster.

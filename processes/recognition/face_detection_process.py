@@ -2,11 +2,11 @@ from ...algorithms.cascades.classifiers import CascadeROIDetector, RectsFilterin
 from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
 from ...algorithms.cascades import SCRIPTS_PATH, CASCADES_PATH, mergeRectangles
+from ..general.decorators import process_header, job_header, store_job_result
 from ..messages import create_error_message, create_result_message
 from ..general.process_interface import AlgorithmProcessInterface
 from ...algorithms.cascades.tools import loadScript, getROIImage
 from ..general.handling import load_temp_data, save_temp_data
-from ..general.decorators import process_header, job_header
 from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
 from ..general.defs import INTERNAL_TRAINING_ERROR
 from settings.settings import get_settings
@@ -22,6 +22,7 @@ class FaceDetectionProcess(AlgorithmProcessInterface):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
 
     @classmethod
+    @store_job_result
     @job_header
     def job(cls, callback_code, **kwargs):
         """
@@ -33,9 +34,7 @@ class FaceDetectionProcess(AlgorithmProcessInterface):
                 "{'data_file': data file path}"
             }
         """
-        record = FaceDetectionProcess.process(**kwargs)
-        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                        record_dict=record, callback_code=callback_code)
+        return FaceDetectionProcess.process(**kwargs)
 
     @classmethod
     @process_header
