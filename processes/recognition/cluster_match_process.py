@@ -1,20 +1,17 @@
-import itertools
-
-from ..messages import create_result_message
-from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from settings import loadSettings
-from settings.settings import get_settings
 from ..general.defs import (JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, STATUS_ERROR, STATUS_RESULT,
                             REDIS_CLUSTER_JOB_ACTION, REDIS_GENERAL_DATA, REDIS_TEMPLATE_RESULT,
                             ERROR_FORMAT, INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR)
+from ..general.decorators import job_header, process_header, handler_header, store_job_result
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from ..general.process_interface import AlgorithmProcessInterface, logger
-from ...algorithms.cvtools.types import listToNumpy_ndarray
 from ...algorithms.features import matcherForDetector, dtypeForDetector
 from ...algorithms.features.kodsettings import KODSettings
+from ...algorithms.cvtools import listToNumpy_ndarray
 from ...algorithms.features.matchers import Matcher
-
-CLUSTER_MATCHING_PROCESS_CLASS_NAME = "ClusterMatchingProcess"
+from ..messages import create_result_message
+from settings.settings import get_settings
+from settings import loadSettings
+import itertools
 
 
 def job(callback_code, **kwargs):
@@ -24,7 +21,6 @@ def job(callback_code, **kwargs):
 class ClusterMatchingProcess(AlgorithmProcessInterface):
     def __init__(self, worker):
         AlgorithmProcessInterface.__init__(self, "", worker)
-        self._classname = CLUSTER_MATCHING_PROCESS_CLASS_NAME
         self._cluster_match_process = self
         self._final_process = AlgorithmProcessInterface()
 
@@ -34,6 +30,7 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
     def set_final_training_process(self, process):
         self._final_process = process
 
+    @handler_header
     def handler(self, result):
         """
         Callback function for corresponding job function.
@@ -52,7 +49,6 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                 'type': 'matching'
             }
         """
-        self._handler_logger_info(result)
         if result is not None:
             if result['status'] == STATUS_ERROR:
                 logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
@@ -130,8 +126,10 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                 else:
                     logger.info(ERROR_FORMAT % (INTERNAL_TRAINING_ERROR, UNKNOWN_ERROR))
 
-    @staticmethod
-    def job(callback_code, **kwargs):
+    @classmethod
+    @job_header
+    @store_job_result
+    def job(cls, callback_code, **kwargs):
         """
         Job function for cluster matching of template cluster and data cluster.
 
@@ -145,15 +143,11 @@ class ClusterMatchingProcess(AlgorithmProcessInterface):
                 'cluster': descriptor list
             }
         """
-        ClusterMatchingProcess._job_logger_info(CLUSTER_MATCHING_PROCESS_CLASS_NAME, **kwargs)
-        data = ClusterMatchingProcess.process(**kwargs)
-        record = create_result_message(data, 'matching')
-        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                        record_dict=record, callback_code=callback_code)
+        return create_result_message(ClusterMatchingProcess.process(**kwargs), 'matching')
 
-    @staticmethod
-    def process(**kwargs):
-        ClusterMatchingProcess._process_logger_info(CLUSTER_MATCHING_PROCESS_CLASS_NAME, **kwargs)
+    @classmethod
+    @process_header
+    def process(cls, **kwargs):
         data = kwargs.copy()
         settings = get_settings(data['algoID'])
         logger.debug(settings)

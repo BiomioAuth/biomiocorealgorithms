@@ -1,24 +1,21 @@
-import ast
-
-from ..messages import create_error_message, create_result_message
-from biomio.constants import REDIS_DO_NOT_STORE_RESULT_KEY
-from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
-from settings import loadSettings
-from settings.settings import get_settings
 from ..general.defs import (STATUS_RESULT, STATUS_ERROR, UNKNOWN_ERROR, REDIS_GENERAL_DATA, REDIS_CLUSTER_JOB_ACTION,
                             JOB_STATUS_ACTIVE, JOB_STATUS_FINISHED, INTERNAL_TRAINING_ERROR, ERROR_FORMAT,
                             REDIS_TEMPLATE_RESULT)
-from ..general.handling import load_temp_data, save_temp_data
-from ..general.process_interface import AlgorithmProcessInterface, logger
+from ..general.decorators import job_header, process_header, handler_header, store_job_result
+from biomio.protocol.data_stores.algorithms_data_store import AlgorithmsDataStore
 from ...algorithms.cascades.scripts_detectors import CascadesDetectionInterface
-from ...algorithms.cascades.tools import loadScript
-from ...algorithms.clustering import KMeans, FOREL
-from ...algorithms.cvtools.types import numpy_ndarrayToList
-from ...algorithms.features import constructDetector
+from ..general.process_interface import AlgorithmProcessInterface, logger
+from ..messages import create_error_message, create_result_message
+from ..general.handling import load_temp_data, save_temp_data
 from ...algorithms.features.features import FeatureDetector
 from ...algorithms.features.kodsettings import KODSettings
-
-DATA_DETECTION_PROCESS_CLASS_NAME = "DataDetectionProcess"
+from ...algorithms.cvtools import numpy_ndarrayToList
+from ...algorithms.features import constructDetector
+from ...algorithms.cascades.tools import loadScript
+from ...algorithms.clustering import KMeans, FOREL
+from settings.settings import get_settings
+from settings import loadSettings
+import ast
 
 
 def job(callback_code, **kwargs):
@@ -28,7 +25,6 @@ def job(callback_code, **kwargs):
 class DataDetectionProcess(AlgorithmProcessInterface):
     def __init__(self, temp_data_path, worker):
         AlgorithmProcessInterface.__init__(self, temp_data_path, worker)
-        self._classname = DATA_DETECTION_PROCESS_CLASS_NAME
         self._cluster_match_process = None
         self._final_process = AlgorithmProcessInterface()
 
@@ -38,6 +34,7 @@ class DataDetectionProcess(AlgorithmProcessInterface):
     def set_final_training_process(self, process):
         self._final_process = process
 
+    @handler_header
     def handler(self, result):
         """
         Callback function for corresponding job function.
@@ -54,7 +51,6 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                 'type': 'matching'
             }
         """
-        self._handler_logger_info(result)
         if self._cluster_match_process is not None:
             self._matching_handler(result)
         elif self._final_process is not None:
@@ -167,8 +163,10 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                             data.update({'providerID': res_data['providerID']})
                         AlgorithmsDataStore.instance().store_data(key=current_key, **data)
 
-    @staticmethod
-    def job(callback_code, **kwargs):
+    @classmethod
+    @job_header
+    @store_job_result
+    def job(cls, callback_code, **kwargs):
         """
         Job function for data detection (Feature Detection, Feature Clustering and Feature Extraction).
 
@@ -178,14 +176,11 @@ class DataDetectionProcess(AlgorithmProcessInterface):
                 'data_file': data file path
             }
         """
-        DataDetectionProcess._job_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
-        record = DataDetectionProcess.process(**kwargs)
-        AlgorithmsDataStore.instance().store_job_result(record_key=REDIS_DO_NOT_STORE_RESULT_KEY % callback_code,
-                                                        record_dict=record, callback_code=callback_code)
+        return DataDetectionProcess.process(**kwargs)
 
-    @staticmethod
-    def process(**kwargs):
-        DataDetectionProcess._process_logger_info(DATA_DETECTION_PROCESS_CLASS_NAME, **kwargs)
+    @classmethod
+    @process_header
+    def process(cls, **kwargs):
         source = load_temp_data(kwargs['data_file'], remove=True)
         temp_data_path = source['temp_data_path']
         settings = get_settings(source['algoID'])
